@@ -21,8 +21,8 @@ import me.avankziar.mpc.general.cmdtree.CommandSuggest;
 import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.EMail;
 import me.avankziar.mpc.spigot.MPC;
-import me.avankziar.mpc.spigot.ModifierValueEntry.ModifierValueEntry;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
+import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 import net.md_5.bungee.api.chat.ClickEvent;
 
 public class EMailCommandExecutor implements CommandExecutor

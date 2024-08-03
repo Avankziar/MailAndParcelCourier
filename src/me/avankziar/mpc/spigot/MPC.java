@@ -41,7 +41,6 @@ import me.avankziar.mpc.general.database.ServerType;
 import me.avankziar.mpc.general.database.YamlHandler;
 import me.avankziar.mpc.general.database.YamlManager;
 import me.avankziar.mpc.general.objects.PlayerData;
-import me.avankziar.mpc.spigot.ModifierValueEntry.Bypass;
 import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmd.EMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.EMailsCommandExecutor;
@@ -60,6 +59,7 @@ import me.avankziar.mpc.spigot.handler.IgnoreSenderHandler;
 import me.avankziar.mpc.spigot.handler.PlayerDataHandler;
 import me.avankziar.mpc.spigot.handler.ReplacerHandler;
 import me.avankziar.mpc.spigot.listener.JoinListener;
+import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 
 public class MPC extends JavaPlugin
 {

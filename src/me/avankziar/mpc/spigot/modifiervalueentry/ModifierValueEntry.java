@@ -1,4 +1,4 @@
-package me.avankziar.mpc.spigot.ModifierValueEntry;
+package me.avankziar.mpc.spigot.modifiervalueentry;
 
 import java.util.UUID;
 

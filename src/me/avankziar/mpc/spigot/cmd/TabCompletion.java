@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
-import me.avankziar.mpc.spigot.ModifierValueEntry.ModifierValueEntry;
+import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
 public class TabCompletion implements TabCompleter
 {	

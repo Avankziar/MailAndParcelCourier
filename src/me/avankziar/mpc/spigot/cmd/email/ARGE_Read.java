@@ -15,9 +15,9 @@ import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.EMail;
 import me.avankziar.mpc.spigot.MPC;
-import me.avankziar.mpc.spigot.ModifierValueEntry.Bypass;
-import me.avankziar.mpc.spigot.ModifierValueEntry.ModifierValueEntry;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
+import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
+import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
 public class ARGE_Read  extends ArgumentModule
 {

@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import me.avankziar.mpc.general.database.Language.ISO639_2B;
-import me.avankziar.mpc.spigot.ModifierValueEntry.Bypass;
+import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 
 public class YamlManager
 {	
