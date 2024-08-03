@@ -1,0 +1,62 @@
+Planung (Kann sich in der Laufenden Entwicklungen alles ändern):
+Plugin wird den Namen MPC (Mail and Parcel Courier) tragen.
+
+MPC soll folgende Features aufweisen:
+- Das Senden/Erhalten von Elektronischen Briefen (E-Mails). 
+  E-Mails werden per Befehl versendet und laden in einer Per Commandbasierenden Postfach, direkt einsehbar. 
+  Per Config können kosten Deklariert werden.
+- Das Senden/Erhalten von Physikalischen Briefen (Letters/P-Mail?). 
+  P-Mails werden per Befehl versenden, benötigen aber Papier-Items. 
+  Dieses Papier wird dann beim Senden auf dem Inventar des Senders herausgenommen 
+  und nach einer gewissen Zeit in einen Physikalischen Briefkasten (Truhe etc.). 
+  Der Empfänger muss diesen Brief öffnen (Per Befehl oder Click mit dem Item in der Hand). 
+  Per Config können Kosten (Geld und Anzahl des Papier-Items) deklariert werden.
+- Das Senden/Erhalten von Packeten(Items). 
+  Das Erhalten der Packete kann in der Config konfiguriert werden, ob man ein Elektronische(Per Befehl) 
+  oder ein Physikalische(Per Truhe) Zustellung haben möchte. 
+  Eventuell auch mit Permission gespittet. Per Config können Kosten deklariert werden.
+
+Das Senden von P-Mails und Packeten sollte so eingestellt werden können, 
+dass der Sender an einem Physikalischen Briefkasten herantreten muss um diese zu versenden.
+
+Anmerkungen:
+Damit E/P-Mails für den jeweiligen Spieler einwandfrei gelöscht werden kann. Muss jede gesendete und Empfangene Mail einen Eigentümer haben.
+Dabei ist der Eigentümer entweder der Sender oder der Empfänger.
+
+Wenn PMails versendet werden, kann es passieren, dass Briefe nicht vom Empfänger geöffnet werden. Deshalb soll die digitale Kopie des Senders,
+einen Boolean bekommen, welcher aussagt, dass der Empfänger den Brief geöffnet hat. Kann man auch bei Emails machen.
+
+Hauptbefehl zu Befehlsübersicht: /mpc
+E-mails:
+/email [Seitennumber] | Listet alle eigenen eingegangenen Mails auf.
+/email send <Spielername, Mehrfache Spieler trennbar mit @> <Betreff> <Nachricht> | Sended Mails
+/email read <mailid> | Liest die Mail.
+/email delete <MailId> | Löscht die Mail.
+/email outgoingmail [Seitennumber] | Zeigt alle selbst gesendeten Mail an.
+/emails <Spielername> | Listet alle vom Spieler gehörenden eingegangenen Mails auf.
+/emails outgoingmail <Spielername> | Listet alle vom Spieler gehörenden versendeten Mails auf.
+
+P-Mails:
+/pmail | Listet alle eigenen eingegangenen Mails auf.
+/pmail write <Spielername> <Betreff> <Nachricht> | Setzt auf einem Stück Papier die Nachricht.
+/pmail send [Spielername] | Sendet den Brief an den Empfänger. Legt auch eine Digitale Kopie für den Sender an. 
+	Muss entweder von einem briefkasten durch einen Klick ausgelöst werden oder per Permission so erlaubt werden. Spielername nur für den Briefkasten erforderlich.
+/pmail open | Öffnet den in der Hand haltenden Brief. Legt damit eine Digitale Kopie für dem Empfänger an. Kann nur vom Empfänger geöffnet werden.
+/pmail read <mailid> | Liest die PMail aus dem Digitalen Archiv.
+/pmail silentopen | Sendet eine Chatnachricht an den ausführenden Spieler, was für ein Inhalt im Brief steht ohne den Brief zu "öffnen".
+/pmail outgoingmail [Seitennumber] | Zeigt das Digitale Archiv der gesendeten Briefe.
+
+Packete/Parcel:
+/parcel | Wenn der Elektronische Weg ermöglich ist, dann wird hiermit der Packeteingang geöffnet. Per Chat kann man die Packete annehmen.
+/parcel send <Spielername> <Betreff> | Sendet per elektronischem Weg das Item in der Haupthand.
+/parcel sendmore <Spielername> <Betreff> | Öffnet ein Gui, wo der Sender alle Items hineinlegen kann. 
+	Welche beim Schließen der Gui abgesendet werden. Nur bei elektronischem Weg.
+/parcel packing <Spielername> <Betreff> | Speichert den Empfänger und den Betreff für die nächste Physikalische Sendung.
+/parcel sending <Spielername> | Öffnet die Gui, der Spieler kann nun alle Packete versenden. Bei Schließung des packets, werden die Packete versendet.
+/parcel setmailbox | Erstellt auf dem Angeschauten Block (Truhe, Schild) einen Briefkasten.
+/parcel deletemailbox | Löscht auf dem angeschauten Block den Briefkasten.
+
+Ignore Sender:
+/mail [Seitenzahl] | Befehlsübersicht
+/mail ignore <Spielername> | Setzt den Spieler auf die Mailignorier Liste. Dann kann der Spieler dem ausführenden Spieler keine mails schicken.
+/mail ignorelist <Spielername> | 

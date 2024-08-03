@@ -1,0 +1,9 @@
+name: MailAndParcelCourier
+main: me.avankziar.mpc.spigot.MPC
+version: 1
+author: Avankziar
+api-version: 1.21
+description: A plugin send mail and parcels.
+depend: [InterfaceHub]
+website: 
+prefix: MPC
