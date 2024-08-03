@@ -14,6 +14,11 @@ public class CommandSuggest
 		EMAIL_READ,
 		EMAIL_SEND,
 		EMAIL_DELETE,
+		EMAIL_OUTGOINGMAIL,
+		
+		EMAILS,
+		EMAILS_OUTGOINGMAIL
+		;
 	}
 	
 	public static LinkedHashMap<CommandSuggest.Type, BaseConstructor> map = new LinkedHashMap<>();

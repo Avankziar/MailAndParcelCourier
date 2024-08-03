@@ -101,6 +101,11 @@
 			<id>spigot-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
 		</repository>
+		 <!--Vault-->
+        <repository>
+	        <id>jitpack.io</id>
+	        <url>https://jitpack.io</url>
+	    </repository>
 	</repositories>
 	<dependencies>
 		<!--Spigot API -->
@@ -131,5 +136,12 @@
 		  <version>2-0-0</version>
 		  <scope>provided</scope>
 		</dependency>
+		 <!-- Vault -->
+        <dependency>
+	        <groupId>com.github.MilkBowl</groupId>
+	        <artifactId>VaultAPI</artifactId>
+	        <version>1.7</version>
+	        <scope>provided</scope>
+	    </dependency>
 	</dependencies>
 </project>

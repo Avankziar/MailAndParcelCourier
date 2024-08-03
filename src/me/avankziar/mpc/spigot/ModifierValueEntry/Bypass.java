@@ -9,7 +9,7 @@ public class Bypass
 	public enum Permission
 	{
 		//Here Condition and BypassPermission.
-		BASE;
+		READ_OTHER_MAIL;
 		
 		public String getValueLable()
 		{

@@ -33,8 +33,8 @@ E-mails:
 /email read <mailid> | Liest die Mail.
 /email delete <MailId> | Löscht die Mail.
 /email outgoingmail [Seitennumber] | Zeigt alle selbst gesendeten Mail an.
-/emails <Spielername> | Listet alle vom Spieler gehörenden eingegangenen Mails auf.
-/emails outgoingmail <Spielername> | Listet alle vom Spieler gehörenden versendeten Mails auf.
+/emails <Spielername> [Seitenzahl] | Listet alle vom Spieler gehörenden eingegangenen Mails auf.
+/emails outgoingmail <Spielername> [Seitenzahl] | Listet alle vom Spieler gehörenden versendeten Mails auf.
 
 P-Mails:
 /pmail | Listet alle eigenen eingegangenen Mails auf.

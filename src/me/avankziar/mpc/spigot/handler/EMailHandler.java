@@ -1,6 +1,7 @@
 package me.avankziar.mpc.spigot.handler;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.entity.Player;
 
@@ -16,19 +17,56 @@ public class EMailHandler
 		this.plugin = plugin;
 	}
 	
-	public ArrayList<EMail> getReceivedEmails(Player player, int start, int quantity)
+	public EMail getEMail(int id)
 	{
-		return EMail.convert(plugin.getMysqlHandler().getList(MysqlType.EMAIL, "`id` DESC", start, quantity,
-				"`mail_receiver` = ?", player.getUniqueId().toString()));
+		return (EMail) plugin.getMysqlHandler().getData(MysqlType.EMAIL, "`id` = ?", id);
 	}
 	
-	public EMail getCorrespondingEmail(int id, long sendDate)
+	public ArrayList<EMail> getReceivedEmails(UUID uuid, int start, int quantity)
 	{
-		if(plugin.getMysqlHandler().exist(MysqlType.EMAIL, "`id` != ? AND `sending_date` = ?", id, sendDate))
+		return EMail.convert(plugin.getMysqlHandler().getList(MysqlType.EMAIL, "`id` DESC", start, quantity,
+				"`mail_receiver` = ?", uuid.toString()));
+	}
+	
+	public ArrayList<EMail> getReceivedEmails(Player player, int start, int quantity)
+	{
+		return getReceivedEmails(player.getUniqueId(), start, quantity);
+	}
+	
+	public ArrayList<EMail> getSendedEmails(UUID uuid, int start, int quantity)
+	{
+		return EMail.convert(plugin.getMysqlHandler().getList(MysqlType.EMAIL, "`id` DESC", start, quantity,
+				"`mail_sender` = ?", uuid.toString()));
+	}
+	
+	public ArrayList<EMail> getSendedEmails(Player player, int start, int quantity)
+	{
+		return getSendedEmails(player.getUniqueId(), start, quantity);
+	}
+	
+	public ArrayList<EMail> getCorrespondingEmail(long sendDate)
+	{
+		if(plugin.getMysqlHandler().exist(MysqlType.EMAIL, "`sending_date` = ?", sendDate))
 		{
 			return null;
 		}
-		return (EMail) plugin.getMysqlHandler().getData(MysqlType.EMAIL, "`id` != ? AND `sending_date` = ?", id, sendDate);
-		
+		return EMail.convert(plugin.getMysqlHandler().getFullList(MysqlType.EMAIL, "`id` ASC", "`sending_date` = ?", sendDate));	
+	}
+	
+	public double getSendingCost(String subject, String message)
+	{
+		String type = plugin.getYamlHandler().getConfig().getString("EMail.Cost.SendingCosts", "NONE");
+		switch(type)
+		{
+		default:
+		case "NONE": return 0.0;
+		case "LUMP_SUM": return plugin.getYamlHandler().getConfig().getDouble("EMail.Cost.Costs", 1.0);
+		case "PER_WORD":
+			return (double) (subject.split(" ").length + message.split(" ").length) 
+					* plugin.getYamlHandler().getConfig().getDouble("EMail.Cost.Costs", 1.0);
+		case "PER_LETTER":
+			return (double) (subject.length() + message.length()) 
+					* plugin.getYamlHandler().getConfig().getDouble("EMail.Cost.Costs", 1.0);
+		}
 	}
 }

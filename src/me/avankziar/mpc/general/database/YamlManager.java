@@ -412,12 +412,7 @@ public class YamlManager
 				"",
 				"Enables TT to use the IFH interface ValueEntry.",
 				"It allows external plugins or commands to make value entries.",
-				"For example, it could be used to unlock certain commands or technologies for players."});
-		
-		configKeys.put("EnableCommands.Base"
-				, new Language(new ISO639_2B[] {ISO639_2B.GER}, new Object[] {
-				true}));
-		
+				"For example, it could be used to unlock certain commands or technologies for players."});		
 		addConfig("ValueEntry.OverrulePermission",
 				new Object[] {
 				false},
@@ -444,16 +439,33 @@ public class YamlManager
 				"so if 'OverrulePermission'=true the stored value entry is returned.",
 				"If 'OverrulePermission'=false, 'true' is returned if the stored value entry OR the permission query is 'true'.",
 				"If both are 'false', 'false' is returned."});
-		/*
-		 * The "Stringlist" are define so.
-		 */
-		configKeys.put("GuiFlatFileNames"
-				, new Language(new ISO639_2B[] {ISO639_2B.GER}, new Object[] {
-				"guiOne",
-				"guiTwo",}));
-		/*
-		 * If there was a second language, with also 2 entry, so would Entry 1 and two for the first and 3 and 4 four the second language.
-		 */	
+		
+		addConfig("EMail.Cost.SendingCosts",
+				new Object[] {
+				"LUMP_SUM"},
+				new Object[] {
+				"",
+				"Wählt aus, ob das senden von E-Mails etwas kostet. Betreff und Nachricht werden zusammengezählt für Wort oder Zeichenlänge.",
+				"Möglich sind:",
+				"LUMP_SUM -> E-Mails senden kosten einen Pauschalbetrag",
+				"PER_WORD -> E-Mailkosten werden an der Anzahl Wörter bemessen. Wörter sind pro Leerzeichen getrennt.",
+				"PER_LETTER -> E-Mailkosten werden an der Anzahl Zeichen bemessen. Alle Zeichen zählen dabei.",
+				"NONE -> Keine Kosten.",
+				"",
+				"Select whether sending emails costs anything. Subject and message are counted together for word or character length.",
+				"Possible are:",
+				"LUMP_SUM -> Sending emails costs a flat rate.",
+				"PER_WORD -> Email costs are based on the number of words. Words are separated by spaces.",
+				"PER_LETTER -> Email costs are based on the number of characters. All characters count.",
+				"NONE -> No Costs."});
+		addConfig("EMail.Cost.Costs",
+				new Object[] {
+				50.0},
+				new Object[] {
+				"",
+				"Der Geldbetrag, welcher das Senden von E-Mails kosten bezogen auf die Art und Weise der Kosten.",
+				"",
+				"The amount of money it costs to send emails based on the method of payment."});
 	}
 	
 	@SuppressWarnings("unused") //INFO:Commands
@@ -487,7 +499,7 @@ public class YamlManager
 		{
 			commandsKeys.put("Bypass."+ept.toString().replace("_", ".")
 					, new Language(new ISO639_2B[] {ISO639_2B.GER}, new Object[] {
-					"base."+ept.toString().toLowerCase().replace("_", ".")}));
+					"mpc."+ept.toString().toLowerCase().replace("_", ".")}));
 		}
 		
 		List<Bypass.Counter> list2 = new ArrayList<Bypass.Counter>(EnumSet.allOf(Bypass.Counter.class));
@@ -499,7 +511,7 @@ public class YamlManager
 			}
 			commandsKeys.put("Count."+ept.toString().replace("_", ".")
 					, new Language(new ISO639_2B[] {ISO639_2B.GER}, new Object[] {
-					"base."+ept.toString().toLowerCase().replace("_", ".")}));
+					"mpc."+ept.toString().toLowerCase().replace("_", ".")}));
 		}
 	}
 	
@@ -587,6 +599,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Spieler existiert nicht!",
 						"<red>The player does not exist!"}));
+		languageKeys.put("PlayerDontExist",
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Spieler <white>%player% <red>existiert nicht!",
+						"<red>The player white>%player% <red>does not exist!"}));
 		languageKeys.put("NoNumber",
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Das Argument <white>%value% <red>muss eine ganze Zahl sein.",
@@ -623,8 +639,7 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>✖",
 						"<red>✖"}));
-		
-		
+		initEMailLang();
 	}
 	
 	public void initEMailLang()
@@ -634,6 +649,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du hast keine eingegangenen E-Mails.",
 						"<red>You have no incoming e-mails."}));
+		languageKeys.put(path+"HasNoOutgoingEMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast keine versendeten E-Mails.",
+						"<red>You have no outgoing e-mails."}));
 		languageKeys.put(path+"Headline", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>=====<gray>[<gold>E-Mail <white>Seite %page%<gray>]<yellow>=====",
@@ -642,23 +661,96 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<gray>[%time%]</gray> <hover:show_text:'<yellow>Von %sender%'><white>%subject%</hover> "
 						+ "<click:run_command:'%emailread%%mailid%'><grey>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
-						+ "<click:run_command:'%emailsend%%mailid%'><grey>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
-						+ "<click:run_command:'%emaildelete%%mailid%'><grey>[</gray><red>X</red><gray>]</gray></click>",
-						""}));
+						+ "<click:suggest_command:'%emailsend% spielername %mailid%'><grey>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><grey>[</gray><red>X</red><gray>]</gray></click>",
+						
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>From %sender%'><white>%subject%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><grey>[</gray><yellow>Read</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend% spielername %mailid%'><grey>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><grey>[</gray><red>X</red><gray>]</gray></click>"}));
 		languageKeys.put(path+"TimeFormat", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"dd.MM-HH:mm",
 						"dd.MM-HH:mm"}));
+		languageKeys.put(path+"EMailDontExist", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Diese E-Mail existiert nicht!",
+						"<red>This E-Mail dont exist!"}));
+		languageKeys.put(path+"YourAreNotTheEMailOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Diese E-Mail gehört dir nicht!",
+						"<red>This E-Mail dont belong to you!"}));
+		languageKeys.put(path+"PlayerJoin", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast </yellow><white>%emails%</white> <yellow>ungelesene E-Mails!",
+						"<yellow>You have </yellow><white>%emails%</white> <yellow>unreaded eMails!"}));
+		languageKeys.put(path+"Delete.Deleted", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast die E-Mail gelöscht!",
+						"<red>You deleted the email!"}));
+		languageKeys.put(path+"Read.TimeFormat", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"dd.MM.yyyy-HH:mm",
+						"dd.MM.yyyy-HH:mm"}));
+		languageKeys.put(path+"Read.Reading", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<gray>==============================",
+						"<red>Sender: <white>%sender%",
+						"<red>Empfänger: <white>%receiver%",
+						"<red>Zeitstempel: <white>%time%",
+						"<red>Betreff: <reset>%subject%",
+						"%message%",
+						"<gray>==============================",
+						"<gray>==============================",
+						"<red>Sender: <white>%sender%",
+						"<red>Empfänger: <white>%receiver%",
+						"<red>Zeitstempel: <white>%time%",
+						"<red>Betreff: <reset>%subject%",
+						"%message%",
+						"<gray>==============================",}));
+		languageKeys.put(path+"Send.NotEnoughMoney", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast nicht Geld zum senden der E-Mail! Kosten: <white>%money%",
+						"<red>You have not enough money to send the email! Costs:: <white>%money%"}));
+		languageKeys.put(path+"Send.MoneyCategory", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"E-Mail",
+						"E-Mail"}));
+		languageKeys.put(path+"Send.MoneyComment", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"E-Mail gesendet",
+						"E-Mail sended"}));
+		languageKeys.put(path+"Send.Sended", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<white>%players% <yellow>wude die E-Mail <white>%subject% <yellow>gesendet.",
+						"<white>%players% <yellow>was send the E-Mail <white>%subject%<yellow>."}));
+		languageKeys.put(path+"Send.HasEMail", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast eine neue E-Mail!</yellow> <click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click>",
+						"<yellow>You have a new E-Mail!</yellow> <click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click>"}));
 		
+		path = "EMails.";
+		languageKeys.put(path+"HasNoIncomingEMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Spieler hat keine eingegangenen E-Mails.",
+						"<red>The player have no incoming e-mails."}));
+		languageKeys.put(path+"HasNoOutgoingEMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Spieler hat keine versendeten E-Mails.",
+						"<red>The player have no outgoing e-mails."}));
+		languageKeys.put(path+"Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>E-Mails von <white>%player% Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>E-Mail from <white>%player% Page %page%<gray>]<yellow>====="}));
 	}
 	
 	public void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages
 	{
-		mvelanguageKeys.put(Bypass.Permission.BASE.toString()+".Displayname",
+		mvelanguageKeys.put(Bypass.Permission.READ_OTHER_MAIL.toString()+".Displayname",
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<yellow>Byasspermission für",
-						"<yellow>Bypasspermission for"}));
-		mvelanguageKeys.put(Bypass.Permission.BASE.toString()+".Explanation",
+						"<yellow>Byasspermission für das Lesen anderer Mails",
+						"<yellow>Bypasspermission for reading other mails"}));
+		mvelanguageKeys.put(Bypass.Permission.READ_OTHER_MAIL.toString()+".Explanation",
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Byasspermission für",
 						"<yellow>das Plugin BaseTemplate",

@@ -9,7 +9,9 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -26,24 +28,38 @@ import me.avankziar.ifh.general.modifier.ModificationType;
 import me.avankziar.ifh.general.modifier.Modifier;
 import me.avankziar.ifh.general.valueentry.ValueEntry;
 import me.avankziar.ifh.spigot.administration.Administration;
+import me.avankziar.ifh.spigot.economy.Economy;
 import me.avankziar.ifh.spigot.metric.Metrics;
+import me.avankziar.ifh.spigot.tovelocity.chatlike.MessageToVelocity;
+import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.BaseConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandSuggest;
+import me.avankziar.mpc.general.cmdtree.CommandSuggest.Type;
+import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.database.ServerType;
 import me.avankziar.mpc.general.database.YamlHandler;
 import me.avankziar.mpc.general.database.YamlManager;
+import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.ModifierValueEntry.Bypass;
 import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmd.EMailCommandExecutor;
+import me.avankziar.mpc.spigot.cmd.EMailsCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.TabCompletion;
+import me.avankziar.mpc.spigot.cmd.email.ARGE_Delete;
+import me.avankziar.mpc.spigot.cmd.email.ARGE_OutgoingMail;
+import me.avankziar.mpc.spigot.cmd.email.ARGE_Read;
+import me.avankziar.mpc.spigot.cmd.email.ARGE_Send;
+import me.avankziar.mpc.spigot.cmd.emails.ARGEs_OutgoingMail;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.database.MysqlHandler;
 import me.avankziar.mpc.spigot.database.MysqlSetup;
 import me.avankziar.mpc.spigot.handler.ConfigHandler;
 import me.avankziar.mpc.spigot.handler.EMailHandler;
 import me.avankziar.mpc.spigot.handler.IgnoreSenderHandler;
-import me.avankziar.mpc.spigot.listener.JoinLeaveListener;
+import me.avankziar.mpc.spigot.handler.PlayerDataHandler;
+import me.avankziar.mpc.spigot.handler.ReplacerHandler;
+import me.avankziar.mpc.spigot.listener.JoinListener;
 
 public class MPC extends JavaPlugin
 {
@@ -56,12 +72,18 @@ public class MPC extends JavaPlugin
 	private MysqlHandler mysqlHandler;
 	private BackgroundTask backgroundTask;
 	
+	private PlayerDataHandler playerdatahandler;
+	private ReplacerHandler replacerhandler;
 	private IgnoreSenderHandler ignoresenderhandler;
 	private EMailHandler emailhandler;
 	
 	private Administration administrationConsumer;
 	private ValueEntry valueEntryConsumer;
 	private Modifier modifierConsumer;
+	private MessageToVelocity mtvConsumer;
+	private Economy ecoConsumer;
+	
+	private net.milkbowl.vault.economy.Economy vEco;
 	
 	public void onEnable()
 	{
@@ -100,14 +122,16 @@ public class MPC extends JavaPlugin
 		BaseConstructor.init(yamlHandler);
 		backgroundTask = new BackgroundTask(this);
 		
+		ignoresenderhandler = new IgnoreSenderHandler(plugin);
+		emailhandler = new EMailHandler(plugin);
+		playerdatahandler = new PlayerDataHandler(plugin);
+		replacerhandler = new ReplacerHandler(plugin);
+		
 		setupBypassPerm();
 		setupCommandTree();
 		setupListeners();
 		setupIFHConsumer();
 		setupBstats();
-		
-		ignoresenderhandler = new IgnoreSenderHandler(plugin);
-		emailhandler = new EMailHandler(plugin);
 	}
 	
 	public void onDisable()
@@ -176,13 +200,44 @@ public class MPC extends JavaPlugin
 	}
 	
 	private void setupCommandTree()
-	{		
+	{
+		ArrayList<String> players = (ArrayList<String>) PlayerData.convert(plugin.getMysqlHandler().getFullList(MysqlType.PLAYERDATA, 
+				"`player_name` ASC", "`id` > ?", 0)).stream().map(x -> x.getPlayerName()).collect(Collectors.toList());
 		TabCompletion tab = new TabCompletion();
 		
-		CommandConstructor base = new CommandConstructor(CommandSuggest.Type.BASE, "base", false, false);
-		registerCommand(base.getPath(), base.getName());
-		getCommand(base.getName()).setExecutor(new EMailCommandExecutor(plugin, base));
-		getCommand(base.getName()).setTabCompleter(tab);
+		ArgumentConstructor email_send = new ArgumentConstructor(Type.EMAIL_SEND,
+				"email_send", 0, 3, 999, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
+		
+		ArgumentConstructor email_read = new ArgumentConstructor(Type.EMAIL_READ,
+				"email_read", 0, 1, 1, false, false, null);
+		
+		ArgumentConstructor email_outgoingmail = new ArgumentConstructor(Type.EMAIL_OUTGOINGMAIL,
+				"email_outgoingmail", 0, 0, 1, false, false, null);
+		
+		ArgumentConstructor email_delete = new ArgumentConstructor(Type.EMAIL_DELETE,
+				"email_delete", 0, 1, 1, false, false, null);
+		
+		CommandConstructor email = new CommandConstructor(CommandSuggest.Type.EMAIL, "email", false, false,
+				email_delete, email_read, email_send, email_outgoingmail);
+		registerCommand(email.getPath(), email.getName());
+		getCommand(email.getName()).setExecutor(new EMailCommandExecutor(plugin, email));
+		getCommand(email.getName()).setTabCompleter(tab);
+		
+		ArgumentConstructor emails_outgoingmail = new ArgumentConstructor(Type.EMAILS_OUTGOINGMAIL,
+				"emails_outgoingmail", 0, 1, 2, false, false, null);
+		
+		CommandConstructor emails = new CommandConstructor(CommandSuggest.Type.EMAILS, "emails", false, false,
+				emails_outgoingmail);
+		registerCommand(emails.getPath(), emails.getName());
+		getCommand(emails.getName()).setExecutor(new EMailsCommandExecutor(plugin, emails));
+		getCommand(emails.getName()).setTabCompleter(tab);
+		
+		new ARGE_Send(plugin, email_send);
+		new ARGE_Read(plugin, email_read);
+		new ARGE_OutgoingMail(plugin, email_outgoingmail);
+		new ARGE_Delete(plugin, email_delete);
+		
+		new ARGEs_OutgoingMail(plugin, emails_outgoingmail);
 	}
 	
 	public void setupBypassPerm()
@@ -290,7 +345,7 @@ public class MPC extends JavaPlugin
 	public void setupListeners()
 	{
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new JoinLeaveListener(), plugin);
+		pm.registerEvents(new JoinListener(plugin), plugin);
 	}
 	
 	public boolean reload() throws IOException
@@ -347,6 +402,8 @@ public class MPC extends JavaPlugin
 	{
 		setupIFHValueEntry();
 		setupIFHModifier();
+		setupIFHMessageToVelocity();
+		setupIFHEconomy();
 	}
 	
 	public void setupIFHValueEntry()
@@ -503,10 +560,99 @@ public class MPC extends JavaPlugin
 		return modifierConsumer;
 	}
 	
+	private void setupIFHMessageToVelocity()
+	{
+        if(Bukkit.getPluginManager().getPlugin("InterfaceHub") == null) 
+        {
+            return;
+        }
+        new BukkitRunnable()
+        {
+        	int i = 0;
+			@Override
+			public void run()
+			{
+				try
+				{
+					if(i == 20)
+				    {
+						cancel();
+						return;
+				    }
+				    RegisteredServiceProvider<me.avankziar.ifh.spigot.tovelocity.chatlike.MessageToVelocity> rsp = 
+		                             getServer().getServicesManager().getRegistration(
+		                            		 me.avankziar.ifh.spigot.tovelocity.chatlike.MessageToVelocity.class);
+				    if(rsp == null) 
+				    {
+				    	i++;
+				        return;
+				    }
+				    mtvConsumer = rsp.getProvider();
+				    logger.info(pluginname + " detected InterfaceHub >>> MessageToVelocity.class is consumed!");
+				    cancel();
+				} catch(NoClassDefFoundError e)
+				{
+					cancel();
+				}			    
+			}
+        }.runTaskTimer(plugin, 20L, 20*2);
+	}
+	
+	public MessageToVelocity getMtV()
+	{
+		return mtvConsumer;
+	}
+	
+	private void setupIFHEconomy()
+    {
+		if(plugin.getServer().getPluginManager().isPluginEnabled("InterfaceHub"))
+		{
+			RegisteredServiceProvider<me.avankziar.ifh.spigot.economy.Economy> rsp = 
+	                getServer().getServicesManager().getRegistration(Economy.class);
+			if (rsp != null) 
+			{
+				ecoConsumer = rsp.getProvider();
+				logger.info(pluginname + " detected InterfaceHub >>> Economy.class is consumed!");
+			}
+		}
+		if(plugin.getServer().getPluginManager().isPluginEnabled("Vault"))
+		{
+			RegisteredServiceProvider<net.milkbowl.vault.economy.Economy> rsp = getServer()
+	        		.getServicesManager()
+	        		.getRegistration(net.milkbowl.vault.economy.Economy.class);
+	        if (rsp != null) 
+	        {
+	        	vEco = rsp.getProvider();
+		        logger.info(pluginname + " detected Vault >>> Economy.class is consumed!");
+	        }
+		}
+        return;
+    }
+	
+	public Economy getIFHEco()
+	{
+		return this.ecoConsumer;
+	}
+	
+	public net.milkbowl.vault.economy.Economy getVaultEco()
+	{
+		return this.vEco;
+	}
+	
 	public void setupBstats()
 	{
 		int pluginId = 0;
         new Metrics(this, pluginId);
+	}
+	
+	public ReplacerHandler getReplacerHandler()
+	{
+		return replacerhandler;
+	}
+	
+	public PlayerDataHandler getPlayerDataHandler()
+	{
+		return playerdatahandler;
 	}
 	
 	public IgnoreSenderHandler getIgnoreHandler()
