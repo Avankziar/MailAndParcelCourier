@@ -186,11 +186,12 @@ public class EMailCommandExecutor implements CommandExecutor
 					.replace("%mailid%", String.valueOf(e.getId()))
 					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
 							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
-					.replace("%subject%", e.getSubjectMatter().replace("+", " "))
+					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
+					.replace("%subject%", e.getSubjectMatter())
 					.replace("%sender%", name)
-					.replace("%%emailread%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%%emailsend%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%%emaildelete%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
+					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
+					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
 					);
 		}
 		

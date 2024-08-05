@@ -72,7 +72,7 @@ public class ARGE_OutgoingMail extends ArgumentModule
 			return;
 		}
 		ArrayList<String> texts = new ArrayList<>();
-		texts.add(plugin.getYamlHandler().getLang().getString("EMail.Headline").replace("%page%", String.valueOf(page)));
+		texts.add(plugin.getYamlHandler().getLang().getString("EMail.OutGoingMail.Headline").replace("%page%", String.valueOf(page)));
 		for(EMail e : emails)
 		{
 			String name = e.getSender();
@@ -86,16 +86,17 @@ public class ARGE_OutgoingMail extends ArgumentModule
 					name = off.getName();
 				}
 			} catch(Exception ex) {}
-			texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails")
+			texts.add(plugin.getYamlHandler().getLang().getString("EMail.OutGoingMail.ShowMails")
 					.replace("%mailid%", String.valueOf(e.getId()))
 					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
 							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
-					.replace("%subject%", e.getSubjectMatter().replace("+", " "))
-					.replace("%sender%", name)
+					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
+					.replace("%subject%", e.getSubjectMatter())
+					.replace("%receiver%", name)
 					.replace("%wasread%", plugin.getReplacerHandler().getBoolean(e.hasReceiverReaded()))
-					.replace("%%emailread%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%%emailsend%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%%emaildelete%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
+					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
+					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
 					);
 		}
 		

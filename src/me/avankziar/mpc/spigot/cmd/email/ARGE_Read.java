@@ -73,15 +73,13 @@ public class ARGE_Read  extends ArgumentModule
 		if(email.getReceiver().equals(player.getUniqueId()))
 		{
 			//IF player is receiver, set sender a flag with hasreademail
-			Optional<EMail> corresponding = plugin.getEMailHandler().getCorrespondingEmail(email.getSendingDate())
-					.stream().filter(x -> !email.getOwner().equals(x.getOwner())).findAny();
-			if(corresponding.isPresent())
+			EMail corresponding = plugin.getEMailHandler().getCorrespondingEmail(email.getSendingDate(), email.getId());
+			if(corresponding != null) //If Correspondig Email wasnt deleted
 			{
-				EMail corr = corresponding.get();
-				if(!corr.hasReceiverReaded())
+				if(!corresponding.hasReceiverReaded())
 				{
-					corr.setReceiverReaded(true);
-					plugin.getMysqlHandler().updateData(MysqlType.EMAIL, corr, "`id` = ?", corr.getId());
+					corresponding.setReceiverReaded(true);
+					plugin.getMysqlHandler().updateData(MysqlType.EMAIL, corresponding, "`id` = ?", corresponding.getId());
 				}
 			}
 		}

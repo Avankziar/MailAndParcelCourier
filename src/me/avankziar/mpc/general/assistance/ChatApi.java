@@ -8,9 +8,10 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.bossbar.BossBar.Color;
 import net.kyori.adventure.bossbar.BossBar.Overlay;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.platform.bukkit.BukkitComponentSerializer;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
 import net.kyori.adventure.title.Title;
 
@@ -35,9 +36,14 @@ public class ChatApi
 		return adventure.sender(sender);
 	}
 	
+	/**
+	 * Only for Spigot Useage
+	 * @param sender
+	 * @param s
+	 */
 	public static void sendMessage(org.bukkit.command.CommandSender sender, String s)
 	{
-		get(sender).sendMessage(tl(s));
+		sender.spigot().sendMessage(tctl(s));
 	}
 	
 	public static void sendActionBar(org.bukkit.command.CommandSender sender, String s)
@@ -76,6 +82,10 @@ public class ChatApi
 		get(sender).showTitle(s);
 	}
 	
+	public static MiniMessage all = MiniMessage.builder()
+			 .tags(TagResolver.standard())
+			 .build();
+	
 	public static Component tl(String s)
 	{
 		if(s == null)
@@ -84,11 +94,11 @@ public class ChatApi
 		} else if(po.matcher(s).find() || pt.matcher(s).find())
 		{
 			//Old Bukkit pattern
-			return BukkitComponentSerializer.gson().deserialize(oldBukkitFormat(s));
+			return all.deserialize(oldBukkitFormat(s));
 		} else
 		{
 			//new kyori adventure pattern
-			return BukkitComponentSerializer.gson().deserialize(s);
+			return all.deserialize(s);
 		}
 	}
 	

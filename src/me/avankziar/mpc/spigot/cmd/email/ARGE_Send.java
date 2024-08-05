@@ -3,6 +3,7 @@ package me.avankziar.mpc.spigot.cmd.email;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -40,19 +41,20 @@ public class ARGE_Send extends ArgumentModule
 		{
 			msg.add(args[i]);
 		}
+		String[] msgarr = msg.toArray(new String[msg.size()]);
 		new BukkitRunnable() 
 		{
 			@Override
 			public void run() 
 			{
-				doAsync(player, players, subject, String.join(" ", msg.toArray(new String[msg.size()])));
+				doAsync(player, players, subject, String.join(" ", msgarr));
 			}
 		}.runTaskAsynchronously(plugin);
 	}
 	
 	private void doAsync(Player player, String players, String subject, String msg)
 	{
-		ArrayList<String> playerlist = (ArrayList<String>) Arrays.asList(players.split("@"));
+		List<String> playerlist = Arrays.asList(players.split("@"));
 		//Filters Duplicate Entrys
 		playerlist = (ArrayList<String>) playerlist.stream().distinct().collect(Collectors.toList());
 		double cost = plugin.getEMailHandler().getSendingCost(subject, msg) * playerlist.size();

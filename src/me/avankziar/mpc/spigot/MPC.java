@@ -31,6 +31,7 @@ import me.avankziar.ifh.spigot.administration.Administration;
 import me.avankziar.ifh.spigot.economy.Economy;
 import me.avankziar.ifh.spigot.metric.Metrics;
 import me.avankziar.ifh.spigot.tovelocity.chatlike.MessageToVelocity;
+import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.BaseConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
@@ -65,7 +66,7 @@ public class MPC extends JavaPlugin
 {
 	public static Logger logger;
 	private static MPC plugin;
-	public static String pluginname = "Base";
+	public static String pluginname = "MailAndParcelCourier";
 	private YamlHandler yamlHandler;
 	private YamlManager yamlManager;
 	private MysqlSetup mysqlSetup;
@@ -91,12 +92,12 @@ public class MPC extends JavaPlugin
 		logger = getLogger();
 		
 		//https://patorjk.com/software/taag/#p=display&f=ANSI%20Shadow&t=MPC
-		logger.info("  | API-Version: "+plugin.getDescription().getAPIVersion());
-		logger.info("  | Author: "+plugin.getDescription().getAuthors().toString());
-		logger.info("  | Plugin Website: "+plugin.getDescription().getWebsite());
-		logger.info("  | Depend Plugins: "+plugin.getDescription().getDepend().toString());
-		logger.info("  | SoftDepend Plugins: "+plugin.getDescription().getSoftDepend().toString());
-		logger.info("  | LoadBefore: "+plugin.getDescription().getLoadBefore().toString());
+		logger.info(" ███╗   ███╗██████╗  ██████╗ | API-Version: "+plugin.getDescription().getAPIVersion());
+		logger.info(" ████╗ ████║██╔══██╗██╔════╝ | Author: "+plugin.getDescription().getAuthors().toString());
+		logger.info(" ██╔████╔██║██████╔╝██║      | Plugin Website: "+plugin.getDescription().getWebsite());
+		logger.info(" ██║╚██╔╝██║██╔═══╝ ██║      | Depend Plugins: "+plugin.getDescription().getDepend().toString());
+		logger.info(" ██║ ╚═╝ ██║██║     ╚██████╗ | SoftDepend Plugins: "+plugin.getDescription().getSoftDepend().toString());
+		logger.info(" ╚═╝     ╚═╝╚═╝      ╚═════╝ | LoadBefore: "+plugin.getDescription().getLoadBefore().toString());
 		
 		setupIFHAdministration();
 		
@@ -119,6 +120,7 @@ public class MPC extends JavaPlugin
 			return;
 		}
 		
+		ChatApi.init(plugin);
 		BaseConstructor.init(yamlHandler);
 		backgroundTask = new BackgroundTask(this);
 		
@@ -138,7 +140,6 @@ public class MPC extends JavaPlugin
 	{
 		Bukkit.getScheduler().cancelTasks(this);
 		HandlerList.unregisterAll(this);
-		logger = null;
 		yamlHandler = null;
 		yamlManager = null;
 		mysqlSetup = null;

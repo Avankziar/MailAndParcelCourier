@@ -271,7 +271,7 @@ public class YamlManager
 				"If 'true' is entered, but IFH Administration is not available, the own config values are automatically used."});
 		addConfig("IFHAdministrationPath", 
 				new Object[] {
-				"bm"},
+				"mpc"},
 				new Object[] {
 				"",
 				"Diese Funktion sorgt dafür, dass das Plugin auf das IFH Interface Administration zugreifen kann.",
@@ -473,23 +473,65 @@ public class YamlManager
 	{
 		comBypass();
 		String path = "";
-		commandsInput("path", "base", "perm.command.perm", 
-				"/base [pagenumber]", "/base ", false,
-				"<red>/base <white>| Infoseite für alle Befehle.",
-				"<red>/base <white>| Info page for all commands.",
-				"<aqua>Befehlsrecht für <white>/base",
-				"<aqua>Commandright for <white>/base",
-				"<yellow>Basisbefehl für das BaseTemplate Plugin.",
-				"<yellow>Groundcommand for the BaseTemplate Plugin.");
-		String basePermission = "perm.base.";
-		argumentInput("base_argument", "argument", basePermission,
-				"/base argument <id>", "/econ deletelog ", false,
-				"<red>/base argument <white>| Ein Subbefehl",
-				"<red>/base argument <white>| A Subcommand.",
-				"<aqua>Befehlsrecht für <white>/base argument",
-				"<aqua>Commandright for <white>/base argument",
-				"<yellow>Basisbefehl für das BaseTemplate Plugin.",
-				"<yellow>Groundcommand for the BaseTemplate Plugin.");
+		String basePermission = "email.command.email";
+		commandsInput("email", "email", "basePermission", 
+				"/email [pagenumber]", "/email ", false,
+				"<red>/email <white>| Infoseite für alle Befehle.",
+				"<red>/email <white>| Info page for all commands.",
+				"<aqua>Befehlsrecht für <white>/email",
+				"<aqua>Commandright for <white>/email",
+				"<yellow>Basisbefehl für das MPC Plugin.",
+				"<yellow>Groundcommand for the MPC Plugin.");
+		argumentInput("email_send", "send", basePermission,
+				"/email send <playername, multiple player with @ as seperator> <subject> <message>", "/email send ", false,
+				"<red>/email send <playername, multiple player with @ as seperator> <subject> <message> <white>| Ein Subbefehl",
+				"<red>/email send <playername, multiple player with @ as seperator> <subject> <message> <white>| A Subcommand.",
+				"<aqua>Befehlsrecht für <white>/email send",
+				"<aqua>Commandright for <white>/email send",
+				"<yellow>Basisbefehl für das MPC Plugin.",
+				"<yellow>Groundcommand for the MPC Plugin.");
+		argumentInput("email_read", "read", basePermission,
+				"/email read <mailid>", "/email read ", false,
+				"<red>/email read <mailid> <white>| Ein Subbefehl",
+				"<red>/email read <mailid> <white>| A Subcommand.",
+				"<aqua>Befehlsrecht für <white>/email read",
+				"<aqua>Commandright for <white>/email read",
+				"<yellow>Basisbefehl für das MPC Plugin.",
+				"<yellow>Groundcommand for the MPC Plugin.");
+		argumentInput("email_delete", "delete", basePermission,
+				"/email delete <mailid>", "/email delete ", false,
+				"<red>/email delete <mailid> <white>| Ein Subbefehl",
+				"<red>/email delete <mailid> <white>| A Subcommand.",
+				"<aqua>Befehlsrecht für <white>/email delete",
+				"<aqua>Commandright for <white>/email delete",
+				"<yellow>Basisbefehl für das MPC Plugin.",
+				"<yellow>Groundcommand for the MPC Plugin.");
+		argumentInput("email_outgoingmail", "outgoingmail", basePermission,
+				"/email outgoingmail [pagenumber]", "/email outgoingmail ", false,
+				"<red>/email outgoingmail [Seitennumber] <white>| Ein Subbefehl",
+				"<red>/email outgoingmail [pagenumber] <white>| A Subcommand.",
+				"<aqua>Befehlsrecht für <white>/email outgoingmail",
+				"<aqua>Commandright for <white>/email outgoingmail",
+				"<yellow>Basisbefehl für das MPC Plugin.",
+				"<yellow>Groundcommand for the MPC Plugin.");
+		
+		basePermission =  "emails.cmd.emails";
+		commandsInput("emails", "emails", "emails.cmd.emails", 
+				"/emails <playername> [Pagenumber]", "/emails ", false,
+				"<red>/emails <Spielername> [Seitenzahl] <white>| Infoseite für alle Befehle.",
+				"<red>/emails <playername> [Pagenumber] <white>| Info page for all commands.",
+				"<aqua>Befehlsrecht für <white>/emails",
+				"<aqua>Commandright for <white>/emails",
+				"<yellow>Basisbefehl für das MPC Plugin.",
+				"<yellow>Groundcommand for the MPC Plugin.");
+		argumentInput("emails_outgoingmail", "outgoingmail", basePermission,
+				"/emails outgoingmail <playername> [pagenumber]", "/email outgoingmail ", false,
+				"<red>/emails outgoingmail <playername> [Seitennumber] <white>| Ein Subbefehl",
+				"<red>/emails outgoingmail <playername> [pagenumber] <white>| A Subcommand.",
+				"<aqua>Befehlsrecht für <white>/emails outgoingmail",
+				"<aqua>Commandright for <white>/emails outgoingmail",
+				"<yellow>Basisbefehl für das MPC Plugin.",
+				"<yellow>Groundcommand for the MPC Plugin.");
 	}
 	
 	private void comBypass() //INFO:ComBypass
@@ -655,19 +697,19 @@ public class YamlManager
 						"<red>You have no outgoing e-mails."}));
 		languageKeys.put(path+"Headline", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<yellow>=====<gray>[<gold>E-Mail <white>Seite %page%<gray>]<yellow>=====",
-						"<yellow>=====<gray>[<gold>E-Mail <white>Page %page%<gray>]<yellow>====="}));
+						"<yellow>=====<gray>[<gold>E-Mails <white>Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>E-Mails <white>Page %page%<gray>]<yellow>====="}));
 		languageKeys.put(path+"ShowMails", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<gray>[%time%]</gray> <hover:show_text:'<yellow>Von %sender%'><white>%subject%</hover> "
-						+ "<click:run_command:'%emailread%%mailid%'><grey>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
-						+ "<click:suggest_command:'%emailsend% spielername %mailid%'><grey>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
-						+ "<click:suggest_command:'%emaildelete%%mailid%'><grey>[</gray><red>X</red><gray>]</gray></click>",
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>Von %sender%'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend%%sender% re:%subject%'><gray>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>",
 						
-						"<gray>[%time%]</gray> <hover:show_text:'<yellow>From %sender%'><white>%subject%</hover> "
-						+ "<click:run_command:'%emailread%%mailid%'><grey>[</gray><yellow>Read</yellow><gray>]</gray></click> "
-						+ "<click:suggest_command:'%emailsend% spielername %mailid%'><grey>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
-						+ "<click:suggest_command:'%emaildelete%%mailid%'><grey>[</gray><red>X</red><gray>]</gray></click>"}));
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>From %sender%'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend%%sender% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
 		languageKeys.put(path+"TimeFormat", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"dd.MM-HH:mm",
@@ -682,8 +724,8 @@ public class YamlManager
 						"<red>This E-Mail dont belong to you!"}));
 		languageKeys.put(path+"PlayerJoin", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<yellow>Du hast </yellow><white>%emails%</white> <yellow>ungelesene E-Mails!",
-						"<yellow>You have </yellow><white>%emails%</white> <yellow>unreaded eMails!"}));
+						"<click:run_command:'%email%'><yellow>Du hast </yellow><white>%emails%</white> <yellow>ungelesene E-Mails!</click>",
+						"<click:run_command:'%email%'><yellow>You have </yellow><white>%emails%</white> <yellow>unreaded eMails!</click>"}));
 		languageKeys.put(path+"Delete.Deleted", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du hast die E-Mail gelöscht!",
@@ -728,6 +770,21 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast eine neue E-Mail!</yellow> <click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click>",
 						"<yellow>You have a new E-Mail!</yellow> <click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click>"}));
+		languageKeys.put(path+"OutGoingMail.Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>Gesendete E-Mails <white>Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>Sended E-Mails <white>Page %page%<gray>]<yellow>====="}));
+		languageKeys.put(path+"OutGoingMail.ShowMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>An %receiver%<newline><red>Wurde gelesen:</red> <white>%wasread%</white>'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend%%receiver% re:%subject%'><gray>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>",
+						
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>To %receiver%<newline><red>Wurde gelesen:</red> <white>%wasread%</white>'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend%%receiver% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
 		
 		path = "EMails.";
 		languageKeys.put(path+"HasNoIncomingEMails", 
@@ -741,7 +798,11 @@ public class YamlManager
 		languageKeys.put(path+"Headline", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>=====<gray>[<gold>E-Mails von <white>%player% Seite %page%<gray>]<yellow>=====",
-						"<yellow>=====<gray>[<gold>E-Mail from <white>%player% Page %page%<gray>]<yellow>====="}));
+						"<yellow>=====<gray>[<gold>E-Mails from <white>%player% Page %page%<gray>]<yellow>====="}));
+		languageKeys.put(path+"OutGoingMail.Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>Gesendete E-Mails von <white>%player% Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>Sendet E-Mails from <white>%player% Page %page%<gray>]<yellow>====="}));
 	}
 	
 	public void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages

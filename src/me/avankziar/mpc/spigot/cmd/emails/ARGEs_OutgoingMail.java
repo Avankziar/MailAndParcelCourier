@@ -80,7 +80,7 @@ public class ARGEs_OutgoingMail  extends ArgumentModule
 			return;
 		}
 		ArrayList<String> texts = new ArrayList<>();
-		texts.add(plugin.getYamlHandler().getLang().getString("EMails.Headline")
+		texts.add(plugin.getYamlHandler().getLang().getString("EMails.OutGoingMail.Headline")
 				.replace("%player%", othername)
 				.replace("%page%", String.valueOf(page)));
 		for(EMail e : emails)
@@ -96,16 +96,16 @@ public class ARGEs_OutgoingMail  extends ArgumentModule
 					name = off.getName();
 				}
 			} catch(Exception ex) {}
-			texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails")
+			texts.add(plugin.getYamlHandler().getLang().getString("EMail.OutGoingMail.ShowMails")
 					.replace("%mailid%", String.valueOf(e.getId()))
 					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
 							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
 					.replace("%subject%", e.getSubjectMatter().replace("+", " "))
-					.replace("%sender%", name)
+					.replace("%receiver%", name)
 					.replace("%wasread%", plugin.getReplacerHandler().getBoolean(e.hasReceiverReaded()))
-					.replace("%%emailread%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%%emailsend%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%%emaildelete%%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
+					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
+					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
 					);
 		}
 		

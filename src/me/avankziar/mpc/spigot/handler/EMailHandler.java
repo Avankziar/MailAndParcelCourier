@@ -44,13 +44,13 @@ public class EMailHandler
 		return getSendedEmails(player.getUniqueId(), start, quantity);
 	}
 	
-	public ArrayList<EMail> getCorrespondingEmail(long sendDate)
+	public EMail getCorrespondingEmail(long sendDate, int id)
 	{
-		if(plugin.getMysqlHandler().exist(MysqlType.EMAIL, "`sending_date` = ?", sendDate))
+		if(!plugin.getMysqlHandler().exist(MysqlType.EMAIL, "`id` != ? AND `sending_date` = ?", id, sendDate))
 		{
 			return null;
 		}
-		return EMail.convert(plugin.getMysqlHandler().getFullList(MysqlType.EMAIL, "`id` ASC", "`sending_date` = ?", sendDate));	
+		return (EMail) plugin.getMysqlHandler().getData(MysqlType.EMAIL,"`id` != ? AND `sending_date` = ?", id, sendDate);	
 	}
 	
 	public double getSendingCost(String subject, String message)
