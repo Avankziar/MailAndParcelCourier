@@ -18,20 +18,20 @@ import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandSuggest;
 import me.avankziar.mpc.general.database.MysqlType;
-import me.avankziar.mpc.general.objects.EMail;
+import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
-public class EMailCommandExecutor implements CommandExecutor
+public class PMailCommandExecutor implements CommandExecutor
 {
 	private MPC plugin;
 	private static CommandConstructor cc;
 	
-	public EMailCommandExecutor(MPC plugin, CommandConstructor cc)
+	public PMailCommandExecutor(MPC plugin, CommandConstructor cc)
 	{
 		this.plugin = plugin;
-		EMailCommandExecutor.cc = cc;
+		PMailCommandExecutor.cc = cc;
 	}
 	
 	@Override
@@ -158,16 +158,16 @@ public class EMailCommandExecutor implements CommandExecutor
 		int start = page*10;
 		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
 				"`mail_receiver` = ?", player.getUniqueId().toString());
-		ArrayList<EMail> emails = plugin.getEMailHandler().getReceivedEmails(player.getUniqueId(), start, last);
-		if(emails.size() == 0 && start == 0)
+		ArrayList<PMail> pmails = plugin.getPMailHandler().getReceivedEmails(player.getUniqueId(), start, last);
+		if(pmails.size() == 0 && start == 0)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.HasNoIncomingEMails"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.HasNoIncomingEMails"));
 			return;
 		}
 		
 		ArrayList<String> texts = new ArrayList<>();
-		texts.add(plugin.getYamlHandler().getLang().getString("EMail.Headline").replace("%page%", String.valueOf(page)));
-		for(EMail e : emails)
+		texts.add(plugin.getYamlHandler().getLang().getString("PMail.Headline").replace("%page%", String.valueOf(page)));
+		for(PMail e : pmails)
 		{
 			String name = e.getSender();
 			UUID uuid = null;
@@ -180,10 +180,10 @@ public class EMailCommandExecutor implements CommandExecutor
 					name = off.getName();
 				}
 			} catch(Exception ex) {}
-			texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails")
+			texts.add(plugin.getYamlHandler().getLang().getString("PMail.ShowMails")
 					.replace("%mailid%", String.valueOf(e.getId()))
 					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
-							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
+							plugin.getYamlHandler().getLang().getString("PMail.TimeFormat", "dd.MM-HH:mm")))
 					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
 					.replace("%subject%", e.getSubjectMatter())
 					.replace("%sender%", name)

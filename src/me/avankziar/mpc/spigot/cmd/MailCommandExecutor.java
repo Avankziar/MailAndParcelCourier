@@ -2,36 +2,32 @@ package me.avankziar.mpc.spigot.cmd;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.avankziar.ifh.general.assistance.ChatApiOld;
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.assistance.MatchApi;
-import me.avankziar.mpc.general.assistance.TimeHandler;
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
+import me.avankziar.mpc.general.cmdtree.BaseConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandSuggest;
-import me.avankziar.mpc.general.database.MysqlType;
-import me.avankziar.mpc.general.objects.EMail;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
-public class EMailCommandExecutor implements CommandExecutor
+public class MailCommandExecutor  implements CommandExecutor
 {
 	private MPC plugin;
 	private static CommandConstructor cc;
 	
-	public EMailCommandExecutor(MPC plugin, CommandConstructor cc)
+	public MailCommandExecutor(MPC plugin, CommandConstructor cc)
 	{
 		this.plugin = plugin;
-		EMailCommandExecutor.cc = cc;
+		MailCommandExecutor.cc = cc;
 	}
 	
 	@Override
@@ -54,10 +50,10 @@ public class EMailCommandExecutor implements CommandExecutor
 				if(!ModifierValueEntry.hasPermission(player, cc))
 				{
 					///Du hast dafür keine Rechte!
-					ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
+					player.spigot().sendMessage(ChatApiOld.tctl(plugin.getYamlHandler().getLang().getString("NoPermission")));
 					return false;
 				}
-				sendIngoingEMails(player, Integer.parseInt(args[0])); //Base and Info Command
+				baseCommands(player, Integer.valueOf(args[0])); //Base and Info Command
 				return true;
 			}
 		} else if(args.length == 0)
@@ -71,10 +67,10 @@ public class EMailCommandExecutor implements CommandExecutor
 			if(!ModifierValueEntry.hasPermission(player, cc))
 			{
 				///Du hast dafür keine Rechte!
-				ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
+				player.spigot().sendMessage(ChatApiOld.tctl(plugin.getYamlHandler().getLang().getString("NoPermission")));
 				return false;
 			}
-			sendIngoingEMails(player, 0); //Base and Info Command
+			baseCommands(player, 0); //Base and Info Command
 			return true;
 		}
 		int length = args.length-1;
@@ -106,15 +102,15 @@ public class EMailCommandExecutor implements CommandExecutor
 								{
 									plugin.getLogger().info("ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
 											.replace("%ac%", ac.getName()));
-									ChatApi.sendMessage(sender, 
+									player.spigot().sendMessage(ChatApiOld.tctl(
 											"ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
-											.replace("%ac%", ac.getName()));
+											.replace("%ac%", ac.getName())));
 									return false;
 								}
 								return false;
 							} else
 							{
-								ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
+								player.spigot().sendMessage(ChatApiOld.tctl(plugin.getYamlHandler().getLang().getString("NoPermission")));
 								return false;
 							}
 						} else
@@ -133,9 +129,9 @@ public class EMailCommandExecutor implements CommandExecutor
 							{
 								plugin.getLogger().info("ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
 										.replace("%ac%", ac.getName()));
-								ChatApi.sendMessage(sender, 
+								sender.spigot().sendMessage(ChatApiOld.tctl(
 										"ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
-										.replace("%ac%", ac.getName()));
+										.replace("%ac%", ac.getName())));
 								return false;
 							}
 							return false;
@@ -153,53 +149,34 @@ public class EMailCommandExecutor implements CommandExecutor
 		return false;
 	}
 	
-	public void sendIngoingEMails(final Player player, int page)
+	public void baseCommands(final Player player, int page)
 	{
+		int count = 0;
 		int start = page*10;
-		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
-				"`mail_receiver` = ?", player.getUniqueId().toString());
-		ArrayList<EMail> emails = plugin.getEMailHandler().getReceivedEmails(player.getUniqueId(), start, last);
-		if(emails.size() == 0 && start == 0)
+		int end = page*10+9;
+		int last = 0;
+		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Headline"));
+		for(BaseConstructor bc : plugin.getHelpList())
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.HasNoIncomingEMails"));
-			return;
-		}
-		
-		ArrayList<String> texts = new ArrayList<>();
-		texts.add(plugin.getYamlHandler().getLang().getString("EMail.Headline").replace("%page%", String.valueOf(page)));
-		for(EMail e : emails)
-		{
-			String name = e.getSender();
-			UUID uuid = null;
-			try
+			if(count >= start && count <= end)
 			{
-				uuid = UUID.fromString(e.getSender());
-				OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
-				if(off.hasPlayedBefore())
+				if(player.hasPermission(bc.getPermission()))
 				{
-					name = off.getName();
+					sendInfo(player, bc);
 				}
-			} catch(Exception ex) {}
-			texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails")
-					.replace("%mailid%", String.valueOf(e.getId()))
-					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
-							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
-					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
-					.replace("%subject%", e.getSubjectMatter())
-					.replace("%sender%", name)
-					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
-					);
+			}
+			count++;
+			last++;
 		}
-		
-		String pastNext = pastNextPage(player,
-				page, last, CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL));
-		if(pastNext != null) 
-		{
-			texts.add(pastNext);
-		}
-		texts.stream().forEach(x -> ChatApi.sendMessage(player, x));
+		pastNextPage(player, page, last, CommandSuggest.getCmdString(CommandSuggest.Type.MAIL));
+	}
+	
+	private void sendInfo(Player player, BaseConstructor bc)
+	{
+		ChatApi.sendMessage(player, ChatApi.clickHover(
+				bc.getHelpInfo(),
+				"SUGGEST_COMMAND", bc.getSuggestion(),
+				"SHOW_TEXT", plugin.getYamlHandler().getLang().getString("GeneralHover")));
 	}
 	
 	public String pastNextPage(Player player,

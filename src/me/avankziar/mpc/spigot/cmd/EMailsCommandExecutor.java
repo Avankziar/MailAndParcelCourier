@@ -11,7 +11,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.avankziar.ifh.general.assistance.ChatApiOld;
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.assistance.MatchApi;
 import me.avankziar.mpc.general.assistance.TimeHandler;
@@ -23,7 +22,6 @@ import me.avankziar.mpc.general.objects.EMail;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
-import net.md_5.bungee.api.chat.ClickEvent;
 
 public class EMailsCommandExecutor implements CommandExecutor
 {
@@ -57,7 +55,7 @@ public class EMailsCommandExecutor implements CommandExecutor
 				if(!ModifierValueEntry.hasPermission(player, cc))
 				{
 					///Du hast dafür keine Rechte!
-					player.spigot().sendMessage(ChatApiOld.tctl(plugin.getYamlHandler().getLang().getString("NoPermission")));
+					ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
 					return false;
 				}
 				sendIngoingEMails(player, args[0], uuid, 0); //Base and Info Command
@@ -79,7 +77,7 @@ public class EMailsCommandExecutor implements CommandExecutor
 					if(!ModifierValueEntry.hasPermission(player, cc))
 					{
 						///Du hast dafür keine Rechte!
-						player.spigot().sendMessage(ChatApiOld.tctl(plugin.getYamlHandler().getLang().getString("NoPermission")));
+						ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
 						return false;
 					}
 					sendIngoingEMails(player, args[0], uuid, Integer.parseInt(args[1])); //Base and Info Command
@@ -116,15 +114,15 @@ public class EMailsCommandExecutor implements CommandExecutor
 								{
 									plugin.getLogger().info("ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
 											.replace("%ac%", ac.getName()));
-									player.spigot().sendMessage(ChatApiOld.tctl(
+									ChatApi.sendMessage(sender,
 											"ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
-											.replace("%ac%", ac.getName())));
+											.replace("%ac%", ac.getName()));
 									return false;
 								}
 								return false;
 							} else
 							{
-								player.spigot().sendMessage(ChatApiOld.tctl(plugin.getYamlHandler().getLang().getString("NoPermission")));
+								ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
 								return false;
 							}
 						} else
@@ -143,9 +141,9 @@ public class EMailsCommandExecutor implements CommandExecutor
 							{
 								plugin.getLogger().info("ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
 										.replace("%ac%", ac.getName()));
-								sender.spigot().sendMessage(ChatApiOld.tctl(
+								ChatApi.sendMessage(sender,
 										"ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
-										.replace("%ac%", ac.getName())));
+										.replace("%ac%", ac.getName()));
 								return false;
 							}
 							return false;
@@ -158,8 +156,8 @@ public class EMailsCommandExecutor implements CommandExecutor
 				}
 			}
 		}
-		sender.spigot().sendMessage(ChatApiOld.clickEvent(plugin.getYamlHandler().getLang().getString("InputIsWrong"),
-				ClickEvent.Action.RUN_COMMAND, CommandSuggest.getCmdString(CommandSuggest.Type.MAIL)));
+		ChatApi.sendMessage(sender, ChatApi.click(plugin.getYamlHandler().getLang().getString("InputIsWrong"),
+				"RUN_COMMAND", CommandSuggest.getCmdString(CommandSuggest.Type.MAIL)));
 		return false;
 	}
 	

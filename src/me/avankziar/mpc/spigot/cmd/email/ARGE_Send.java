@@ -57,6 +57,35 @@ public class ARGE_Send extends ArgumentModule
 		List<String> playerlist = Arrays.asList(players.split("@"));
 		//Filters Duplicate Entrys
 		playerlist = (ArrayList<String>) playerlist.stream().distinct().collect(Collectors.toList());
+		ArrayList<UUID> uuidlist = new ArrayList<>();
+		for(String other : playerlist)
+		{
+			UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(other);
+			if(uuid == null)
+			{
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerDontExist")
+						.replace("%player%", other));
+				return;
+			}
+			if(uuid.equals(player.getUniqueId()))
+			{
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.SendToYourself"));
+				return;
+			}
+			if(plugin.getIgnoreHandler().isIgnored(player.getUniqueId(), uuid))
+			{
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.PlayerIgnoresYou")
+						.replace("%player%", other));
+			} else
+			{
+				uuidlist.add(uuid);
+			}
+		}
+		if(uuidlist.isEmpty())
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.NoValidReceiver"));
+			return;
+		}
 		double cost = plugin.getEMailHandler().getSendingCost(subject, msg) * playerlist.size();
 		if(cost > 0.0 && (plugin.getIFHEco() != null || plugin.getVaultEco() != null))
 		{			
@@ -96,18 +125,6 @@ public class ARGE_Send extends ArgumentModule
 					return;
 				}
 			}
-		}
-		ArrayList<UUID> uuidlist = new ArrayList<>();
-		for(String other : playerlist)
-		{
-			UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(other);
-			if(uuid == null)
-			{
-				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerDontExist")
-						.replace("%player%", other));
-				return;
-			}
-			uuidlist.add(uuid);
 		}
 		for(UUID uuid : uuidlist)
 		{

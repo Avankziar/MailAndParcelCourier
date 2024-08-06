@@ -10,6 +10,9 @@ public class CommandSuggest
 	public enum Type 
 	{
 		MAIL,
+		MAIL_IGNORE,
+		MAIL_LISTIGNORE,
+		
 		EMAIL,
 		EMAIL_READ,
 		EMAIL_SEND,
@@ -17,7 +20,15 @@ public class CommandSuggest
 		EMAIL_OUTGOINGMAIL,
 		
 		EMAILS,
-		EMAILS_OUTGOINGMAIL
+		EMAILS_OUTGOINGMAIL,
+		
+		PMAIL,
+		PMAIL_WRITE,
+		PMAIL_SEND,
+		PMMAIL_OPEN,
+		PMAIL_READ,
+		PMAIL_SILENTOPEN,
+		PMAIL_OUTGOINGMAIL
 		;
 	}
 	

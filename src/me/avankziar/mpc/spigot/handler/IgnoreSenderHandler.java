@@ -38,9 +38,9 @@ public class IgnoreSenderHandler
 				receiver.toString(), sender.toString());
 	}
 	
-	public ArrayList<IgnoreSender> getIgnored(UUID receiver)
+	public ArrayList<IgnoreSender> getIgnored(UUID receiver, int start, int quantity)
 	{
-		return IgnoreSender.convert(plugin.getMysqlHandler().getFullList(MysqlType.IGNORE_SENDER,
-				"`id` ASC", "`mail_receiver` = ?", receiver.toString()));
+		return IgnoreSender.convert(plugin.getMysqlHandler().getList(MysqlType.IGNORE_SENDER,
+				"`id` ASC", start, quantity, "`mail_receiver` = ?", receiver.toString()));
 	}
 }

@@ -3,8 +3,6 @@ package me.avankziar.mpc.spigot.handler;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import org.bukkit.entity.Player;
-
 import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.EMail;
 import me.avankziar.mpc.spigot.MPC;
@@ -28,20 +26,10 @@ public class EMailHandler
 				"`mail_receiver` = ?", uuid.toString()));
 	}
 	
-	public ArrayList<EMail> getReceivedEmails(Player player, int start, int quantity)
-	{
-		return getReceivedEmails(player.getUniqueId(), start, quantity);
-	}
-	
 	public ArrayList<EMail> getSendedEmails(UUID uuid, int start, int quantity)
 	{
 		return EMail.convert(plugin.getMysqlHandler().getList(MysqlType.EMAIL, "`id` DESC", start, quantity,
 				"`mail_sender` = ?", uuid.toString()));
-	}
-	
-	public ArrayList<EMail> getSendedEmails(Player player, int start, int quantity)
-	{
-		return getSendedEmails(player.getUniqueId(), start, quantity);
 	}
 	
 	public EMail getCorrespondingEmail(long sendDate, int id)

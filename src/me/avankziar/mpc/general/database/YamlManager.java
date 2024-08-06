@@ -6,6 +6,8 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.bukkit.Material;
+
 import me.avankziar.mpc.general.database.Language.ISO639_2B;
 import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 
@@ -466,72 +468,138 @@ public class YamlManager
 				"Der Geldbetrag, welcher das Senden von E-Mails kosten bezogen auf die Art und Weise der Kosten.",
 				"",
 				"The amount of money it costs to send emails based on the method of payment."});
+		addConfig("PMail.Cost.SendingCosts",
+				new Object[] {
+				"LUMP_SUM"},
+				new Object[] {
+				"",
+				"Wählt aus, ob das senden von P-Mails etwas kostet. Betreff und Nachricht werden zusammengezählt für Wort oder Zeichenlänge.",
+				"Möglich sind:",
+				"LUMP_SUM -> P-Mails senden kosten einen Pauschalbetrag",
+				"PER_WORD -> P-Mailkosten werden an der Anzahl Wörter bemessen. Wörter sind pro Leerzeichen getrennt.",
+				"PER_LETTER -> P-Mailkosten werden an der Anzahl Zeichen bemessen. Alle Zeichen zählen dabei.",
+				"NONE -> Keine Kosten.",
+				"",
+				"Select whether sending pmails costs anything. Subject and message are counted together for word or character length.",
+				"Possible are:",
+				"LUMP_SUM -> Sending pmails costs a flat rate.",
+				"PER_WORD -> Pmail costs are based on the number of words. Words are separated by spaces.",
+				"PER_LETTER -> Pmail costs are based on the number of characters. All characters count.",
+				"NONE -> No Costs."});
+		addConfig("PMail.Cost.Costs",
+				new Object[] {
+				50.0},
+				new Object[] {
+				"",
+				"Der Geldbetrag, welcher das Senden von P-Mails kosten bezogen auf die Art und Weise der Kosten.",
+				"",
+				"The amount of money it costs to send pmails based on the method of payment."});
+		addConfig("PMail.Cost.Material",
+				new Object[] {
+				"PAPER"},
+				new Object[] {
+				"",
+				"Das Material, welches als Kosten und für die Versendung von PMails herhalten muss.",
+				"",
+				"The material that has to be used as costs and for sending PMails."});
+		addConfig("PMail.Cost.MaterialCosts",
+				new Object[] {
+				1.0},
+				new Object[] {
+				"",
+				"Der Anzahl an Materialien, die man dafür haben muss um eine PMail zu erstellen.",
+				"",
+				"The amount of materials you need to create a PMail."});
 	}
 	
-	@SuppressWarnings("unused") //INFO:Commands
 	public void initCommands()
 	{
 		comBypass();
-		String path = "";
-		String basePermission = "email.command.email";
-		commandsInput("email", "email", "basePermission", 
+		String basePermission = "mail.cmd.mail";
+		commandsInput("mail", "mail", basePermission, 
+				"/mail [pagenumber]", "/mail ", false,
+				"<red>/mail <white>| Infoseite für alle Befehle.",
+				"<red>/mail <white>| Info page for all commands.",
+				"<aqua>Befehlsrecht für <white>/mail",
+				"<aqua>Commandright for <white>/mail",
+				"<yellow>Basisbefehl für das MPC Plugin.",
+				"<yellow>Groundcommand for the MPC Plugin.");
+		argumentInput("mail_ignore", "ignore", basePermission,
+				"/mail ignore <playername>", "/email ignore ", false,
+				"<red>/mail ignore <Spielername> <white>| Setzt oder entfernt den Spieler auf die Liste der ignorierten Spieler.",
+				"<red>/mail ignore <playername> <white>| Adds or removes the player to the ignored players list.",
+				"<aqua>Befehlsrecht für <white>/mail ignore",
+				"<aqua>Commandright for <white>/mail ignore",
+				"<yellow>Setzt oder entfernt den Spieler auf die Liste der ignorierten Spieler.",
+				"<yellow>Adds or removes the player to the ignored players list.");
+		argumentInput("mail_listignore", "listignore", basePermission,
+				"/mail listignore [pagenumber]", "/mail listignore ", false,
+				"<red>/mail listignore [Seitenzahl] <white>| Listet alle ignorierten Spieler auf.",
+				"<red>/mail listignore [pagenumber] <white>| Lists all ignored players.",
+				"<aqua>Befehlsrecht für <white>/mail listignore",
+				"<aqua>Commandright for <white>/mail listignore",
+				"<yellow>Listet alle ignorierten Spieler auf.",
+				"<yellow>Lists all ignored players.");
+		
+		basePermission = "email.cmd.email";
+		commandsInput("email", "email", basePermission, 
 				"/email [pagenumber]", "/email ", false,
-				"<red>/email <white>| Infoseite für alle Befehle.",
-				"<red>/email <white>| Info page for all commands.",
+				"<red>/email <white>| Listet alle eingegangen Emails auf.",
+				"<red>/email <white>| ",
 				"<aqua>Befehlsrecht für <white>/email",
 				"<aqua>Commandright for <white>/email",
-				"<yellow>Basisbefehl für das MPC Plugin.",
-				"<yellow>Groundcommand for the MPC Plugin.");
+				"<yellow>Listet alle eingegangen Emails auf.",
+				"<yellow>");
 		argumentInput("email_send", "send", basePermission,
 				"/email send <playername, multiple player with @ as seperator> <subject> <message>", "/email send ", false,
-				"<red>/email send <playername, multiple player with @ as seperator> <subject> <message> <white>| Ein Subbefehl",
-				"<red>/email send <playername, multiple player with @ as seperator> <subject> <message> <white>| A Subcommand.",
+				"<red>/email send <Spielername, mehrfache Spieler mit @ seperieren> <Betreff> <Nachricht> <white>| Sendet eine E-mail.",
+				"<red>/email send <playername, multiple player with @ as seperator> <subject> <message> <white>| Send a email.",
 				"<aqua>Befehlsrecht für <white>/email send",
 				"<aqua>Commandright for <white>/email send",
-				"<yellow>Basisbefehl für das MPC Plugin.",
-				"<yellow>Groundcommand for the MPC Plugin.");
+				"<yellow>Sendet eine Email.",
+				"<yellow>Send a email.");
 		argumentInput("email_read", "read", basePermission,
 				"/email read <mailid>", "/email read ", false,
-				"<red>/email read <mailid> <white>| Ein Subbefehl",
-				"<red>/email read <mailid> <white>| A Subcommand.",
+				"<red>/email read <mailid> <white>| Liest eine E-Mail.",
+				"<red>/email read <mailid> <white>| Read a email.",
 				"<aqua>Befehlsrecht für <white>/email read",
 				"<aqua>Commandright for <white>/email read",
-				"<yellow>Basisbefehl für das MPC Plugin.",
-				"<yellow>Groundcommand for the MPC Plugin.");
+				"<yellow>Liest eine E-Mail.",
+				"<yellow>Read a email.");
 		argumentInput("email_delete", "delete", basePermission,
 				"/email delete <mailid>", "/email delete ", false,
-				"<red>/email delete <mailid> <white>| Ein Subbefehl",
-				"<red>/email delete <mailid> <white>| A Subcommand.",
+				"<red>/email delete <mailid> <white>| Löscht eine E-Mail.",
+				"<red>/email delete <mailid> <white>| Delete a email.",
 				"<aqua>Befehlsrecht für <white>/email delete",
 				"<aqua>Commandright for <white>/email delete",
-				"<yellow>Basisbefehl für das MPC Plugin.",
-				"<yellow>Groundcommand for the MPC Plugin.");
+				"<yellow>Löscht eine E-Mail.",
+				"<yellow>Delete a email.");
 		argumentInput("email_outgoingmail", "outgoingmail", basePermission,
 				"/email outgoingmail [pagenumber]", "/email outgoingmail ", false,
-				"<red>/email outgoingmail [Seitennumber] <white>| Ein Subbefehl",
-				"<red>/email outgoingmail [pagenumber] <white>| A Subcommand.",
+				"<red>/email outgoingmail [Seitennumber] <white>| Listet alle selbst gesendeten E-Mails auf.",
+				"<red>/email outgoingmail [pagenumber] <white>| Lists all self sended emails.",
 				"<aqua>Befehlsrecht für <white>/email outgoingmail",
 				"<aqua>Commandright for <white>/email outgoingmail",
-				"<yellow>Basisbefehl für das MPC Plugin.",
-				"<yellow>Groundcommand for the MPC Plugin.");
+				"<yellow>Listet alle selbst gesendeten E-Mails auf.",
+				"<yellow>Lists all self sended emails.");
 		
 		basePermission =  "emails.cmd.emails";
 		commandsInput("emails", "emails", "emails.cmd.emails", 
 				"/emails <playername> [Pagenumber]", "/emails ", false,
-				"<red>/emails <Spielername> [Seitenzahl] <white>| Infoseite für alle Befehle.",
-				"<red>/emails <playername> [Pagenumber] <white>| Info page for all commands.",
+				"<red>/emails <Spielername> [Seitenzahl] <white>| Listet alle eingegangenen E-Mails des Spielers auf.",
+				"<red>/emails <playername> [Pagenumber] <white>| Lists all incoming emails for the player.",
 				"<aqua>Befehlsrecht für <white>/emails",
 				"<aqua>Commandright for <white>/emails",
-				"<yellow>Basisbefehl für das MPC Plugin.",
-				"<yellow>Groundcommand for the MPC Plugin.");
+				"<yellow>Listet alle eingegangenen E-Mails des Spielers auf.",
+				"<yellow>Lists all incoming emails for the player.");
 		argumentInput("emails_outgoingmail", "outgoingmail", basePermission,
 				"/emails outgoingmail <playername> [pagenumber]", "/email outgoingmail ", false,
-				"<red>/emails outgoingmail <playername> [Seitennumber] <white>| Ein Subbefehl",
-				"<red>/emails outgoingmail <playername> [pagenumber] <white>| A Subcommand.",
+				"<red>/emails outgoingmail <playername> [Seitennumber] <white>| Listet alle vom Spieler gesendeten E-Mails auf.",
+				"<red>/emails outgoingmail <playername> [pagenumber] <white>| Lists all emails sent by the player.",
 				"<aqua>Befehlsrecht für <white>/emails outgoingmail",
 				"<aqua>Commandright for <white>/emails outgoingmail",
-				"<yellow>Basisbefehl für das MPC Plugin.",
-				"<yellow>Groundcommand for the MPC Plugin.");
+				"<yellow>Listet alle vom Spieler gesendeten E-Mails auf.",
+				"<yellow>Lists all emails sent by the player.");
 	}
 	
 	private void comBypass() //INFO:ComBypass
@@ -681,7 +749,34 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>✖",
 						"<red>✖"}));
+		initMailLang();
 		initEMailLang();
+		initPMailLang();
+	}
+	
+	public void initMailLang()
+	{
+		String path = "Mail.";
+		languageKeys.put(path+"Ignore.Ignore", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du ignorierst nun den Spieler <white>%player%<yellow>!",
+						"<yellow>You are now ignoring the player <white>%player%<yellow>!"}));
+		languageKeys.put(path+"Ignore.DontIgnore", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du ignorierst nun nicht mehr den Spieler <white>%player%<yellow>!",
+						"<yellow>You no longer ignore the player <white>%player%<yellow>!"}));
+		languageKeys.put(path+"ListIgnore.YouIgnoreNoOne", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast keinen auf deiner Liste, welchen du ignorierst!",
+						"<red>You do not have anyone on your list that you ignore!"}));
+		languageKeys.put(path+"ListIgnore.Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>IgnorierListe von %player% %<white>Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>Ignorelist of %player% %<white>Page %page%<gray>]<yellow>====="}));
+		languageKeys.put(path+"ListIgnore.Context", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<click:run_command:'%mailignore%%player%'><yellow>%player%</yellow></click><white>",
+						"<click:run_command:'%mailignore%%player%'><yellow>%player%</yellow></click><white>"}));
 	}
 	
 	public void initEMailLang()
@@ -766,6 +861,18 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<white>%players% <yellow>wude die E-Mail <white>%subject% <yellow>gesendet.",
 						"<white>%players% <yellow>was send the E-Mail <white>%subject%<yellow>."}));
+		languageKeys.put(path+"Send.SendToYourself", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du kannst keine Nachricht an dich selber senden!",
+						"<red>You cannot send a message to yourself!"}));
+		languageKeys.put(path+"Send.PlayerIgnoresYou", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Spieler %player% ignoriert deine Emails und wird keine von dir erhalten können!",
+						"<red>The player %player% is ignoring your sent emails and will not be able to receive any from you!"}));
+		languageKeys.put(path+"Send.NoValidReceiver", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast keinen Empfänger angegeben oder diese ignorieren dich!",
+						"<red>You have not specified a recipient or they are ignoring you!"}));
 		languageKeys.put(path+"Send.HasEMail", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast eine neue E-Mail!</yellow> <click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click>",
@@ -803,6 +910,62 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>=====<gray>[<gold>Gesendete E-Mails von <white>%player% Seite %page%<gray>]<yellow>=====",
 						"<yellow>=====<gray>[<gold>Sendet E-Mails from <white>%player% Page %page%<gray>]<yellow>====="}));
+	}
+	
+	public void initPMailLang()
+	{
+		String path = "PMail.";
+		languageKeys.put(path+"HasNoIncomingEMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast keine eingegangenen E-Mails.",
+						"<red>You have no incoming e-mails."}));
+		languageKeys.put(path+"HasNoOutgoingEMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast keine versendeten E-Mails.",
+						"<red>You have no outgoing e-mails."}));
+		languageKeys.put(path+"Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>E-Mails <white>Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>E-Mails <white>Page %page%<gray>]<yellow>====="}));
+		languageKeys.put(path+"ShowMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>Von %sender%'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend%%sender% re:%subject%'><gray>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>",
+						
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>From %sender%'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend%%sender% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
+		languageKeys.put(path+"TimeFormat", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"dd.MM-HH:mm",
+						"dd.MM-HH:mm"}));
+		languageKeys.put(path+"Open.Opened", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast die PMail des Spielers %players% mit dem Betreff %subject% <yellow>geöffnet!",
+						"<yellow>You have opened the PMail of the player %players% with the subject %subject% <yellow>!"}));
+		languageKeys.put(path+"Read.TimeFormat", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"dd.MM.yyyy-HH:mm",
+						"dd.MM.yyyy-HH:mm"}));
+		languageKeys.put(path+"Read.Reading", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<gray>==============================",
+						"<red>Sender: <white>%sender%",
+						"<red>Empfänger: <white>%receiver%",
+						"<red>Zeitstempel: <white>%time%",
+						"<red>Betreff: <reset>%subject%",
+						"%message%",
+						"<gray>==============================",
+						"<gray>==============================",
+						"<red>Sender: <white>%sender%",
+						"<red>Empfänger: <white>%receiver%",
+						"<red>Zeitstempel: <white>%time%",
+						"<red>Betreff: <reset>%subject%",
+						"%message%",
+						"<gray>==============================",}));
 	}
 	
 	public void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages

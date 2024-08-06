@@ -45,21 +45,29 @@ import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmd.EMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.EMailsCommandExecutor;
+import me.avankziar.mpc.spigot.cmd.MailCommandExecutor;
+import me.avankziar.mpc.spigot.cmd.PMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.TabCompletion;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_Delete;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_OutgoingMail;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_Read;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_Send;
 import me.avankziar.mpc.spigot.cmd.emails.ARGEs_OutgoingMail;
+import me.avankziar.mpc.spigot.cmd.mail.ARG_Ignore;
+import me.avankziar.mpc.spigot.cmd.mail.ARG_ListIgnore;
+import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Read;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.database.MysqlHandler;
 import me.avankziar.mpc.spigot.database.MysqlSetup;
 import me.avankziar.mpc.spigot.handler.ConfigHandler;
 import me.avankziar.mpc.spigot.handler.EMailHandler;
 import me.avankziar.mpc.spigot.handler.IgnoreSenderHandler;
+import me.avankziar.mpc.spigot.handler.MailBoxHandler;
+import me.avankziar.mpc.spigot.handler.PMailHandler;
 import me.avankziar.mpc.spigot.handler.PlayerDataHandler;
 import me.avankziar.mpc.spigot.handler.ReplacerHandler;
 import me.avankziar.mpc.spigot.listener.JoinListener;
+import me.avankziar.mpc.spigot.listener.PMailListener;
 import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 
 public class MPC extends JavaPlugin
@@ -77,6 +85,8 @@ public class MPC extends JavaPlugin
 	private ReplacerHandler replacerhandler;
 	private IgnoreSenderHandler ignoresenderhandler;
 	private EMailHandler emailhandler;
+	private PMailHandler pmailhandler;
+	private MailBoxHandler mailboxhandler;
 	
 	private Administration administrationConsumer;
 	private ValueEntry valueEntryConsumer;
@@ -85,6 +95,8 @@ public class MPC extends JavaPlugin
 	private Economy ecoConsumer;
 	
 	private net.milkbowl.vault.economy.Economy vEco;
+	
+	private String server;
 	
 	public void onEnable()
 	{
@@ -104,6 +116,10 @@ public class MPC extends JavaPlugin
 		yamlHandler = new YamlHandler(YamlManager.Type.SPIGOT, pluginname, logger, plugin.getDataFolder().toPath(),
         		(plugin.getAdministration() == null ? null : plugin.getAdministration().getLanguage()));
         setYamlManager(yamlHandler.getYamlManager());
+        
+        server = plugin.getAdministration() == null
+        		? plugin.getYamlHandler().getConfig().getString("ServerName")
+        				: plugin.getAdministration().getSpigotServerName();
 		
 		String path = plugin.getYamlHandler().getConfig().getString("IFHAdministrationPath");
 		boolean adm = plugin.getAdministration() != null 
@@ -126,8 +142,10 @@ public class MPC extends JavaPlugin
 		
 		ignoresenderhandler = new IgnoreSenderHandler(plugin);
 		emailhandler = new EMailHandler(plugin);
+		pmailhandler = new PMailHandler(plugin);
 		playerdatahandler = new PlayerDataHandler(plugin);
 		replacerhandler = new ReplacerHandler(plugin);
+		mailboxhandler = new MailBoxHandler(plugin, server);
 		
 		setupBypassPerm();
 		setupCommandTree();
@@ -202,19 +220,31 @@ public class MPC extends JavaPlugin
 	
 	private void setupCommandTree()
 	{
-		ArrayList<String> players = (ArrayList<String>) PlayerData.convert(plugin.getMysqlHandler().getFullList(MysqlType.PLAYERDATA, 
+		ArrayList<String> players = (ArrayList<String>) PlayerData.convert(
+				plugin.getMysqlHandler().getFullList(MysqlType.PLAYERDATA, 
 				"`player_name` ASC", "`id` > ?", 0)).stream().map(x -> x.getPlayerName()).collect(Collectors.toList());
 		TabCompletion tab = new TabCompletion();
 		
+		ArgumentConstructor mail_listignore = new ArgumentConstructor(Type.MAIL_LISTIGNORE,
+				"mail_listignore", 0, 0, 1, false, false, null);
+		ArgumentConstructor mail_ignore = new ArgumentConstructor(Type.MAIL_IGNORE,
+				"mail_ignore", 0, 1, 1, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
+		
+		CommandConstructor mail = new CommandConstructor(CommandSuggest.Type.MAIL, "mail", false, false,
+				mail_ignore, mail_listignore);
+		registerCommand(mail.getPath(), mail.getName());
+		getCommand(mail.getName()).setExecutor(new MailCommandExecutor(plugin, mail));
+		getCommand(mail.getName()).setTabCompleter(tab);
+		
+		new ARG_Ignore(plugin, mail_ignore);
+		new ARG_ListIgnore(plugin, mail_listignore);
+		
 		ArgumentConstructor email_send = new ArgumentConstructor(Type.EMAIL_SEND,
 				"email_send", 0, 3, 999, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
-		
 		ArgumentConstructor email_read = new ArgumentConstructor(Type.EMAIL_READ,
 				"email_read", 0, 1, 1, false, false, null);
-		
 		ArgumentConstructor email_outgoingmail = new ArgumentConstructor(Type.EMAIL_OUTGOINGMAIL,
 				"email_outgoingmail", 0, 0, 1, false, false, null);
-		
 		ArgumentConstructor email_delete = new ArgumentConstructor(Type.EMAIL_DELETE,
 				"email_delete", 0, 1, 1, false, false, null);
 		
@@ -223,6 +253,11 @@ public class MPC extends JavaPlugin
 		registerCommand(email.getPath(), email.getName());
 		getCommand(email.getName()).setExecutor(new EMailCommandExecutor(plugin, email));
 		getCommand(email.getName()).setTabCompleter(tab);
+		
+		new ARGE_Send(plugin, email_send);
+		new ARGE_Read(plugin, email_read);
+		new ARGE_OutgoingMail(plugin, email_outgoingmail);
+		new ARGE_Delete(plugin, email_delete);
 		
 		ArgumentConstructor emails_outgoingmail = new ArgumentConstructor(Type.EMAILS_OUTGOINGMAIL,
 				"emails_outgoingmail", 0, 1, 2, false, false, null);
@@ -233,12 +268,20 @@ public class MPC extends JavaPlugin
 		getCommand(emails.getName()).setExecutor(new EMailsCommandExecutor(plugin, emails));
 		getCommand(emails.getName()).setTabCompleter(tab);
 		
-		new ARGE_Send(plugin, email_send);
-		new ARGE_Read(plugin, email_read);
-		new ARGE_OutgoingMail(plugin, email_outgoingmail);
-		new ARGE_Delete(plugin, email_delete);
-		
 		new ARGEs_OutgoingMail(plugin, emails_outgoingmail);
+		
+		ArgumentConstructor pmail_send = new ArgumentConstructor(Type.PMAIL_SEND,
+				"email_send", 0, 0, 0, false, false, null);
+		ArgumentConstructor pmail_read = new ArgumentConstructor(Type.PMAIL_READ,
+				"pmail_read", 0, 1, 1, false, false, null);
+		
+		CommandConstructor pmail = new CommandConstructor(CommandSuggest.Type.PMAIL, "pmail", false, false,
+				email_delete, pmail_read, pmail_send, email_outgoingmail);
+		registerCommand(pmail.getPath(), pmail.getName());
+		getCommand(pmail.getName()).setExecutor(new PMailCommandExecutor(plugin, pmail));
+		getCommand(pmail.getName()).setTabCompleter(tab);
+		
+		new ARGP_Read(plugin, pmail_read);
 	}
 	
 	public void setupBypassPerm()
@@ -347,6 +390,7 @@ public class MPC extends JavaPlugin
 	{
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new JoinListener(plugin), plugin);
+		pm.registerEvents(new PMailListener(plugin), plugin);
 	}
 	
 	public boolean reload() throws IOException
@@ -664,5 +708,15 @@ public class MPC extends JavaPlugin
 	public EMailHandler getEMailHandler()
 	{
 		return emailhandler;
+	}
+	
+	public PMailHandler getPMailHandler()
+	{
+		return pmailhandler;
+	}
+	
+	public MailBoxHandler getMailBoxHandler()
+	{
+		return mailboxhandler;
 	}
 }

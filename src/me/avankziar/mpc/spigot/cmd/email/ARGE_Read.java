@@ -2,7 +2,6 @@ package me.avankziar.mpc.spigot.cmd.email;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Optional;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,7 +18,7 @@ import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
-public class ARGE_Read  extends ArgumentModule
+public class ARGE_Read extends ArgumentModule
 {
 	private MPC plugin;
 	
@@ -82,6 +81,12 @@ public class ARGE_Read  extends ArgumentModule
 					plugin.getMysqlHandler().updateData(MysqlType.EMAIL, corresponding, "`id` = ?", corresponding.getId());
 				}
 			}
+			if(!email.hasReceiverReaded())
+			{
+				email.setReceiverReaded(true);
+			}
+			EMail update = email;
+			plugin.getMysqlHandler().updateData(MysqlType.EMAIL, update, "`id` = ?", update.getId());
 		}
 		ArrayList<String> list = new ArrayList<>();
 		String sender = plugin.getPlayerDataHandler().getPlayerName(email.getSender());

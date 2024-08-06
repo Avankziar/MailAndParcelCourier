@@ -65,7 +65,7 @@ public class ARGE_OutgoingMail extends ArgumentModule
 		int start = page*10;
 		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
 				"`mail_sender` = ?", player.getUniqueId().toString());
-		ArrayList<EMail> emails = plugin.getEMailHandler().getSendedEmails(player, start, last);
+		ArrayList<EMail> emails = plugin.getEMailHandler().getSendedEmails(player.getUniqueId(), start, last);
 		if(emails.size() == 0 && start == 0)
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.HasNoOutgoingEMails"));

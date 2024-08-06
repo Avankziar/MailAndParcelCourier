@@ -39,12 +39,21 @@ E-mails:
 P-Mails:
 /pmail | Listet alle eigenen eingegangenen Mails auf.
 /pmail write <Spielername> <Betreff> <Nachricht> | Setzt auf einem Stück Papier die Nachricht.
-/pmail send [Spielername] | Sendet den Brief an den Empfänger. Legt auch eine Digitale Kopie für den Sender an. 
+/pmail send | Sendet den Brief an den Empfänger. Legt auch eine Digitale Kopie für den Sender an. 
 	Muss entweder von einem briefkasten durch einen Klick ausgelöst werden oder per Permission so erlaubt werden. Spielername nur für den Briefkasten erforderlich.
 /pmail open | Öffnet den in der Hand haltenden Brief. Legt damit eine Digitale Kopie für dem Empfänger an. Kann nur vom Empfänger geöffnet werden.
 /pmail read <mailid> | Liest die PMail aus dem Digitalen Archiv.
-/pmail silentopen | Sendet eine Chatnachricht an den ausführenden Spieler, was für ein Inhalt im Brief steht ohne den Brief zu "öffnen".
+/pmail silentopen | Sendet eine Chatnachricht an den ausführenden Spieler, 
+    was für ein Inhalt im Brief steht ohne den Brief zu "öffnen".
 /pmail outgoingmail [Seitennumber] | Zeigt das Digitale Archiv der gesendeten Briefe.
+/pmail deliverincomingmail <Spielername> | Gibt dem Online Spieler alle PMails von ihm, welche sich in der Zustellung befindet. 
+    Konsole kann diesen Befehl auch ausführen.
+/pmails <Spielername> [Seitenzahl] | Listet alle vom Spieler gehörenden eingegangenen Mails auf.
+/pmails outgoingmail <Spielername> [Seitenzahl] | Listet alle vom Spieler gehörenden versendeten Mails auf.
+
+MailBox:
+/mailbox create [boolean Kann zum versenden genutzt werden] | Erstellt auf dem Block, welchen der Spieler anschaut eine MailBox. 
+    Mit zusätztlichen Boolean, kann diese MailBox auch PMail versenden wenn man mit diesen Rechtklick auf diesen Block ausführt.
 
 Packete/Parcel:
 /parcel | Wenn der Elektronische Weg ermöglich ist, dann wird hiermit der Packeteingang geöffnet. Per Chat kann man die Packete annehmen.
@@ -59,4 +68,4 @@ Packete/Parcel:
 Ignore Sender:
 /mail [Seitenzahl] | Befehlsübersicht
 /mail ignore <Spielername> | Setzt den Spieler auf die Mailignorier Liste. Dann kann der Spieler dem ausführenden Spieler keine mails schicken.
-/mail ignorelist <Spielername> | 
+/mail listignore [Seitenzahl] | Listet alle ignorierten Spieler auf.
