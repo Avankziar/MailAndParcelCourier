@@ -55,7 +55,14 @@ import me.avankziar.mpc.spigot.cmd.email.ARGE_Send;
 import me.avankziar.mpc.spigot.cmd.emails.ARGEs_OutgoingMail;
 import me.avankziar.mpc.spigot.cmd.mail.ARG_Ignore;
 import me.avankziar.mpc.spigot.cmd.mail.ARG_ListIgnore;
+import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Delete;
+import me.avankziar.mpc.spigot.cmd.pmail.ARGP_DeliverIncomingMail;
+import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Open;
+import me.avankziar.mpc.spigot.cmd.pmail.ARGP_OutgoingMail;
 import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Read;
+import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Send;
+import me.avankziar.mpc.spigot.cmd.pmail.ARGP_SilentOpen;
+import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Write;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.database.MysqlHandler;
 import me.avankziar.mpc.spigot.database.MysqlSetup;
@@ -243,10 +250,10 @@ public class MPC extends JavaPlugin
 				"email_send", 0, 3, 999, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		ArgumentConstructor email_read = new ArgumentConstructor(Type.EMAIL_READ,
 				"email_read", 0, 1, 1, false, false, null);
-		ArgumentConstructor email_outgoingmail = new ArgumentConstructor(Type.EMAIL_OUTGOINGMAIL,
-				"email_outgoingmail", 0, 0, 1, false, false, null);
 		ArgumentConstructor email_delete = new ArgumentConstructor(Type.EMAIL_DELETE,
 				"email_delete", 0, 1, 1, false, false, null);
+		ArgumentConstructor email_outgoingmail = new ArgumentConstructor(Type.EMAIL_OUTGOINGMAIL,
+				"email_outgoingmail", 0, 0, 1, false, false, null);
 		
 		CommandConstructor email = new CommandConstructor(CommandSuggest.Type.EMAIL, "email", false, false,
 				email_delete, email_read, email_send, email_outgoingmail);
@@ -256,8 +263,8 @@ public class MPC extends JavaPlugin
 		
 		new ARGE_Send(plugin, email_send);
 		new ARGE_Read(plugin, email_read);
-		new ARGE_OutgoingMail(plugin, email_outgoingmail);
 		new ARGE_Delete(plugin, email_delete);
+		new ARGE_OutgoingMail(plugin, email_outgoingmail);
 		
 		ArgumentConstructor emails_outgoingmail = new ArgumentConstructor(Type.EMAILS_OUTGOINGMAIL,
 				"emails_outgoingmail", 0, 1, 2, false, false, null);
@@ -270,18 +277,38 @@ public class MPC extends JavaPlugin
 		
 		new ARGEs_OutgoingMail(plugin, emails_outgoingmail);
 		
+		ArgumentConstructor pmail_write = new ArgumentConstructor(Type.PMAIL_WRITE,
+				"pmail_write", 0, 3, 999, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		ArgumentConstructor pmail_send = new ArgumentConstructor(Type.PMAIL_SEND,
 				"email_send", 0, 0, 0, false, false, null);
+		ArgumentConstructor pmail_open = new ArgumentConstructor(Type.PMAIL_OPEN,
+				"pmail_open", 0, 0, 0, false, false, null);
+		ArgumentConstructor pmail_silentopen = new ArgumentConstructor(Type.PMAIL_SILENTOPEN,
+				"pmail_silentopen", 0, 0, 0, false, false, null);
 		ArgumentConstructor pmail_read = new ArgumentConstructor(Type.PMAIL_READ,
 				"pmail_read", 0, 1, 1, false, false, null);
+		ArgumentConstructor pmail_delete = new ArgumentConstructor(Type.PMAIL_DELETE,
+				"pmail_delete", 0, 1, 1, false, false, null);
+		ArgumentConstructor pmail_outgoingmail = new ArgumentConstructor(Type.PMAIL_OUTGOINGMAIL,
+				"email_outgoingmail", 0, 0, 1, false, false, null);
+		ArgumentConstructor pmail_deliverincomingmail = new ArgumentConstructor(Type.PMAIL_DELIVERINCOMINGMAIL,
+				"email_outgoingmail", 0, 1, 1, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		
 		CommandConstructor pmail = new CommandConstructor(CommandSuggest.Type.PMAIL, "pmail", false, false,
-				email_delete, pmail_read, pmail_send, email_outgoingmail);
+				pmail_write, pmail_send, pmail_open, pmail_silentopen, pmail_read, pmail_delete, pmail_outgoingmail,
+				pmail_deliverincomingmail);
 		registerCommand(pmail.getPath(), pmail.getName());
 		getCommand(pmail.getName()).setExecutor(new PMailCommandExecutor(plugin, pmail));
 		getCommand(pmail.getName()).setTabCompleter(tab);
 		
+		new ARGP_Write(plugin, pmail_write);
+		new ARGP_Send(plugin, pmail_send);
+		new ARGP_Open(plugin, pmail_open);
+		new ARGP_SilentOpen(plugin, pmail_silentopen);
 		new ARGP_Read(plugin, pmail_read);
+		new ARGP_Delete(plugin, pmail_delete);
+		new ARGP_OutgoingMail(plugin, pmail_outgoingmail);
+		new ARGP_DeliverIncomingMail(plugin, pmail_deliverincomingmail);
 	}
 	
 	public void setupBypassPerm()

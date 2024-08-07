@@ -11,9 +11,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import me.avankziar.ifh.general.economy.action.OrdererType;
+import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.assistance.TimeHandler;
 import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.PMail;
+import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.MPC;
 
 public class PMailHandler 
@@ -162,7 +165,7 @@ public class PMailHandler
 	 * @return
 	 */
 	public ItemStack writePMail(Player player, Material paper,
-			String subject, String message, UUID owner)
+			String subject, String message, UUID owner, String other)
 	{
 		ItemStack i = new ItemStack(paper, 1);
 		ItemMeta im = i.getItemMeta();
@@ -172,6 +175,10 @@ public class PMailHandler
 		pdc.set(new NamespacedKey(plugin, OWNER), PersistentDataType.STRING, owner.toString());
 		pdc.set(new NamespacedKey(plugin, SENDER), PersistentDataType.STRING, player.getUniqueId().toString());
 		pdc.set(new NamespacedKey(plugin, RECEIVER), PersistentDataType.STRING, owner.toString());
+		im.setDisplayName(ChatApi.convertMiniMessageToOldFormat(
+				plugin.getYamlHandler().getLang().getString("PMail.Write.Displayname")
+				.replace("%player%", other)
+				.replace("%subject%", subject)));
 		i.setItemMeta(im);
 		return i;
 	}
@@ -251,6 +258,12 @@ public class PMailHandler
 		NamespacedKey nwd = new NamespacedKey(plugin, WILL_BE_DELIVERED);
 		ItemStack i = new ItemStack(paper, 1);
 		ItemMeta im = i.getItemMeta();
+		PlayerData pd = plugin.getPlayerDataHandler().getPlayer(pmail.getReceiver());
+		String other = pd != null ? pd.getPlayerName() : pmail.getReceiver().toString();
+		im.setDisplayName(ChatApi.convertMiniMessageToOldFormat(
+				plugin.getYamlHandler().getLang().getString("PMail.Write.Displayname")
+				.replace("%player%", other)
+				.replace("%subject%", pmail.getSubjectMatter())));
 		PersistentDataContainer pdc = im.getPersistentDataContainer();
 		pdc.set(nid, PersistentDataType.INTEGER, pmail.getId());
 		pdc.set(nsu, PersistentDataType.STRING, pmail.getSubjectMatter());
@@ -374,5 +387,88 @@ public class PMailHandler
 					.replace("%subject%", subject)
 					.replace("%message%", message)));
 		return list;
+	}
+	
+	public double getSendingCost(String subject, String message)
+	{
+		String type = plugin.getYamlHandler().getConfig().getString("PMail.Cost.SendingCosts", "NONE");
+		switch(type)
+		{
+		default:
+		case "NONE": return 0.0;
+		case "LUMP_SUM": return plugin.getYamlHandler().getConfig().getDouble("PMail.Cost.Costs", 1.0);
+		case "PER_WORD":
+			return (double) (subject.split(" ").length + message.split(" ").length) 
+					* plugin.getYamlHandler().getConfig().getDouble("PMail.Cost.Costs", 1.0);
+		case "PER_LETTER":
+			return (double) (subject.length() + message.length()) 
+					* plugin.getYamlHandler().getConfig().getDouble("PMail.Cost.Costs", 1.0);
+		}
+	}
+	
+	public void doSendPMail(Player player, ItemStack is)
+	{
+		if(is == null || is.getType() != plugin.getPMailHandler().getPaperType())
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Send.NothingInHandToSend"));
+			return;
+		}
+		ItemMeta im = is.getItemMeta();
+		PersistentDataContainer pdc = im.getPersistentDataContainer();
+		NamespacedKey nsu = new NamespacedKey(plugin, PMailHandler.SUBJECT);
+		NamespacedKey nme = new NamespacedKey(plugin, PMailHandler.MESSAGE);
+		NamespacedKey nre = new NamespacedKey(plugin, PMailHandler.RECEIVER);
+		if(!pdc.has(nsu) || !pdc.has(nme) || !pdc.has(nre))
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Send.NothingInHandToSend"));
+			return;
+		}
+		String subject = pdc.get(nsu, PersistentDataType.STRING);
+		String msg = pdc.get(nme, PersistentDataType.STRING);
+		String other = plugin.getPlayerDataHandler().getPlayerName(pdc.get(nre, PersistentDataType.STRING));
+		double cost = plugin.getPMailHandler().getSendingCost(subject, msg);
+		if(cost > 0.0 && (plugin.getIFHEco() != null || plugin.getVaultEco() != null))
+		{			
+			if(plugin.getIFHEco() != null)
+			{
+				me.avankziar.ifh.spigot.economy.account.Account acc = plugin.getIFHEco().getDefaultAccount(player.getUniqueId());
+				if(acc.getBalance() < cost)
+				{
+					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Send.NotEnoughMoney")
+							.replace("%money%", plugin.getIFHEco().format(cost, acc.getCurrency())));
+					return;
+				}
+				me.avankziar.ifh.general.economy.action.EconomyAction er = 
+						plugin.getIFHEco().withdraw(acc, cost, OrdererType.PLAYER, player.getUniqueId().toString(),
+						plugin.getYamlHandler().getLang().getString("PMail.Send.MoneyCategory"),
+						plugin.getYamlHandler().getLang().getString("PMail.Send.MoneyComment"));
+				if(!er.isSuccess())
+				{
+					ChatApi.sendMessage(player, er.getDefaultErrorMessage());
+					return;
+				}
+			} else
+			{
+				if(!plugin.getVaultEco().has(player, cost))
+				{
+					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Send.NotEnoughMoney")
+							.replace("%money%", String.valueOf(cost)+plugin.getVaultEco().currencyNamePlural()));
+					return;
+				}
+				net.milkbowl.vault.economy.EconomyResponse er = plugin.getVaultEco().withdrawPlayer(player, cost);
+				if(er != null && !er.transactionSuccess())
+				{
+					if(er.errorMessage != null)
+					{
+						ChatApi.sendMessage(player, er.errorMessage);
+					}
+					return;
+				}
+			}
+		}
+		plugin.getPMailHandler().sendPMail(player, is);
+		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Send.Sended")
+				.replace("%players%", other)
+				.replace("%subject%", subject));
 	}
 }

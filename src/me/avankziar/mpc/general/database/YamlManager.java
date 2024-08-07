@@ -6,8 +6,6 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import org.bukkit.Material;
-
 import me.avankziar.mpc.general.database.Language.ISO639_2B;
 import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 
@@ -81,89 +79,6 @@ public class YamlManager
 	public LinkedHashMap<String, LinkedHashMap<String, Language>> getGUIKey()
 	{
 		return guisKeys;
-	}
-	
-	/*
-	 * The main methode to set all paths in the yamls.
-	 */
-	public void setFileInputBukkit(org.bukkit.configuration.file.YamlConfiguration yml,
-			LinkedHashMap<String, Language> keyMap, String key, ISO639_2B languageType)
-	{
-		if(!keyMap.containsKey(key))
-		{
-			return;
-		}
-		if(key.startsWith("#"))
-		{
-			//Comments
-			String k = key.replace("#", "");
-			if(yml.get(k) == null)
-			{
-				//return because no aktual key are present
-				return;
-			}
-			if(yml.getComments(k) != null && !yml.getComments(k).isEmpty())
-			{
-				//Return, because the comments are already present, and there could be modified. F.e. could be comments from a admin.
-				return;
-			}
-			if(keyMap.get(key).languageValues.get(languageType).length == 1)
-			{
-				if(keyMap.get(key).languageValues.get(languageType)[0] instanceof String)
-				{
-					String s = ((String) keyMap.get(key).languageValues.get(languageType)[0]).replace("\r\n", "");
-					yml.setComments(k, Arrays.asList(s));
-				}
-			} else
-			{
-				List<Object> list = Arrays.asList(keyMap.get(key).languageValues.get(languageType));
-				ArrayList<String> stringList = new ArrayList<>();
-				if(list instanceof List<?>)
-				{
-					for(Object o : list)
-					{
-						if(o instanceof String)
-						{
-							stringList.add(((String) o).replace("\r\n", ""));
-						}
-					}
-				}
-				yml.setComments(k, (List<String>) stringList);
-			}
-			return;
-		}
-		if(yml.get(key) != null)
-		{
-			return;
-		}
-		if(keyMap.get(key).languageValues.get(languageType).length == 1)
-		{
-			if(keyMap.get(key).languageValues.get(languageType)[0] instanceof String)
-			{
-				yml.set(key, ((String) keyMap.get(key).languageValues.get(languageType)[0]).replace("\r\n", ""));
-			} else
-			{
-				yml.set(key, keyMap.get(key).languageValues.get(languageType)[0]);
-			}
-		} else
-		{
-			List<Object> list = Arrays.asList(keyMap.get(key).languageValues.get(languageType));
-			ArrayList<String> stringList = new ArrayList<>();
-			if(list instanceof List<?>)
-			{
-				for(Object o : list)
-				{
-					if(o instanceof String)
-					{
-						stringList.add(((String) o).replace("\r\n", ""));
-					} else
-					{
-						stringList.add(o.toString().replace("\r\n", ""));
-					}
-				}
-			}
-			yml.set(key, (List<String>) stringList);
-		}
 	}
 	
 	public void setFileInput(dev.dejvokep.boostedyaml.YamlDocument yml,
@@ -713,6 +628,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Spieler <white>%player% <red>existiert nicht!",
 						"<red>The player white>%player% <red>does not exist!"}));
+		languageKeys.put("PlayerDontOnline",
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Spieler <white>%player% <red>ist nicht online!",
+						"<red>The player white>%player% <red>is not online!"}));
 		languageKeys.put("NoNumber",
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Das Argument <white>%value% <red>muss eine ganze Zahl sein.",
@@ -925,23 +844,39 @@ public class YamlManager
 						"<red>You have no outgoing e-mails."}));
 		languageKeys.put(path+"Headline", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<yellow>=====<gray>[<gold>E-Mails <white>Seite %page%<gray>]<yellow>=====",
-						"<yellow>=====<gray>[<gold>E-Mails <white>Page %page%<gray>]<yellow>====="}));
+						"<yellow>=====<gray>[<gold>P-Mails <white>Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>P-Mails <white>Page %page%<gray>]<yellow>====="}));
 		languageKeys.put(path+"ShowMails", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<gray>[%time%]</gray> <hover:show_text:'<yellow>Von %sender%'><white>%subjectdisplay%</hover> "
-						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
-						+ "<click:suggest_command:'%emailsend%%sender% re:%subject%'><gray>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
-						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>",
+						+ "<click:run_command:'%pmailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%pmailwrite%%sender% re:%subject%'><gray>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%pmaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>",
 						
 						"<gray>[%time%]</gray> <hover:show_text:'<yellow>From %sender%'><white>%subjectdisplay%</hover> "
-						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
-						+ "<click:suggest_command:'%emailsend%%sender% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
-						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
+						+ "<click:run_command:'%pmailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%pmailwrite%%sender% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%pmaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
 		languageKeys.put(path+"TimeFormat", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"dd.MM-HH:mm",
 						"dd.MM-HH:mm"}));
+		languageKeys.put(path+"Write.Displayname", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Brief für <white>%player% <gold>- <white>%subject%",
+						"<red>Letter for <white>%player% <gold>- <white>%subject%"}));
+		languageKeys.put(path+"Write.NotEnoughMaterial", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast nicht Materialien um die PMail zu schreiben!",
+						"<red>You dont have not enough materials top write the pmail!"}));
+		languageKeys.put(path+"Write.NotFreeSlot", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast keinen freien Slot im Inventar um den Brief zu deponieren!",
+						"<red>You do not have a free slot in your inventory to deposit the letter!"}));
+		languageKeys.put(path+"Open.NotPMailOnItem", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Auf diesem Item ist kein Briefinhalt zu finden!",
+						"<red>There is no letter content on this item!"}));
 		languageKeys.put(path+"Open.Opened", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast die PMail des Spielers %players% mit dem Betreff %subject% <yellow>geöffnet!",
@@ -966,6 +901,45 @@ public class YamlManager
 						"<red>Betreff: <reset>%subject%",
 						"%message%",
 						"<gray>==============================",}));
+		languageKeys.put(path+"Send.NotEnoughMoney", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast nicht Geld zum senden der P-Mail! Kosten: <white>%money%",
+						"<red>You have not enough money to send the pmail! Costs:: <white>%money%"}));
+		languageKeys.put(path+"Send.NothingInHandToSend", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast nicht Geld zum senden der P-Mail! Kosten: <white>%money%",
+						"<red>You have not enough money to send the pmail! Costs:: <white>%money%"}));
+		languageKeys.put(path+"Send.MoneyCategory", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"P-Mail",
+						"P-Mail"}));
+		languageKeys.put(path+"Send.MoneyComment", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"P-Mail gesendet",
+						"P-Mail sended"}));
+		languageKeys.put(path+"Send.Sended", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<white>%players% <yellow>wude die P-Mail <white>%subject% <yellow>gesendet.",
+						"<white>%players% <yellow>was send the P-Mail <white>%subject%<yellow>."}));
+		languageKeys.put(path+"Delete.Deleted", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast die P-Mail gelöscht!",
+						"<red>You deleted the pmail!"}));
+		languageKeys.put(path+"OutGoingMail.Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>Gesendete P-Mails <white>Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>Sended P-Mails <white>Page %page%<gray>]<yellow>====="}));
+		languageKeys.put(path+"OutGoingMail.ShowMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>An %receiver%<newline><red>Wurde gelesen:</red> <white>%wasread%</white>'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%pmailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%pmailwrite%%receiver% re:%subject%'><gray>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%pmaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>",
+						
+						"<gray>[%time%]</gray> <hover:show_text:'<yellow>To %receiver%<newline><red>Wurde gelesen:</red> <white>%wasread%</white>'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%pmailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%pmailwrite%%receiver% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%pmaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
 	}
 	
 	public void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages

@@ -1,12 +1,14 @@
 package me.avankziar.mpc.spigot.listener;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.objects.MailBox;
@@ -71,9 +73,17 @@ public class PMailListener implements Listener
 				&& event.getItem() != null 
 				&& event.getItem().getType() == plugin.getPMailHandler().getPaperType())
 		{
-			ItemStack is = event.getItem();
+			final ItemStack is = event.getItem();
 			event.setUseInteractedBlock(Result.DENY);
-			plugin.getPMailHandler().sendPMail(event.getPlayer(), is);
+			final Player player = event.getPlayer();
+			new BukkitRunnable() 
+			{
+				@Override
+				public void run() 
+				{
+					plugin.getPMailHandler().doSendPMail(player, is);
+				}
+			}.runTaskAsynchronously(plugin);
 		}
 	}
 }

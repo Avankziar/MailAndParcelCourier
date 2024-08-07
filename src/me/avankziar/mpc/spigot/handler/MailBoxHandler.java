@@ -1,5 +1,7 @@
 package me.avankziar.mpc.spigot.handler;
 
+import java.util.UUID;
+
 import org.bukkit.Location;
 
 import me.avankziar.mpc.general.database.MysqlType;
@@ -25,6 +27,13 @@ public class MailBoxHandler
 	}
 	
 	public MailBox getMailBox(Location loc)
+	{
+		return (MailBox) plugin.getMysqlHandler().getData(MysqlType.MAILBOX,
+				"`box_server` = ? AND `box_world` = ? AND `box_x` = ? AND `box_y` = ? AND `box_z` = ?",
+				server, loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+	}
+	
+	public MailBox getMailBox(UUID uuid)
 	{
 		return (MailBox) plugin.getMysqlHandler().getData(MysqlType.MAILBOX,
 				"`box_server` = ? AND `box_world` = ? AND `box_x` = ? AND `box_y` = ? AND `box_z` = ?",

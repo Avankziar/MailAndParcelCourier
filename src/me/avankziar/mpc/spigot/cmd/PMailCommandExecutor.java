@@ -156,7 +156,7 @@ public class PMailCommandExecutor implements CommandExecutor
 	public void sendIngoingEMails(final Player player, int page)
 	{
 		int start = page*10;
-		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
+		int last = plugin.getMysqlHandler().getCount(MysqlType.PMAIL,
 				"`mail_receiver` = ?", player.getUniqueId().toString());
 		ArrayList<PMail> pmails = plugin.getPMailHandler().getReceivedEmails(player.getUniqueId(), start, last);
 		if(pmails.size() == 0 && start == 0)
@@ -187,14 +187,14 @@ public class PMailCommandExecutor implements CommandExecutor
 					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
 					.replace("%subject%", e.getSubjectMatter())
 					.replace("%sender%", name)
-					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+					.replace("%pmailread%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_READ))
+					.replace("%pmailwrite%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_WRITE))
+					.replace("%pmaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_DELETE))
 					);
 		}
 		
 		String pastNext = pastNextPage(player,
-				page, last, CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL));
+				page, last, CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL));
 		if(pastNext != null) 
 		{
 			texts.add(pastNext);

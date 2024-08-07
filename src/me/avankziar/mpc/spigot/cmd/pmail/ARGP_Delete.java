@@ -9,17 +9,16 @@ import org.bukkit.scheduler.BukkitRunnable;
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.assistance.MatchApi;
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
+import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
-import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
-import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
-public class ARGP_Read  extends ArgumentModule
+public class ARGP_Delete extends ArgumentModule
 {
 	private MPC plugin;
 	
-	public ARGP_Read(MPC plugin, ArgumentConstructor argumentConstructor)
+	public ARGP_Delete(MPC plugin, ArgumentConstructor argumentConstructor)
 	{
 		super(argumentConstructor);
 		this.plugin = plugin;
@@ -41,10 +40,11 @@ public class ARGP_Read  extends ArgumentModule
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("IsNegativ"));
 			return;
 		}
-		new BukkitRunnable() {
-			
+		new BukkitRunnable() 
+		{
 			@Override
-			public void run() {
+			public void run() 
+			{
 				doAsync(player, mailid);
 			}
 		}.runTaskAsynchronously(plugin);
@@ -55,17 +55,15 @@ public class ARGP_Read  extends ArgumentModule
 		PMail pmail = plugin.getPMailHandler().getPMail(mailid, false);
 		if(pmail == null)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.EMailDontExist"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.EMailDontExist"));
 			return;
 		}
 		if(!pmail.getOwner().equals(player.getUniqueId()))
 		{
-			if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.READ_OTHER_MAIL))
-			{
-				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.YourAreNotTheEMailOwner"));
-				return;
-			}
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.YourAreNotTheEMailOwner"));
+			return;
 		}
-		plugin.getPMailHandler().getPMailToRead(pmail).stream().forEach(x -> ChatApi.sendMessage(player, x));
+		plugin.getMysqlHandler().deleteData(MysqlType.PMAIL, "`id` = ?", mailid);
+		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Delete.Deleted"));
 	}
 }

@@ -331,4 +331,160 @@ public class ChatApi
 		sb.append("</click></hover>");
 		return sb.toString();
 	}
+	
+	public static String convertMiniMessageToOldFormat(String s)
+	{
+		StringBuilder b = new StringBuilder();
+		for(int i = 0; i < s.length(); i++)
+		{
+			char c = s.charAt(i);
+			if(c == '<' && i+1 < s.length())
+			{
+				char cc = s.charAt(i+1);
+				if(cc == '#' && i+8 < s.length())
+				{
+					//Hexcolors
+					//     i12345678
+					//f.e. <#00FF00>
+					String rc = s.substring(i, i+8);
+					b.append(rc.replace("<#", "&#").replace(">", ""));
+					i += 8;
+				} else
+				{
+					//Normal Colors
+					String r = null;
+					StringBuilder sub = new StringBuilder();
+					sub.append(c).append(cc);
+					i++;
+					for(int j = i+1; j < s.length(); j++)
+					{
+						i++;
+						char jc = s.charAt(j);
+						if(jc == '>')
+						{
+							sub.append(jc);
+							switch(sub.toString())
+							{
+							case "</color>":
+							case "</black>":
+							case "</dark_blue>":
+							case "</dark_green>":
+							case "</dark_aqua>":
+							case "</dark_red>":
+							case "</dark_purple>":
+							case "</gold>":
+							case "</gray>":
+							case "</dark_gray>":
+							case "</blue>":
+							case "</green>":
+							case "</aqua>":
+							case "</red>":
+							case "</light_purple>":
+							case "</yellow>":
+							case "</white>":
+							case "</obf>":
+							case "</obfuscated>":
+							case "</b>":
+							case "</bold>":
+							case "</st>":
+							case "</strikethrough>":
+							case "</u>":
+							case "</underlined>":
+							case "</i>":
+							case "</em>":
+							case "</italic>":
+								r = "";
+								break;
+							case "<black>":
+								r = "&0";
+								break;
+							case "<dark_blue>":
+								r = "&1";
+								break;
+							case "<dark_green>":
+								r = "&2";
+								break;
+							case "<dark_aqua>":
+								r = "&3";
+								break;
+							case "<dark_red>":
+								r = "&4";
+								break;
+							case "<dark_purple>":
+								r = "&5";
+								break;
+							case "<gold>":
+								r = "&6";
+								break;
+							case "<gray>":
+								r = "&7";
+								break;
+							case "<dark_gray>":
+								r = "&8";
+								break;
+							case "<blue>":
+								r = "&9";
+								break;
+							case "<green>":
+								r = "&a";
+								break;
+							case "<aqua>":
+								r = "&b";
+								break;
+							case "<red>":
+								r = "&c";
+								break;
+							case "<light_purple>":
+								r = "&d";
+								break;
+							case "<yellow>":
+								r = "&e";
+								break;
+							case "<white>":
+								r = "&f";
+								break;
+							case "<obf>":
+							case "<obfuscated>":
+								r = "&k";
+								break;
+							case "<b>":
+							case "<bold>":
+								r = "&l";
+								break;
+							case "<st>":
+							case "<strikethrough>":
+								r = "&m";
+								break;
+							case "<u>":
+							case "<underlined>":
+								r = "&n";
+								break;
+							case "<i>":
+							case "<em>":
+							case "<italic>":
+								r = "&o";
+								break;
+							case "<reset>":
+								r = "&r";
+								break;
+							case "<newline>":
+								r = "~!~";
+								break;
+							}
+							b.append(r);
+							break;
+						} else
+						{
+							//Search for the color.
+							sub.append(jc);
+						}
+					}
+				}
+			} else
+			{
+				b.append(c);
+			}
+		}
+		return b.toString();
+	}
 }
