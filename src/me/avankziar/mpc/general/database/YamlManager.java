@@ -425,6 +425,24 @@ public class YamlManager
 				"Der Anzahl an Materialien, die man dafür haben muss um eine PMail zu erstellen.",
 				"",
 				"The amount of materials you need to create a PMail."});
+		addConfig("PMail.Task.RunInLoop",
+				new Object[] {
+				60},
+				new Object[] {
+				"",
+				"Der Anzahl an Minuten, wann die PMails als Items in die Mailbox gelegt werden!",
+				"",
+				"The number of minutes when the PMails are placed as items in the mailbox!"});
+		addConfig("PMail.Task.DepositPMailWhichAreOlderThan",
+				new Object[] {
+				60},
+				new Object[] {
+				"",
+				"Der Anzahl an Minuten, welche PMails alt sein müssen um zugestellt werden müssen.",
+				"Bedeutet, die PMail muss vor mehr als x Minuten versenden worden sein, um zugestellt werden zu können.",
+				"",
+				"The number of minutes old emails must be to be delivered.",
+				"This means that the PMail must have been sent more than x minutes ago in order to be delivered."});
 	}
 	
 	public void initCommands()
@@ -499,7 +517,7 @@ public class YamlManager
 				"<yellow>Lists all self sended emails.");
 		
 		basePermission =  "emails.cmd.emails";
-		commandsInput("emails", "emails", "emails.cmd.emails", 
+		commandsInput("emails", "emails", basePermission, 
 				"/emails <playername> [Pagenumber]", "/emails ", false,
 				"<red>/emails <Spielername> [Seitenzahl] <white>| Listet alle eingegangenen E-Mails des Spielers auf.",
 				"<red>/emails <playername> [Pagenumber] <white>| Lists all incoming emails for the player.",
@@ -515,6 +533,90 @@ public class YamlManager
 				"<aqua>Commandright for <white>/emails outgoingmail",
 				"<yellow>Listet alle vom Spieler gesendeten E-Mails auf.",
 				"<yellow>Lists all emails sent by the player.");
+		
+		basePermission =  "pmail.cmd.pmail";
+		commandsInput("pmail", "pmail", basePermission, 
+				"/pmail [pagenumber]", "/pmail ", false,
+				"<red>/pmail [Seitenzahl] <white>| Listet alle geöffneten P-Mails auf.",
+				"<red>/pmail [pagenumber] <white>| Lists all opened pmails.",
+				"<aqua>Befehlsrecht für <white>/pmail",
+				"<aqua>Commandright for <white>/pmail",
+				"<yellow>Listet alle geöffneten P-Mails auf.",
+				"<yellow>Lists all opened pmails.");
+		argumentInput("pmail_write", "write", basePermission,
+				"/pmail write <playername> <subject> <message>", "/pmail write ", false,
+				"<red>/pmail write <Spielername> <Betreff> <Nachricht> <white>| ",
+				"<red>/pmail write <playername> <subject> <message> <white>| ",
+				"<aqua>Befehlsrecht für <white>/pmail write",
+				"<aqua>Commandright for <white>/pmail write",
+				"<yellow>",
+				"<yellow>");
+		argumentInput("pmail_send", "send", basePermission,
+				"/pmail send", "/pmail  ", false,
+				"<red>/pmail send <white>| Sendet den Brief in der Hand an den Empfänger.",
+				"<red>/pmail send <white>| Send the letter in hand to the recipient.",
+				"<aqua>Befehlsrecht für <white>/pmail send",
+				"<aqua>Commandright for <white>/pmail send",
+				"<yellow>Sendet den Brief in der Hand an den Empfänger.",
+				"<yellow>Send the letter in hand to the recipient.");
+		argumentInput("pmail_open", "open", basePermission,
+				"/pmail open", "/pmail open ", false,
+				"<red>/pmail open <white>| Öffnet den Brief in der Hand. Legt den Inhalt in den Chat und regestriert es in der Datenbank. Löscht das Item.",
+				"<red>/pmail open <white>| Open the letter in your hand. Put the contents in the chat and register it in the database. Delete the item.",
+				"<aqua>Befehlsrecht für <white>/pmail open",
+				"<aqua>Commandright for <white>/pmail open",
+				"<yellow>Öffnet den Brief in der Hand. Legt den Inhalt in den Chat und regestriert es in der Datenbank. Löscht das Item.",
+				"<yellow>Open the letter in your hand. Put the contents in the chat and register it in the database. Delete the item.");
+		argumentInput("pmail_silentopen", "silentopen", basePermission,
+				"/pmail silentopen", "/pmail silentopen ", false,
+				"<red>/pmail silentopen <white>| Öffnet einen Brief in der Hand obwohl man nicht der Empfänger ist. Legt den Inhalt in den Chat aber setzt nichts in die Datenbank.",
+				"<red>/pmail silentopen <white>| Opens a letter in your hand even though you are not the recipient. Puts the content in the chat but does not put anything into the database.",
+				"<aqua>Befehlsrecht für <white>/pmail silentopen",
+				"<aqua>Commandright for <white>/pmail silentopen",
+				"<yellow>Öffnet einen Brief in der Hand obwohl man nicht der Empfänger ist. Legt den Inhalt in den Chat aber setzt nichts in die Datenbank.",
+				"<yellow>Opens a letter in your hand even though you are not the recipient. Puts the content in the chat but does not put anything into the database.");
+		argumentInput("pmail_read", "read", basePermission,
+				"/pmail read <mailid>", "/pmail read ", false,
+				"<red>/pmail read <MailId> <white>| Liest die PMail aus der Datenbank. Gilt nur für zugestellte und geöffnete PMails.",
+				"<red>/pmail read <mailid> <white>| Reads the PMail from the database. Only applies to delivered and opened PMails.",
+				"<aqua>Befehlsrecht für <white>/pmail read",
+				"<aqua>Commandright for <white>/pmail read",
+				"<yellow>Liest die PMail aus der Datenbank. Gilt nur für zugestellte und geöffnete PMails.",
+				"<yellow>Reads the PMail from the database. Only applies to delivered and opened PMails.");
+		argumentInput("pmail_delete", "delete", basePermission,
+				"/pmail delete <mailid>", "/pmail delete ", false,
+				"<red>/pmail delete <MailId> <white>| Löscht die PMail.",
+				"<red>/pmail delete <mailid> <white>| Delete the pmail.",
+				"<aqua>Befehlsrecht für <white>/pmail delete",
+				"<aqua>Commandright for <white>/pmail delete",
+				"<yellow>Löscht die PMail.",
+				"<yellow>Delete the pmail.");
+		argumentInput("pmail_outgoingmail", "outgoingmail", basePermission,
+				"/pmail outgoingmail [pagenumber]", "/pmail outgoingmail ", false,
+				"<red>/pmail outgoingmail [Seitenzahl] <white>| Listet alle gesendeten PMails auf.",
+				"<red>/pmail outgoingmail [pagenumber] <white>| Lists all sended pmail.",
+				"<aqua>Befehlsrecht für <white>/pmail outgoingmail",
+				"<aqua>Commandright for <white>/pmail outgoingmail",
+				"<yellow>Listet alle gesendeten PMails auf.",
+				"<yellow>Lists all sended pmail.");
+		argumentInput("pmail_deliverincomingmail", "deliverincomingmail", basePermission,
+				"/pmail deliverincomingmail <playername>", "/pmail deliverincomingmail ", false,
+				"<red>/pmail deliverincomingmail <Spielername> <white>| PMails welche in der Zustellung sind, werden dem online Spieler sofort ans Inventar zugestellt. Bei vollem Inventar droppen die Pmails.",
+				"<red>/pmail deliverincomingmail <playername> <white>| PMails that are being delivered are immediately delivered to the online player's inventory. The PMails drop when the inventory is full.",
+				"<aqua>Befehlsrecht für <white>/pmail deliverincomingmail",
+				"<aqua>Commandright for <white>/pmail deliverincomingmail",
+				"<yellow>PMails welche in der Zustellung sind, werden dem online Spieler sofort ans Inventar zugestellt. Bei vollem Inventar droppen die Pmails.",
+				"<yellow>PMails that are being delivered are immediately delivered to the online player's inventory. The PMails drop when the inventory is full.");
+	
+		basePermission =  "mailbox.cmd.mailbox";
+		commandsInput("mailbox", "mailbox", basePermission, 
+				"/mailbox [[-noowner] | [-cansend] | [-override]]", "/pmail ", false,
+				"<red>/mailbox [[-noowner] | [-cansend] | [-override]] <white>| Erstellt MailBox. -noowner, ohne Eigentümer. -cansend, kann PMails versenden. -override, überschreibt die eigene alte MailBox auf die neue Position.",
+				"<red>/mailbox [[-noowner] | [-cansend] | [-override]] <white>| Creates MailBox. -noowner, without owner. -cansend, can send PMails. -override, overwrites the old MailBox to the new position.",
+				"<aqua>Befehlsrecht für <white>/mailbox",
+				"<aqua>Commandright for <white>/mailbox",
+				"<yellow>Erstellt MailBox. -noowner, ohne Eigentümer. -cansend, kann PMails versenden. -override, überschreibt die eigene alte MailBox auf die neue Position.",
+				"<yellow>Creates MailBox. -noowner, without owner. -cansend, can send PMails. -override, overwrites the old MailBox to the new position.");
 	}
 	
 	private void comBypass() //INFO:ComBypass
@@ -671,6 +773,7 @@ public class YamlManager
 		initMailLang();
 		initEMailLang();
 		initPMailLang();
+		initMailBoxLang();
 	}
 	
 	public void initMailLang()
@@ -921,6 +1024,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<white>%players% <yellow>wude die P-Mail <white>%subject% <yellow>gesendet.",
 						"<white>%players% <yellow>was send the P-Mail <white>%subject%<yellow>."}));
+		languageKeys.put(path+"Send.HasPMail", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast %amount% neue P-Mails!</yellow> <click:run_command:'%pmail%'><gray>[</gray><yellow>Einsehen</yellow><gray>]</gray></click>",
+						"<yellow>You have %amount% new pMails!</yellow> <click:run_command:'%pmail%'><gray>[</gray><yellow>View</yellow><gray>]</gray></click>"}));
 		languageKeys.put(path+"Delete.Deleted", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du hast die P-Mail gelöscht!",
@@ -940,6 +1047,92 @@ public class YamlManager
 						+ "<click:run_command:'%pmailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
 						+ "<click:suggest_command:'%pmailwrite%%receiver% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
 						+ "<click:suggest_command:'%pmaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
+		
+		path = "PMails.";
+		languageKeys.put(path+"HasNoIncomingEMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Spieler hat keine eingegangenen P-Mails.",
+						"<red>The player have no incoming p-mails."}));
+		languageKeys.put(path+"HasNoOutgoingEMails", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Spieler hat keine versendeten P-Mails.",
+						"<red>The player have no outgoing p-mails."}));
+		languageKeys.put(path+"Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>P-Mails von <white>%player% Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>P-Mails from <white>%player% Page %page%<gray>]<yellow>====="}));
+		languageKeys.put(path+"OutGoingMail.Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>Gesendete P-Mails von <white>%player% Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>Sendet P-Mails from <white>%player% Page %page%<gray>]<yellow>====="}));
+	}
+	
+	public void initMailBoxLang()
+	{
+		String path = "MailBox.";
+		languageKeys.put(path+"CannotDeleteMailBoxWithoutAOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du kannst keine MailBox löschen, die keinem gehört!",
+						"<red>You cannot delete a mailbox that does not belong to anyone!"}));
+		languageKeys.put(path+"CannotDeleteMailBoxOtherPlayers", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du kannst keine MailBox löschen, die einem anderen Spieler gehört!",
+						"<red>You cannot delete a MailBox that belongs to another player!"}));
+		languageKeys.put(path+"Deleted.YourOwn", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast deine MailBox gelöscht.",
+						"<yellow>You have deleted your mailbox."}));
+		languageKeys.put(path+"Deleted.Ownerless", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast eine MailBox ohne Eigentümer gelöscht.",
+						"<yellow>You deleted a mailbox without an owner."}));
+		languageKeys.put(path+"Deleted.OtherPlayers", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast die MailBox von %player% gelöscht.",
+						"<yellow>You have deleted the mailbox of %player%."}));
+		languageKeys.put(path+"Create.CannotCreateWithoutOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du kannst keine MailBox ohne Eigentümer erstellen!",
+						"<red>You cannot create a MailBox without an owner!"}));
+		languageKeys.put(path+"Create.CannotCreateWhichCanSend", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du kannst keine MailBox erstellen, die gleichzeitig auch versenden kann!",
+						"<red>You cannot create a MailBox that can also send!"}));
+		languageKeys.put(path+"Create.WithoutOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast eine MailBox erstellt, welche keinen Eigentümer hat!",
+						"<yellow>You have created a MailBox which has no owner!"}));
+		languageKeys.put(path+"Create.HaveAlreadyAMailBox", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast schon eine MailBox!",
+						"<red>You already have a mailbox!"}));
+		languageKeys.put(path+"Create.Override", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Die Position deiner MailBox wurden umgesetzt und die Eigenschaften überschrieben.",
+						"<yellow>The position of your MailBox has been moved and the properties overwritten."}));
+		languageKeys.put(path+"Create.YourOwn", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast eine MailBox erstellt!",
+						"<yellow>You have created a MailBox!"}));
+		
+		path = "MailBoxs.";
+		languageKeys.put(path+"NoMailBoxes", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Es existieren keine MailBoxen!",
+						"<red>There are no mailboxes!"}));
+		languageKeys.put(path+"Headline", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>=====<gray>[<gold>MailBoxes <white>Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>MailBoxes <white>Page %page%<gray>]<yellow>====="}));
+		languageKeys.put(path+"Show", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<white>%value%</white> "
+						+ "<click:run_command:'%mailboxsinfo%%value%'><gray>[</gray><yellow>Info</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%mailboxsdelete%%value%'><gray>[</gray><red>X</red><gray>]</gray></click>",
+						
+						"<white>%value%</white> "
+						+ "<click:run_command:'%mailboxsinfo%%value%'><gray>[</gray><yellow>Info</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%mailboxsdelete%%value%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
 	}
 	
 	public void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages

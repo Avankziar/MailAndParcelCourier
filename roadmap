@@ -39,8 +39,7 @@ E-mails:
 P-Mails:
 /pmail | Listet alle eigenen eingegangenen Mails auf.
 /pmail write <Spielername> <Betreff> <Nachricht> | Setzt auf einem Stück Papier die Nachricht.
-/pmail send | Sendet den Brief an den Empfänger. Legt auch eine Digitale Kopie für den Sender an. 
-	Muss entweder von einem briefkasten durch einen Klick ausgelöst werden oder per Permission so erlaubt werden. Spielername nur für den Briefkasten erforderlich.
+/pmail send | Sendet den Brief an den Empfänger. Legt auch eine Digitale Kopie für den Sender an.
 /pmail open | Öffnet den in der Hand haltenden Brief. Legt damit eine Digitale Kopie für dem Empfänger an. Kann nur vom Empfänger geöffnet werden.
 /pmail read <mailid> | Liest die PMail aus dem Digitalen Archiv.
 /pmail silentopen | Sendet eine Chatnachricht an den ausführenden Spieler, 
@@ -51,9 +50,15 @@ P-Mails:
 /pmails <Spielername> [Seitenzahl] | Listet alle vom Spieler gehörenden eingegangenen Mails auf.
 /pmails outgoingmail <Spielername> [Seitenzahl] | Listet alle vom Spieler gehörenden versendeten Mails auf.
 
+BackgroundTask sorgt dafür, dass versendete PMails an Mailboxen zugestellt werden, solange die MailBox existiert und sich auf dem Server befindet.
+Spieler können an einer MailBox, die extra deklariert hat, dass sie PMails versenden kann, Briefe in der Hauphand per Rechtsklick auf diese Mailbox versenden.
+
 MailBox:
-/mailbox create [boolean Kann zum versenden genutzt werden] | Erstellt auf dem Block, welchen der Spieler anschaut eine MailBox. 
+/mailbox [-cansend, kann zum versenden genutzt werden] [-noowner, hat dann keinen Eigentümer] [-override überschreibt die eigene Mailbox] | Erstellt oder entfernt auf dem Block, welchen der Spieler anschaut eine MailBox. 
     Mit zusätztlichen Boolean, kann diese MailBox auch PMail versenden wenn man mit diesen Rechtklick auf diesen Block ausführt.
+/mailboxs [Seitenzahl] | Listet alle MailBoxen aller Spieler auf.
+/mailboxs delete <Spielername/Id> |  Löscht die MailBox vom Spieler.
+/mailboxs info <Spielername/Id> | Holt Informationen für die MailBox ein.
 
 Packete/Parcel:
 /parcel | Wenn der Elektronische Weg ermöglich ist, dann wird hiermit der Packeteingang geöffnet. Per Chat kann man die Packete annehmen.
@@ -62,8 +67,6 @@ Packete/Parcel:
 	Welche beim Schließen der Gui abgesendet werden. Nur bei elektronischem Weg.
 /parcel packing <Spielername> <Betreff> | Speichert den Empfänger und den Betreff für die nächste Physikalische Sendung.
 /parcel sending <Spielername> | Öffnet die Gui, der Spieler kann nun alle Packete versenden. Bei Schließung des packets, werden die Packete versendet.
-/parcel setmailbox | Erstellt auf dem Angeschauten Block (Truhe, Schild) einen Briefkasten.
-/parcel deletemailbox | Löscht auf dem angeschauten Block den Briefkasten.
 
 Ignore Sender:
 /mail [Seitenzahl] | Befehlsübersicht

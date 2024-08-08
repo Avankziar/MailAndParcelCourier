@@ -64,6 +64,8 @@ public class ARGP_DeliverIncomingMail extends ArgumentModule
 		ArrayList<ItemStack> isl = new ArrayList<>();
 		Material paper = plugin.getPMailHandler().getPaperType();
 		list.stream().forEach(x -> isl.add(plugin.getPMailHandler().getPMailToDeposit(x, paper)));
+		list.stream().forEach(x -> x.setWillBeDelivered(false));
+		list.stream().forEach(x -> plugin.getMysqlHandler().updateData(MysqlType.PMAIL, x, "`id` = ?", x.getId()));
 		new BukkitRunnable() 
 		{	
 			@Override

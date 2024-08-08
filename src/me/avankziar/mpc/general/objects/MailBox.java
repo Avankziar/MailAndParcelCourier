@@ -43,6 +43,18 @@ public class MailBox implements MysqlHandable
 		setCanBeUsedForSending(canBeUsedForSending);
 	}
 	
+	public MailBox(int id, UUID owner, String server, Location loc, boolean canBeUsedForSending)
+	{
+		setId(id);
+		setOwner(owner);
+		setServer(server);
+		setWorld(loc.getWorld().getName());
+		setX(loc.getBlockX());
+		setY(loc.getBlockY());
+		setZ(loc.getBlockZ());
+		setCanBeUsedForSending(canBeUsedForSending);
+	}
+	
 	public int getId() 
 	{
 		return id;
@@ -126,6 +138,15 @@ public class MailBox implements MysqlHandable
 	public Location getLocation()
 	{
 		return new Location(Bukkit.getWorld(world), x, y, z);
+	}
+	
+	public void setLocation(String server, Location loc)
+	{
+		this.server = server;
+		this.world = loc.getWorld().getName();
+		this.x = loc.getBlockX();
+		this.y = loc.getBlockY();
+		this.z = loc.getBlockZ();
 	}
 
 	@Override

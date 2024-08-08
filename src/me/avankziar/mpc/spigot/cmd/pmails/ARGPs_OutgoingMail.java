@@ -1,4 +1,4 @@
-package me.avankziar.mpc.spigot.cmd.emails;
+package me.avankziar.mpc.spigot.cmd.pmails;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,15 +16,15 @@ import me.avankziar.mpc.general.assistance.TimeHandler;
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandSuggest;
 import me.avankziar.mpc.general.database.MysqlType;
-import me.avankziar.mpc.general.objects.EMail;
+import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 
-public class ARGEs_OutgoingMail extends ArgumentModule
+public class ARGPs_OutgoingMail extends ArgumentModule
 {
 	private MPC plugin;
 	
-	public ARGEs_OutgoingMail(MPC plugin, ArgumentConstructor argumentConstructor)
+	public ARGPs_OutgoingMail(MPC plugin, ArgumentConstructor argumentConstructor)
 	{
 		super(argumentConstructor);
 		this.plugin = plugin;
@@ -71,19 +71,19 @@ public class ARGEs_OutgoingMail extends ArgumentModule
 	private void doAsync(Player player, String othername, UUID otheruuid, int page)
 	{
 		int start = page*10;
-		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
+		int last = plugin.getMysqlHandler().getCount(MysqlType.PMAIL,
 				"`mail_sender` = ?", otheruuid.toString());
-		ArrayList<EMail> emails = plugin.getEMailHandler().getSendedEmails(otheruuid, start, last);
-		if(emails.size() == 0 && start == 0)
+		ArrayList<PMail> pmails = plugin.getPMailHandler().getSendedEmails(otheruuid, start, last);
+		if(pmails.size() == 0 && start == 0)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMails.HasNoOutgoingEMails"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMails.HasNoOutgoingEMails"));
 			return;
 		}
 		ArrayList<String> texts = new ArrayList<>();
-		texts.add(plugin.getYamlHandler().getLang().getString("EMails.OutGoingMail.Headline")
+		texts.add(plugin.getYamlHandler().getLang().getString("PMails.OutGoingMail.Headline")
 				.replace("%player%", othername)
 				.replace("%page%", String.valueOf(page)));
-		for(EMail e : emails)
+		for(PMail e : pmails)
 		{
 			String name = e.getSender();
 			UUID uuid = null;
@@ -96,16 +96,17 @@ public class ARGEs_OutgoingMail extends ArgumentModule
 					name = off.getName();
 				}
 			} catch(Exception ex) {}
-			texts.add(plugin.getYamlHandler().getLang().getString("EMail.OutGoingMail.ShowMails")
+			texts.add(plugin.getYamlHandler().getLang().getString("PMail.OutGoingMail.ShowMails")
 					.replace("%mailid%", String.valueOf(e.getId()))
 					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
-							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
-					.replace("%subject%", e.getSubjectMatter().replace("+", " "))
+							plugin.getYamlHandler().getLang().getString("PMail.TimeFormat", "dd.MM-HH:mm")))
+					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
+					.replace("%subject%", e.getSubjectMatter())
 					.replace("%receiver%", name)
 					.replace("%wasread%", plugin.getReplacerHandler().getBoolean(e.hasReceiverReaded()))
-					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+					.replace("%pmailread%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_READ))
+					.replace("%pmailwrite%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_WRITE))
+					.replace("%pmaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_DELETE))
 					);
 		}
 		

@@ -45,8 +45,10 @@ import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmd.EMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.EMailsCommandExecutor;
+import me.avankziar.mpc.spigot.cmd.MailBoxCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.MailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.PMailCommandExecutor;
+import me.avankziar.mpc.spigot.cmd.PMailsCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.TabCompletion;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_Delete;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_OutgoingMail;
@@ -63,6 +65,7 @@ import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Read;
 import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Send;
 import me.avankziar.mpc.spigot.cmd.pmail.ARGP_SilentOpen;
 import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Write;
+import me.avankziar.mpc.spigot.cmd.pmails.ARGPs_OutgoingMail;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.database.MysqlHandler;
 import me.avankziar.mpc.spigot.database.MysqlSetup;
@@ -145,7 +148,7 @@ public class MPC extends JavaPlugin
 		
 		ChatApi.init(plugin);
 		BaseConstructor.init(yamlHandler);
-		backgroundTask = new BackgroundTask(this);
+		backgroundTask = new BackgroundTask(plugin);
 		
 		ignoresenderhandler = new IgnoreSenderHandler(plugin);
 		emailhandler = new EMailHandler(plugin);
@@ -290,9 +293,10 @@ public class MPC extends JavaPlugin
 		ArgumentConstructor pmail_delete = new ArgumentConstructor(Type.PMAIL_DELETE,
 				"pmail_delete", 0, 1, 1, false, false, null);
 		ArgumentConstructor pmail_outgoingmail = new ArgumentConstructor(Type.PMAIL_OUTGOINGMAIL,
-				"email_outgoingmail", 0, 0, 1, false, false, null);
+				"pmail_outgoingmail", 0, 0, 1, false, false, null);
 		ArgumentConstructor pmail_deliverincomingmail = new ArgumentConstructor(Type.PMAIL_DELIVERINCOMINGMAIL,
-				"email_outgoingmail", 0, 1, 1, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
+				"pmail_deliverincomingmail", 0, 1, 1, true, false,
+				new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		
 		CommandConstructor pmail = new CommandConstructor(CommandSuggest.Type.PMAIL, "pmail", false, false,
 				pmail_write, pmail_send, pmail_open, pmail_silentopen, pmail_read, pmail_delete, pmail_outgoingmail,
@@ -309,6 +313,22 @@ public class MPC extends JavaPlugin
 		new ARGP_Delete(plugin, pmail_delete);
 		new ARGP_OutgoingMail(plugin, pmail_outgoingmail);
 		new ARGP_DeliverIncomingMail(plugin, pmail_deliverincomingmail);
+		
+		ArgumentConstructor pmails_outgoingmail = new ArgumentConstructor(Type.PMAILS_OUTGOINGMAIL,
+				"pmails_outgoingmail", 0, 0, 1, false, false, null);
+		
+		CommandConstructor pmails = new CommandConstructor(CommandSuggest.Type.PMAILS, "pmails", false, false,
+				pmails_outgoingmail);
+		registerCommand(pmails.getPath(), pmails.getName());
+		getCommand(pmails.getName()).setExecutor(new PMailsCommandExecutor(plugin, pmails));
+		getCommand(pmails.getName()).setTabCompleter(tab);
+		
+		new ARGPs_OutgoingMail(plugin, pmails_outgoingmail);
+		
+		CommandConstructor mailbox = new CommandConstructor(CommandSuggest.Type.MAILBOX, "mailbox", false, false);
+		registerCommand(mailbox.getPath(), mailbox.getName());
+		getCommand(mailbox.getName()).setExecutor(new MailBoxCommandExecutor(plugin, mailbox));
+		getCommand(mailbox.getName()).setTabCompleter(tab);
 	}
 	
 	public void setupBypassPerm()

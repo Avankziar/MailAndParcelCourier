@@ -18,20 +18,20 @@ import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandSuggest;
 import me.avankziar.mpc.general.database.MysqlType;
-import me.avankziar.mpc.general.objects.EMail;
+import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
-public class EMailsCommandExecutor implements CommandExecutor
+public class PMailsCommandExecutor implements CommandExecutor
 {
 	private MPC plugin;
 	private static CommandConstructor cc;
 	
-	public EMailsCommandExecutor(MPC plugin, CommandConstructor cc)
+	public PMailsCommandExecutor(MPC plugin, CommandConstructor cc)
 	{
 		this.plugin = plugin;
-		EMailsCommandExecutor.cc = cc;
+		PMailsCommandExecutor.cc = cc;
 	}
 	
 	@Override
@@ -164,19 +164,19 @@ public class EMailsCommandExecutor implements CommandExecutor
 	public void sendIngoingEMails(final Player player, String othername, UUID otheruuid, int page)
 	{
 		int start = page*10;
-		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
-				"`mail_receiver` = ?", otheruuid.toString());
-		ArrayList<EMail> emails = plugin.getEMailHandler().getReceivedEmails(otheruuid, start, last);
-		if(emails.size() == 0 && start == 0)
+		int last = plugin.getMysqlHandler().getCount(MysqlType.PMAIL,
+				"`mail_receiver` = ? AND `will_be_delivered` = ?", otheruuid.toString(), false);
+		ArrayList<PMail> pmails = plugin.getPMailHandler().getReceivedEmails(otheruuid, start, last);
+		if(pmails.size() == 0 && start == 0)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMails.HasNoIncomingEMails"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMails.HasNoIncomingEMails"));
 			return;
 		}
 		ArrayList<String> texts = new ArrayList<>();
-		texts.add(plugin.getYamlHandler().getLang().getString("EMails.Headline")
+		texts.add(plugin.getYamlHandler().getLang().getString("PMails.Headline")
 				.replace("%player%", othername)
 				.replace("%page%", String.valueOf(page)));
-		for(EMail e : emails)
+		for(PMail e : pmails)
 		{
 			String name = e.getSender();
 			UUID uuid = null;
@@ -189,16 +189,16 @@ public class EMailsCommandExecutor implements CommandExecutor
 					name = off.getName();
 				}
 			} catch(Exception ex) {}
-			texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails")
+			texts.add(plugin.getYamlHandler().getLang().getString("PMail.ShowMails")
 					.replace("%mailid%", String.valueOf(e.getId()))
 					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
-							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
+							plugin.getYamlHandler().getLang().getString("PMail.TimeFormat", "dd.MM-HH:mm")))
 					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
 					.replace("%subject%", e.getSubjectMatter())
 					.replace("%sender%", name)
-					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+					.replace("%pmailread%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_READ))
+					.replace("%pmailwrite%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_WRITE))
+					.replace("%pmaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL_DELETE))
 					);
 		}
 		

@@ -18,20 +18,20 @@ import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandSuggest;
 import me.avankziar.mpc.general.database.MysqlType;
-import me.avankziar.mpc.general.objects.EMail;
+import me.avankziar.mpc.general.objects.MailBox;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
-public class EMailsCommandExecutor implements CommandExecutor
+public class MailBoxsCommandExecutor implements CommandExecutor
 {
 	private MPC plugin;
 	private static CommandConstructor cc;
 	
-	public EMailsCommandExecutor(MPC plugin, CommandConstructor cc)
+	public PMailCommandExecutor(MPC plugin, CommandConstructor cc)
 	{
 		this.plugin = plugin;
-		EMailsCommandExecutor.cc = cc;
+		PMailCommandExecutor.cc = cc;
 	}
 	
 	@Override
@@ -49,8 +49,7 @@ public class EMailsCommandExecutor implements CommandExecutor
 				return false;
 			}
 			Player player = (Player) sender;
-			UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(args[0]);
-			if(uuid != null)
+			if(MatchApi.isInteger(args[0]))
 			{
 				if(!ModifierValueEntry.hasPermission(player, cc))
 				{
@@ -58,10 +57,10 @@ public class EMailsCommandExecutor implements CommandExecutor
 					ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
 					return false;
 				}
-				sendIngoingEMails(player, args[0], uuid, 0); //Base and Info Command
+				listMailBox(player, Integer.parseInt(args[0])); //Base and Info Command
 				return true;
 			}
-		} else if(args.length == 2)
+		} else if(args.length == 0)
 		{
 			if (!(sender instanceof Player)) 
 			{
@@ -69,21 +68,14 @@ public class EMailsCommandExecutor implements CommandExecutor
 				return false;
 			}
 			Player player = (Player) sender;
-			UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(args[0]);
-			if(uuid != null)
+			if(!ModifierValueEntry.hasPermission(player, cc))
 			{
-				if(MatchApi.isInteger(args[1]))
-				{
-					if(!ModifierValueEntry.hasPermission(player, cc))
-					{
-						///Du hast dafür keine Rechte!
-						ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
-						return false;
-					}
-					sendIngoingEMails(player, args[0], uuid, Integer.parseInt(args[1])); //Base and Info Command
-					return true;
-				}
+				///Du hast dafür keine Rechte!
+				ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("NoPermission"));
+				return false;
 			}
+			listMailBox(player, 0); //Base and Info Command
+			return true;
 		}
 		int length = args.length-1;
 		ArrayList<ArgumentConstructor> aclist = cc.subcommands;
@@ -114,7 +106,7 @@ public class EMailsCommandExecutor implements CommandExecutor
 								{
 									plugin.getLogger().info("ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
 											.replace("%ac%", ac.getName()));
-									ChatApi.sendMessage(sender,
+									ChatApi.sendMessage(sender, 
 											"ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
 											.replace("%ac%", ac.getName()));
 									return false;
@@ -141,7 +133,7 @@ public class EMailsCommandExecutor implements CommandExecutor
 							{
 								plugin.getLogger().info("ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
 										.replace("%ac%", ac.getName()));
-								ChatApi.sendMessage(sender,
+								ChatApi.sendMessage(sender, 
 										"ArgumentModule from ArgumentConstructor %ac% not found! ERROR!"
 										.replace("%ac%", ac.getName()));
 								return false;
@@ -161,49 +153,39 @@ public class EMailsCommandExecutor implements CommandExecutor
 		return false;
 	}
 	
-	public void sendIngoingEMails(final Player player, String othername, UUID otheruuid, int page)
+	public void listMailBox(final Player player, int page)
 	{
 		int start = page*10;
-		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
-				"`mail_receiver` = ?", otheruuid.toString());
-		ArrayList<EMail> emails = plugin.getEMailHandler().getReceivedEmails(otheruuid, start, last);
-		if(emails.size() == 0 && start == 0)
+		int last = plugin.getMysqlHandler().getCount(MysqlType.MAILBOX,	"`id` > ?", 0);
+		ArrayList<MailBox> mb = plugin.getMailBoxHandler().getMailBoxs(start, last);
+		if(mb.size() == 0 && start == 0)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMails.HasNoIncomingEMails"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBoxs.NoMailBoxes"));
 			return;
 		}
+		
 		ArrayList<String> texts = new ArrayList<>();
-		texts.add(plugin.getYamlHandler().getLang().getString("EMails.Headline")
-				.replace("%player%", othername)
-				.replace("%page%", String.valueOf(page)));
-		for(EMail e : emails)
+		texts.add(plugin.getYamlHandler().getLang().getString("MailBoxs.Headline").replace("%page%", String.valueOf(page)));
+		for(MailBox e : mb)
 		{
-			String name = e.getSender();
-			UUID uuid = null;
-			try
+			String name = "";
+			UUID uuid = e.getOwner();
+			if(uuid != null)
 			{
-				uuid = UUID.fromString(e.getSender());
-				OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
-				if(off.hasPlayedBefore())
-				{
-					name = off.getName();
-				}
-			} catch(Exception ex) {}
-			texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails")
-					.replace("%mailid%", String.valueOf(e.getId()))
-					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
-							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
-					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
-					.replace("%subject%", e.getSubjectMatter())
-					.replace("%sender%", name)
-					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+				name = plugin.getPlayerDataHandler().getPlayerName(uuid.toString());
+			} else
+			{
+				name = "/";
+			}
+			texts.add(plugin.getYamlHandler().getLang().getString("MailBoxs.Show")
+					.replace("%name%", name)
+					.replace("%pmailwrite%", CommandSuggest.getCmdString(CommandSuggest.Type.MAILBOXS_INFO))
+					.replace("%pmaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.MAILBOXS_DELETE))
 					);
 		}
 		
 		String pastNext = pastNextPage(player,
-				page, last, CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL));
+				page, last, CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL));
 		if(pastNext != null) 
 		{
 			texts.add(pastNext);

@@ -9,7 +9,11 @@ public class Bypass
 	public enum Permission
 	{
 		//Here Condition and BypassPermission.
-		READ_OTHER_MAIL;
+		READ_OTHER_MAIL,
+		CREATE_MAILBOX_WHICH_CAN_SEND,
+		CREATE_MAILBOX_WIHICH_HAS_NO_OWNER,
+		DELETE_MAILBOX_WHICH_HAS_NO_OWNER,
+		DELETE_MAILBOX_OTHER_PLAYERS;
 		
 		public String getValueLable()
 		{

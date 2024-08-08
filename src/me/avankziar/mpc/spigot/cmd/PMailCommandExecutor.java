@@ -157,7 +157,7 @@ public class PMailCommandExecutor implements CommandExecutor
 	{
 		int start = page*10;
 		int last = plugin.getMysqlHandler().getCount(MysqlType.PMAIL,
-				"`mail_receiver` = ?", player.getUniqueId().toString());
+				"`mail_receiver` = ? AND `will_be_delivered` = ?", player.getUniqueId().toString(), false);
 		ArrayList<PMail> pmails = plugin.getPMailHandler().getReceivedEmails(player.getUniqueId(), start, last);
 		if(pmails.size() == 0 && start == 0)
 		{
