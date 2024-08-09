@@ -40,6 +40,12 @@ public class MailBoxHandler
 				"`box_owner` = ?", uuid.toString());
 	}
 	
+	public MailBox getMailBox(int id)
+	{
+		return (MailBox) plugin.getMysqlHandler().getData(MysqlType.MAILBOX,
+				"`id` = ?", id);
+	}
+	
 	public ArrayList<MailBox> getMailBoxs(int start, int quantity)
 	{
 		return MailBox.convert(plugin.getMysqlHandler().getList(MysqlType.MAILBOX, "`id` ASC", start, quantity, "`id` > ?", 0));

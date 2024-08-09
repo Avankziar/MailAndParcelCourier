@@ -4,6 +4,7 @@ import me.avankziar.mpc.general.objects.EMail;
 import me.avankziar.mpc.general.objects.IgnoreSender;
 import me.avankziar.mpc.general.objects.MailBox;
 import me.avankziar.mpc.general.objects.PMail;
+import me.avankziar.mpc.general.objects.Parcel;
 import me.avankziar.mpc.general.objects.PlayerData;
 
 public enum MysqlType
@@ -48,7 +49,16 @@ public enum MysqlType
 			+ " box_x int,"
 			+ " box_y int,"
 			+ " box_z int,"
-			+ " can_be_used_for_sending boolean);")
+			+ " can_be_used_for_sending boolean);"),
+	PARCEL("mpcParcel", new Parcel(), ServerType.SPIGOT,
+			"CREATE TABLE IF NOT EXISTS `%%tablename%%"
+			+ "` (id int AUTO_INCREMENT PRIMARY KEY,"
+			+ " parcel_sender text,"
+			+ " parcel_receiver char(36) NOT NULL,"
+			+ " subject_matter text,"
+			+ " parcel_items longtext,"
+			+ " sending_date bigint,"
+			+ " in_delivering boolean);")
 	;
 	
 	private MysqlType(String tableName, Object object, ServerType usedOnServer, String setupQuery)

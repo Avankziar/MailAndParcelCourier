@@ -46,6 +46,7 @@ import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmd.EMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.EMailsCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.MailBoxCommandExecutor;
+import me.avankziar.mpc.spigot.cmd.MailBoxsCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.MailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.PMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.PMailsCommandExecutor;
@@ -74,6 +75,7 @@ import me.avankziar.mpc.spigot.handler.EMailHandler;
 import me.avankziar.mpc.spigot.handler.IgnoreSenderHandler;
 import me.avankziar.mpc.spigot.handler.MailBoxHandler;
 import me.avankziar.mpc.spigot.handler.PMailHandler;
+import me.avankziar.mpc.spigot.handler.ParcelHandler;
 import me.avankziar.mpc.spigot.handler.PlayerDataHandler;
 import me.avankziar.mpc.spigot.handler.ReplacerHandler;
 import me.avankziar.mpc.spigot.listener.JoinListener;
@@ -97,6 +99,7 @@ public class MPC extends JavaPlugin
 	private EMailHandler emailhandler;
 	private PMailHandler pmailhandler;
 	private MailBoxHandler mailboxhandler;
+	private ParcelHandler parcelhandler;
 	
 	private Administration administrationConsumer;
 	private ValueEntry valueEntryConsumer;
@@ -156,6 +159,7 @@ public class MPC extends JavaPlugin
 		playerdatahandler = new PlayerDataHandler(plugin);
 		replacerhandler = new ReplacerHandler(plugin);
 		mailboxhandler = new MailBoxHandler(plugin, server);
+		parcelhandler = new ParcelHandler(plugin);
 		
 		setupBypassPerm();
 		setupCommandTree();
@@ -329,6 +333,17 @@ public class MPC extends JavaPlugin
 		registerCommand(mailbox.getPath(), mailbox.getName());
 		getCommand(mailbox.getName()).setExecutor(new MailBoxCommandExecutor(plugin, mailbox));
 		getCommand(mailbox.getName()).setTabCompleter(tab);
+		
+		ArgumentConstructor mailboxs_delete = new ArgumentConstructor(Type.MAILBOXS_DELETE,
+				"mailboxs_delete", 0, 0, 1, false, false, null);
+		ArgumentConstructor mailboxs_info = new ArgumentConstructor(Type.MAILBOXS_INFO,
+				"mailboxs_info", 0, 0, 1, false, false, null);
+		
+		CommandConstructor mailboxs = new CommandConstructor(CommandSuggest.Type.MAILBOXS, "mailboxs", false, false,
+				mailboxs_delete, mailboxs_info);
+		registerCommand(mailboxs.getPath(), mailboxs.getName());
+		getCommand(mailboxs.getName()).setExecutor(new MailBoxsCommandExecutor(plugin, mailboxs));
+		getCommand(mailboxs.getName()).setTabCompleter(tab);
 	}
 	
 	public void setupBypassPerm()
@@ -765,5 +780,10 @@ public class MPC extends JavaPlugin
 	public MailBoxHandler getMailBoxHandler()
 	{
 		return mailboxhandler;
+	}
+	
+	public ParcelHandler getParcelHandler()
+	{
+		return parcelhandler;
 	}
 }

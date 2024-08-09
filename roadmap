@@ -54,21 +54,28 @@ BackgroundTask sorgt dafür, dass versendete PMails an Mailboxen zugestellt werd
 Spieler können an einer MailBox, die extra deklariert hat, dass sie PMails versenden kann, Briefe in der Hauphand per Rechtsklick auf diese Mailbox versenden.
 
 MailBox:
-/mailbox [-cansend, kann zum versenden genutzt werden] [-noowner, hat dann keinen Eigentümer] [-override überschreibt die eigene Mailbox] | Erstellt oder entfernt auf dem Block, welchen der Spieler anschaut eine MailBox. 
-    Mit zusätztlichen Boolean, kann diese MailBox auch PMail versenden wenn man mit diesen Rechtklick auf diesen Block ausführt.
+/mailbox [-cansend, kann zum versenden genutzt werden] [-noowner, hat die neue keinen Eigentümer haben soll] [-override überschreibt die eigene Mailbox] | Erstellt oder entfernt auf dem Block, welchen der Spieler anschaut eine MailBox.
 /mailboxs [Seitenzahl] | Listet alle MailBoxen aller Spieler auf.
 /mailboxs delete <Spielername/Id> |  Löscht die MailBox vom Spieler.
 /mailboxs info <Spielername/Id> | Holt Informationen für die MailBox ein.
 
 Packete/Parcel:
+Elektronischer Weg:
 /parcel | Wenn der Elektronische Weg ermöglich ist, dann wird hiermit der Packeteingang geöffnet. Per Chat kann man die Packete annehmen.
 /parcel send <Spielername> <Betreff> | Sendet per elektronischem Weg das Item in der Haupthand.
-/parcel sendmore <Spielername> <Betreff> | Öffnet ein Gui, wo der Sender alle Items hineinlegen kann. 
+/parcel moresend <Spielername> <Betreff> | Öffnet ein Gui, wo der Sender alle Items hineinlegen kann. 
 	Welche beim Schließen der Gui abgesendet werden. Nur bei elektronischem Weg.
+Physikalischer Weg mit MailBoxen:
 /parcel packing <Spielername> <Betreff> | Speichert den Empfänger und den Betreff für die nächste Physikalische Sendung.
-/parcel sending <Spielername> | Öffnet die Gui, der Spieler kann nun alle Packete versenden. Bei Schließung des packets, werden die Packete versendet.
+/parcel sending [Spielername] | Öffnet die Gui, der Spieler kann nun alle Packete versenden. Bei Schließung des packets, werden die Packete versendet.
+/parcel open | Das Packet in der Haupthand wird geöffnet.
+
+BackgroundTask sorgt dafür, dass versendete Parcel an Mailboxen zugestellt werden, solange die MailBox existiert und sich auf dem Server befindet sowie die Parcel physikalisch verschickt werden sollen.
 
 Ignore Sender:
 /mail [Seitenzahl] | Befehlsübersicht
 /mail ignore <Spielername> | Setzt den Spieler auf die Mailignorier Liste. Dann kann der Spieler dem ausführenden Spieler keine mails schicken.
 /mail listignore [Seitenzahl] | Listet alle ignorierten Spieler auf.
+
+InterfaceHub Anbindung:
+Versenden von Emails/Pmails/Parcels

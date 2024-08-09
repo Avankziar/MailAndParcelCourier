@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,7 +11,6 @@ import org.bukkit.entity.Player;
 
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.assistance.MatchApi;
-import me.avankziar.mpc.general.assistance.TimeHandler;
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandSuggest;
@@ -28,10 +25,10 @@ public class MailBoxsCommandExecutor implements CommandExecutor
 	private MPC plugin;
 	private static CommandConstructor cc;
 	
-	public PMailCommandExecutor(MPC plugin, CommandConstructor cc)
+	public MailBoxsCommandExecutor(MPC plugin, CommandConstructor cc)
 	{
 		this.plugin = plugin;
-		PMailCommandExecutor.cc = cc;
+		MailBoxsCommandExecutor.cc = cc;
 	}
 	
 	@Override
@@ -175,12 +172,12 @@ public class MailBoxsCommandExecutor implements CommandExecutor
 				name = plugin.getPlayerDataHandler().getPlayerName(uuid.toString());
 			} else
 			{
-				name = "/";
+				name = String.valueOf(e.getId());
 			}
 			texts.add(plugin.getYamlHandler().getLang().getString("MailBoxs.Show")
-					.replace("%name%", name)
-					.replace("%pmailwrite%", CommandSuggest.getCmdString(CommandSuggest.Type.MAILBOXS_INFO))
-					.replace("%pmaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.MAILBOXS_DELETE))
+					.replace("%value%", name)
+					.replace("%mailboxsinfo%", CommandSuggest.getCmdString(CommandSuggest.Type.MAILBOXS_INFO))
+					.replace("%mailboxsdelete%", CommandSuggest.getCmdString(CommandSuggest.Type.MAILBOXS_DELETE))
 					);
 		}
 		

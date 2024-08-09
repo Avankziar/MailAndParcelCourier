@@ -441,8 +441,76 @@ public class YamlManager
 				"Der Anzahl an Minuten, welche PMails alt sein müssen um zugestellt werden müssen.",
 				"Bedeutet, die PMail muss vor mehr als x Minuten versenden worden sein, um zugestellt werden zu können.",
 				"",
-				"The number of minutes old emails must be to be delivered.",
+				"The number of minutes old pmails must be to be delivered.",
 				"This means that the PMail must have been sent more than x minutes ago in order to be delivered."});
+		addConfig("Parcel.UsingType",
+				new Object[] {
+				"ELECTRONIC"},
+				new Object[] {
+				"",
+				"Determiniert wie Parcel empfangen werden, da die Logik sich ausschließen würde, wenn Spieler es unterschiedlich erhalten können.",
+				"ELECTRONIC -> Sagt aus, dass Parcel über Befehle empfangen werden können.",
+				"MAILBOX -> Sagt aus, dass Parcel nur über die MailBox bekommen können, welche sie für dem Empfang dann zwingen benötigen. Sonst erhalten sie keine.",
+				"",
+				"Determines how parcels are received, as the logic would contradict each other if players could receive them differently.",
+				"ELECTRONIC -> Indicates that parcels can be received via commands.",
+				"MAILBOX -> This means that you can only receive the parcel via the mailbox, which you then need to have in order to receive it. Otherwise you won't receive any."});
+		addConfig("Parcel.Material",
+				new Object[] {
+				"BRICK"},
+				new Object[] {
+				"",
+				"Das Material, welches als Kosten und für die Versendung von PMails herhalten muss.",
+				"",
+				"The material that has to be used as costs and for sending PMails."});
+		addConfig("Parcel.Cost.SendingCosts",
+				new Object[] {
+				"LUMP_SUM"},
+				new Object[] {
+				"",
+				"Wählt aus, ob das Senden von Parcel(Packeten) etwas kostet.",
+				"Möglich sind:",
+				"LUMP_SUM -> Parcel senden kosten einen Pauschalbetrag. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
+				"PER_STACK -> Parcelkosten werden an der Anzahl Stacks bemessen. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
+				"PER_AMOUNT -> Parcelkosten werden an der Anzahl Items im Gesamten bemessen. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
+				"PER_MATERIALA_AMOUNT -> Alle Items in Parcel.Cost.Costs werden durchlaufen und jedes Item nach Material und Anzahl berechnet.",
+				"NONE -> Keine Kosten.",
+				"",
+				"Select whether sending parcel costs anything.",
+				"Possible are:",
+				"LUMP_SUM -> Sending parcels costs a flat rate. <default> is added to the Parcel.Cost.Costs list.",
+				"PER_STACK -> Parcel costs are based on the number of stacks. <default> is used in the Parcel.Cost.Costs list.",
+				"PER_AMOUNT -> Parcel costs are based on the total number of items. <default> is used in the Parcel.Cost.Costs list.",
+				"PER_MATERIALA_AMOUNT -> All items in Parcel.Cost.Costs are processed and each item is calculated according to material and quantity.",
+				"NONE -> No Costs."});
+		addConfig("Parcel.Cost.Costs",
+				new Object[] {
+				"default:50.0",
+				"DIRT:1.0",
+				"DIAMOND_PICKAXE:100.0"},
+				new Object[] {
+				"",
+				"Materialliste. Determiniert welches Item pro Material pro Anzahl kosten wird. <default> wird für alle anderen Kostentypen genommen.",
+				"",
+				"Material list. Determines which item will cost per material per quantity. <default> is used for all other cost types."});
+		addConfig("Parcel.Task.RunInLoop",
+				new Object[] {
+				60},
+				new Object[] {
+				"",
+				"Der Anzahl an Minuten, wann die Parcel als Items in die Mailbox gelegt werden!",
+				"",
+				"The number of minutes when the parcels are placed as items in the mailbox!"});
+		addConfig("Parcel.Task.DepositParcelWhichAreOlderThan",
+				new Object[] {
+				60},
+				new Object[] {
+				"",
+				"Der Anzahl an Minuten, welche Parcel alt sein müssen um zugestellt werden müssen.",
+				"Bedeutet, die Parcel muss vor mehr als x Minuten versenden worden sein, um zugestellt werden zu können.",
+				"",
+				"The number of minutes old parcel must be to be delivered.",
+				"This means that the parcel must have been sent more than x minutes ago in order to be delivered."});
 	}
 	
 	public void initCommands()
@@ -610,13 +678,40 @@ public class YamlManager
 	
 		basePermission =  "mailbox.cmd.mailbox";
 		commandsInput("mailbox", "mailbox", basePermission, 
-				"/mailbox [[-noowner] | [-cansend] | [-override]]", "/pmail ", false,
+				"/mailbox [[-noowner] | [-cansend] | [-override]]", "/mailbox ", false,
 				"<red>/mailbox [[-noowner] | [-cansend] | [-override]] <white>| Erstellt MailBox. -noowner, ohne Eigentümer. -cansend, kann PMails versenden. -override, überschreibt die eigene alte MailBox auf die neue Position.",
 				"<red>/mailbox [[-noowner] | [-cansend] | [-override]] <white>| Creates MailBox. -noowner, without owner. -cansend, can send PMails. -override, overwrites the old MailBox to the new position.",
 				"<aqua>Befehlsrecht für <white>/mailbox",
 				"<aqua>Commandright for <white>/mailbox",
 				"<yellow>Erstellt MailBox. -noowner, ohne Eigentümer. -cansend, kann PMails versenden. -override, überschreibt die eigene alte MailBox auf die neue Position.",
 				"<yellow>Creates MailBox. -noowner, without owner. -cansend, can send PMails. -override, overwrites the old MailBox to the new position.");
+		
+		basePermission =  "mailboxs.cmd.mailboxs";
+		commandsInput("mailboxs", "mailboxs", basePermission, 
+				"/mailboxs [pagenumber]", "/mailboxs ", false,
+				"<red>/mailboxs [Seitenzahl] <white>| Listet alle existierenden Mailboxen auf.",
+				"<red>/mailboxs [pagenumber] <white>| Lists all existing mailboxes.",
+				"<aqua>Befehlsrecht für <white>/mailboxs",
+				"<aqua>Commandright for <white>/mailboxs",
+				"<yellow>Listet alle existierenden Mailboxen auf.",
+				"<yellow>Lists all existing mailboxes.");
+		argumentInput("mailboxs_delete", "delete", basePermission,
+				"/mailboxs delete <playerrname/id>", "/mailboxs delete ", false,
+				"<red>/mailboxs delete <Spielername/Id> <white>| Löscht die MailBox.",
+				"<red>/mailboxs delete <playerrname/id> <white>| Delete the mailbox.",
+				"<aqua>Befehlsrecht für <white>/mailboxs delete",
+				"<aqua>Commandright for <white>/mailboxs delete",
+				"<yellow>Löscht die MailBox.",
+				"<yellow>Delete the mailbox.");
+		argumentInput("mailboxs_info", "info", basePermission,
+				"/mailboxs info <playerrname/id>", "/mailboxs info ", false,
+				"<red>/mailboxs info <Spielername/Id> <white>| Zeigt Information zu der MailBox an.",
+				"<red>/mailboxs info <playerrname/id> <white>| Displays information about the mailbox.",
+				"<aqua>Befehlsrecht für <white>/mailboxs info",
+				"<aqua>Commandright for <white>/mailboxs info",
+				"<yellow>Zeigt Information zu der MailBox an.",
+				"<yellow>Displays information about the mailbox.");
+	
 	}
 	
 	private void comBypass() //INFO:ComBypass
@@ -862,9 +957,9 @@ public class YamlManager
 						"<gray>==============================",
 						"<gray>==============================",
 						"<red>Sender: <white>%sender%",
-						"<red>Empfänger: <white>%receiver%",
-						"<red>Zeitstempel: <white>%time%",
-						"<red>Betreff: <reset>%subject%",
+						"<red>Receiver: <white>%receiver%",
+						"<red>Timestamp: <white>%time%",
+						"<red>Subject: <reset>%subject%",
 						"%message%",
 						"<gray>==============================",}));
 		languageKeys.put(path+"Send.NotEnoughMoney", 
@@ -999,9 +1094,9 @@ public class YamlManager
 						"<gray>==============================",
 						"<gray>==============================",
 						"<red>Sender: <white>%sender%",
-						"<red>Empfänger: <white>%receiver%",
-						"<red>Zeitstempel: <white>%time%",
-						"<red>Betreff: <reset>%subject%",
+						"<red>Receiver: <white>%receiver%",
+						"<red>Timestamp: <white>%time%",
+						"<red>Subject: <reset>%subject%",
 						"%message%",
 						"<gray>==============================",}));
 		languageKeys.put(path+"Send.NotEnoughMoney", 
@@ -1133,6 +1228,31 @@ public class YamlManager
 						"<white>%value%</white> "
 						+ "<click:run_command:'%mailboxsinfo%%value%'><gray>[</gray><yellow>Info</yellow><gray>]</gray></click> "
 						+ "<click:suggest_command:'%mailboxsdelete%%value%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
+		languageKeys.put(path+"Info", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<gray>=====<gold>MailBox</gold> <white>%id%</white><gray>=====",
+						"<red>Eigentümer: <white>%owner%",
+						"<red>Location: <white>%server%-%world%|%x% %y% %z%",
+						"<red>Kann zum Versenden benutzt werden: <white>%canbeusedtosend%",
+						"<gray>==============================",
+						"<gray>=====<gold>MailBox</gold> <white>%id%</white><gray>=====",
+						"<red>Owner: <white>%owner%",
+						"<red>Location: <white>%server%-%world%|%x% %y% %z%",
+						"<red>Can be used to send: <white>%canbeusedtosend%",
+						"<gray>==============================",}));
+	}
+	
+	public void initParcel()
+	{
+		String path = "Parcel.";
+		languageKeys.put(path+"Write.Displayname", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Parcel für <white>%player% <gold>- <white>%subject%",
+						"<red>Parcel for <white>%player% <gold>- <white>%subject%"}));
+		languageKeys.put(path+"Open.Opened", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast das Parcel geöffnet!",
+						"<yellow>You have opened the Parcel!"}));
 	}
 	
 	public void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages
