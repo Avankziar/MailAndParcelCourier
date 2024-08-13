@@ -50,6 +50,7 @@ import me.avankziar.mpc.spigot.cmd.MailBoxsCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.MailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.PMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.PMailsCommandExecutor;
+import me.avankziar.mpc.spigot.cmd.ParcelCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.TabCompletion;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_Delete;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_OutgoingMail;
@@ -58,6 +59,10 @@ import me.avankziar.mpc.spigot.cmd.email.ARGE_Send;
 import me.avankziar.mpc.spigot.cmd.emails.ARGEs_OutgoingMail;
 import me.avankziar.mpc.spigot.cmd.mail.ARG_Ignore;
 import me.avankziar.mpc.spigot.cmd.mail.ARG_ListIgnore;
+import me.avankziar.mpc.spigot.cmd.mailboxs.ARGMBs_Delete;
+import me.avankziar.mpc.spigot.cmd.mailboxs.ARGMBs_Info;
+import me.avankziar.mpc.spigot.cmd.parcel.ARGPa_Pack;
+import me.avankziar.mpc.spigot.cmd.parcel.ARGPa_Send;
 import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Delete;
 import me.avankziar.mpc.spigot.cmd.pmail.ARGP_DeliverIncomingMail;
 import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Open;
@@ -344,6 +349,23 @@ public class MPC extends JavaPlugin
 		registerCommand(mailboxs.getPath(), mailboxs.getName());
 		getCommand(mailboxs.getName()).setExecutor(new MailBoxsCommandExecutor(plugin, mailboxs));
 		getCommand(mailboxs.getName()).setTabCompleter(tab);
+		
+		new ARGMBs_Delete(plugin, mailboxs_delete);
+		new ARGMBs_Info(plugin, mailboxs_info);
+		
+		ArgumentConstructor parcel_send = new ArgumentConstructor(Type.PARCEL_SEND,
+				"parcel send", 0, 2, 2, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
+		ArgumentConstructor parcel_pack = new ArgumentConstructor(Type.PARCEL_PACK,
+				"parcel_pack", 0, 2, 2, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
+		
+		CommandConstructor parcel = new CommandConstructor(CommandSuggest.Type.PARCEL, "parcel", false, false,
+				parcel_send, parcel_pack);
+		registerCommand(parcel.getPath(), parcel.getName());
+		getCommand(parcel.getName()).setExecutor(new ParcelCommandExecutor(plugin, parcel));
+		getCommand(parcel.getName()).setTabCompleter(tab);
+		
+		new ARGPa_Send(plugin, parcel_send);
+		new ARGPa_Pack(plugin, parcel_pack);
 	}
 	
 	public void setupBypassPerm()

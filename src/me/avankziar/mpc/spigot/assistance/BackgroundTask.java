@@ -124,13 +124,13 @@ public class BackgroundTask
 	
 	public void initParcelDeposit()
 	{
-		if(plugin.getParcelHandler().isParcelInElectronicDelivering())
-		{
-			return;
-		}
 		int depositParcel = plugin.getYamlHandler().getConfig().getInt("Parcel.Task.RunInLoop", 60);
 		long depositAfter = plugin.getYamlHandler().getConfig().getLong("Parcel.Task.DepositParcelWhichAreOlderThan", 60 * 60L);
 		final Material packages = plugin.getParcelHandler().getPackageType();
+		if(depositParcel < 0 || depositAfter < 0)
+		{
+			return;
+		}
 		new BukkitRunnable() 
 		{	
 			@Override

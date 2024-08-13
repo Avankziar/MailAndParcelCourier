@@ -19,7 +19,7 @@ public class YamlManager
 	private ISO639_2B languageType = ISO639_2B.GER;
 	//The default language of your plugin. Mine is german.
 	private ISO639_2B defaultLanguageType = ISO639_2B.GER;
-	private Type type;
+	//private Type type;
 	
 	//Per Flatfile a linkedhashmap.
 	private static LinkedHashMap<String, Language> configKeys = new LinkedHashMap<>();
@@ -34,7 +34,7 @@ public class YamlManager
 	
 	public YamlManager(Type type)
 	{
-		this.type = type;
+		//this.type = type;
 		initConfig();
 		initCommands();
 		initLanguage();
@@ -443,18 +443,6 @@ public class YamlManager
 				"",
 				"The number of minutes old pmails must be to be delivered.",
 				"This means that the PMail must have been sent more than x minutes ago in order to be delivered."});
-		addConfig("Parcel.UsingType",
-				new Object[] {
-				"ELECTRONIC"},
-				new Object[] {
-				"",
-				"Determiniert wie Parcel empfangen werden, da die Logik sich ausschließen würde, wenn Spieler es unterschiedlich erhalten können.",
-				"ELECTRONIC -> Sagt aus, dass Parcel über Befehle empfangen werden können.",
-				"MAILBOX -> Sagt aus, dass Parcel nur über die MailBox bekommen können, welche sie für dem Empfang dann zwingen benötigen. Sonst erhalten sie keine.",
-				"",
-				"Determines how parcels are received, as the logic would contradict each other if players could receive them differently.",
-				"ELECTRONIC -> Indicates that parcels can be received via commands.",
-				"MAILBOX -> This means that you can only receive the parcel via the mailbox, which you then need to have in order to receive it. Otherwise you won't receive any."});
 		addConfig("Parcel.Material",
 				new Object[] {
 				"BRICK"},
@@ -473,7 +461,7 @@ public class YamlManager
 				"LUMP_SUM -> Parcel senden kosten einen Pauschalbetrag. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
 				"PER_STACK -> Parcelkosten werden an der Anzahl Stacks bemessen. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
 				"PER_AMOUNT -> Parcelkosten werden an der Anzahl Items im Gesamten bemessen. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
-				"PER_MATERIALA_AMOUNT -> Alle Items in Parcel.Cost.Costs werden durchlaufen und jedes Item nach Material und Anzahl berechnet.",
+				"PER_MATERIALA_AMOUNT -> Alle Items in Parcel.Cost.Costs werden durchlaufen und jedes Item nach Material und Anzahl berechnet. Falls keins gefunden wird, wird <default> genommen.",
 				"NONE -> Keine Kosten.",
 				"",
 				"Select whether sending parcel costs anything.",
@@ -485,9 +473,9 @@ public class YamlManager
 				"NONE -> No Costs."});
 		addConfig("Parcel.Cost.Costs",
 				new Object[] {
-				"default:50.0",
-				"DIRT:1.0",
-				"DIAMOND_PICKAXE:100.0"},
+				"default;50.0",
+				"DIRT;1.0",
+				"DIAMOND_PICKAXE;100.0"},
 				new Object[] {
 				"",
 				"Materialliste. Determiniert welches Item pro Material pro Anzahl kosten wird. <default> wird für alle anderen Kostentypen genommen.",
@@ -711,7 +699,32 @@ public class YamlManager
 				"<aqua>Commandright for <white>/mailboxs info",
 				"<yellow>Zeigt Information zu der MailBox an.",
 				"<yellow>Displays information about the mailbox.");
-	
+		
+		basePermission =  "parcel.cmd.parcel";
+		commandsInput("parcel", "parcel", basePermission, 
+				"/parcel", "/parcel ", false,
+				"<red>/parcel <white>| Erhält bis zu 10 Parcels, welche sich in Zustellung befinden.",
+				"<red>/parcel <white>| Receives up to 10 parcels that are in delivery.",
+				"<aqua>Befehlsrecht für <white>/parcel",
+				"<aqua>Commandright for <white>/parcel",
+				"<yellow>Erhält bis zu 10 Parcels, welche sich in Zustellung befinden.",
+				"<yellow>Receives up to 10 parcels that are in delivery.");
+		argumentInput("parcel_send", "send", basePermission,
+				"/parcel send <playername> <subject>", "/parcel send ", false,
+				"<red>/parcel send <Spielername> <Betreff> <white>| Öffnet ein Gui, wo der Sender alle Items hineinlegen kann. Welche beim Schließen der Gui abgesendet werden.",
+				"<red>/parcel send <playername> <subject> <white>| Opens a GUI where the sender can put all items. Which are sent when the GUI is closed.",
+				"<aqua>Befehlsrecht für <white>/parcel send",
+				"<aqua>Commandright for <white>/parcel send",
+				"<yellow>Öffnet ein Gui, wo der Sender alle Items hineinlegen kann. Welche beim Schließen der Gui abgesendet werden.",
+				"<yellow>Opens a GUI where the sender can put all items. Which are sent when the GUI is closed.");
+		argumentInput("parcel_pack", "pack", basePermission,
+				"/parcel pack <playername> <subject>", "/parcel pack ", false,
+				"<red>/parcel pack <Spielername> <Betreff> <white>| Speichert den Empfänger und den Betreff für die nächste Sendung über eine Mailbox.",
+				"<red>/parcel pack <playername> <subject> <white>| Saves the recipient and subject for the next transmission via a mailbox.",
+				"<aqua>Befehlsrecht für <white>/parcel pack",
+				"<aqua>Commandright for <white>/parcel pack",
+				"<yellow>Speichert den Empfänger und den Betreff für die nächste Sendung über eine Mailbox.",
+				"<yellow>Saves the recipient and subject for the next transmission via a mailbox.");
 	}
 	
 	private void comBypass() //INFO:ComBypass
@@ -1245,6 +1258,22 @@ public class YamlManager
 	public void initParcel()
 	{
 		String path = "Parcel.";
+		languageKeys.put(path+"HasNoIncomingParcel", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast keine eingegangenen Parcels.",
+						"<red>You have no incoming parcels."}));
+		languageKeys.put(path+"HasNoInfosForSending", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast keinen Empfänger hinterlegt um ein Parcel zu versenden!",
+						"<red>You have not specified a recipient to send a parcel!"}));
+		languageKeys.put(path+"InventarTitle", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"§6An §7%player% §0- §r%subject%",
+						"§6To §7%player% §0- §r%subject%"}));
+		languageKeys.put(path+"Sended", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Parcel gesendet an <white>%player% <yellow>mit dem Betreff <reset>%subject%",
+						"<yellow>Parcel sended to <white>%player% <yellow>with the subject <reset>%subject%"}));
 		languageKeys.put(path+"Write.Displayname", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Parcel für <white>%player% <gold>- <white>%subject%",
@@ -1253,6 +1282,15 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast das Parcel geöffnet!",
 						"<yellow>You have opened the Parcel!"}));
+		languageKeys.put(path+"ReceivedIncomingParcel", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Dir wurden %amount% Parcels direkt zugestellt.",
+						"<yellow>%amount% parcels were delivered directly to you."}));
+		languageKeys.put(path+"NotEnoughMoney", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du hast nicht Geld zum senden der Parcel! Kosten: <white>%money%",
+						"<red>You have not enough money to send the parcel! Costs: <white>%money%"}));
+		
 	}
 	
 	public void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages

@@ -60,15 +60,12 @@ MailBox:
 /mailboxs info <Spielername/Id> | Holt Informationen für die MailBox ein.
 
 Packete/Parcel:
-Elektronischer Weg:
-/parcel | Wenn der Elektronische Weg ermöglich ist, dann wird hiermit der Packeteingang geöffnet. Per Chat kann man die Packete annehmen.
-/parcel send <Spielername> <Betreff> | Sendet per elektronischem Weg das Item in der Haupthand.
-/parcel moresend <Spielername> <Betreff> | Öffnet ein Gui, wo der Sender alle Items hineinlegen kann. 
-	Welche beim Schließen der Gui abgesendet werden. Nur bei elektronischem Weg.
-Physikalischer Weg mit MailBoxen:
-/parcel packing <Spielername> <Betreff> | Speichert den Empfänger und den Betreff für die nächste Physikalische Sendung.
-/parcel sending [Spielername] | Öffnet die Gui, der Spieler kann nun alle Packete versenden. Bei Schließung des packets, werden die Packete versendet.
-/parcel open | Das Packet in der Haupthand wird geöffnet.
+Befehlsbasierender Weg:
+/parcel | Wenn der Elektronische Weg ermöglich ist, dann wird hiermit der Packeteingang geöffnet. Bis zu 10 Package werden dem Spieler zugestellt.
+/parcel send <Spielername> <Betreff> | Öffnet ein Gui, wo der Sender alle Items hineinlegen kann. 
+	Welche beim Schließen der Gui abgesendet werden.
+Mailbox Weg:
+/parcel pack <Spielername> <Betreff> | Speichert den Empfänger und den Betreff für die nächste Sendung über eine Mailbox.
 
 BackgroundTask sorgt dafür, dass versendete Parcel an Mailboxen zugestellt werden, solange die MailBox existiert und sich auf dem Server befindet sowie die Parcel physikalisch verschickt werden sollen.
 

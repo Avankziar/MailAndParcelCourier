@@ -39,6 +39,10 @@ public class CommandSuggest
 		MAILBOXS,
 		MAILBOXS_DELETE,
 		MAILBOXS_INFO,
+		
+		PARCEL,
+		PARCEL_SEND,
+		PARCEL_PACK,
 		;
 	}
 	

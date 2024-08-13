@@ -11,9 +11,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import me.avankziar.ifh.general.economy.action.OrdererType;
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.objects.MailBox;
 import me.avankziar.mpc.spigot.MPC;
@@ -34,7 +34,7 @@ public class ParcelListener implements Listener
 		{
 			return;
 		}
-		if(event.getMaterial() != plugin.getPMailHandler().getPaperType())
+		if(event.getMaterial() != plugin.getParcelHandler().getPackageType())
 		{
 			return;
 		}
@@ -73,10 +73,8 @@ public class ParcelListener implements Listener
 		}
 		MailBox mb = plugin.getMailBoxHandler().getMailBox(event.getClickedBlock().getLocation());
 		if(mb.canBeUsedForSending()
-				&& event.getItem() != null 
-				&& event.getItem().getType() == plugin.getPMailHandler().getPaperType())
+				&& plugin.getParcelHandler().hasInputReceiverForGui(event.getPlayer().getUniqueId()))
 		{
-			final ItemStack is = event.getItem();
 			event.setUseInteractedBlock(Result.DENY);
 			final Player player = event.getPlayer();
 			new BukkitRunnable() 
@@ -84,7 +82,7 @@ public class ParcelListener implements Listener
 				@Override
 				public void run() 
 				{
-					plugin.getPMailHandler().doSendPMail(player, is);
+					plugin.getParcelHandler().openGuiToDepositParcelContent(player);
 				}
 			}.runTaskAsynchronously(plugin);
 		}
@@ -94,6 +92,47 @@ public class ParcelListener implements Listener
 	public void onGuiClose(InventoryCloseEvent event)
 	{
 		final ItemStack[] isa = event.getView().getTopInventory().getStorageContents();
+		double cost = plugin.getParcelHandler().getSendingCost(isa);
+		if(cost > 0.0 && (plugin.getIFHEco() != null || plugin.getVaultEco() != null))
+		{
+			Player player = (Player) event.getPlayer();
+			if(plugin.getIFHEco() != null)
+			{
+				me.avankziar.ifh.spigot.economy.account.Account acc = plugin.getIFHEco().getDefaultAccount(player.getUniqueId());
+				if(acc.getBalance() < cost)
+				{
+					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.NotEnoughMoney")
+							.replace("%money%", plugin.getIFHEco().format(cost, acc.getCurrency())));
+					return;
+				}
+				me.avankziar.ifh.general.economy.action.EconomyAction er = 
+						plugin.getIFHEco().withdraw(acc, cost, OrdererType.PLAYER, player.getUniqueId().toString(),
+						plugin.getYamlHandler().getLang().getString("EMail.Send.MoneyCategory"),
+						plugin.getYamlHandler().getLang().getString("EMail.Send.MoneyComment"));
+				if(!er.isSuccess())
+				{
+					ChatApi.sendMessage(player, er.getDefaultErrorMessage());
+					return;
+				}
+			} else
+			{
+				if(!plugin.getVaultEco().has(player, cost))
+				{
+					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.NotEnoughMoney")
+							.replace("%money%", String.valueOf(cost)+plugin.getVaultEco().currencyNamePlural()));
+					return;
+				}
+				net.milkbowl.vault.economy.EconomyResponse er = plugin.getVaultEco().withdrawPlayer(player, cost);
+				if(er != null && !er.transactionSuccess())
+				{
+					if(er.errorMessage != null)
+					{
+						ChatApi.sendMessage(player, er.errorMessage);
+					}
+					return;
+				}
+			}
+		}
 		plugin.getParcelHandler().closeGuiToDepositParcelContent((Player) event.getPlayer(), isa);
 	}
 }
