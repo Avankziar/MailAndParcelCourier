@@ -85,6 +85,7 @@ import me.avankziar.mpc.spigot.handler.PlayerDataHandler;
 import me.avankziar.mpc.spigot.handler.ReplacerHandler;
 import me.avankziar.mpc.spigot.listener.JoinListener;
 import me.avankziar.mpc.spigot.listener.PMailListener;
+import me.avankziar.mpc.spigot.listener.ParcelListener;
 import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 
 public class MPC extends JavaPlugin
@@ -474,6 +475,7 @@ public class MPC extends JavaPlugin
 	{
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new JoinListener(plugin), plugin);
+		pm.registerEvents(new ParcelListener(plugin), plugin);
 		pm.registerEvents(new PMailListener(plugin), plugin);
 	}
 	
