@@ -448,9 +448,9 @@ public class YamlManager
 				"BRICK"},
 				new Object[] {
 				"",
-				"Das Material, welches als Kosten und für die Versendung von PMails herhalten muss.",
+				"Das Material, welches als Parcel herhalten muss.",
 				"",
-				"The material that has to be used as costs and for sending PMails."});
+				"The material to be used as a parcel."});
 		addConfig("Parcel.Cost.SendingCosts",
 				new Object[] {
 				"LUMP_SUM"},
@@ -461,7 +461,7 @@ public class YamlManager
 				"LUMP_SUM -> Parcel senden kosten einen Pauschalbetrag. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
 				"PER_STACK -> Parcelkosten werden an der Anzahl Stacks bemessen. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
 				"PER_AMOUNT -> Parcelkosten werden an der Anzahl Items im Gesamten bemessen. <default> wird dazu genommen in der Parcel.Cost.Costs Liste.",
-				"PER_MATERIALA_AMOUNT -> Alle Items in Parcel.Cost.Costs werden durchlaufen und jedes Item nach Material und Anzahl berechnet. Falls keins gefunden wird, wird <default> genommen.",
+				"PER_MATERIAL_AMOUNT -> Alle Items in Parcel.Cost.Costs werden durchlaufen und jedes Item nach Material und Anzahl berechnet. Falls keins gefunden wird, wird <default> genommen.",
 				"NONE -> Keine Kosten.",
 				"",
 				"Select whether sending parcel costs anything.",
@@ -469,7 +469,7 @@ public class YamlManager
 				"LUMP_SUM -> Sending parcels costs a flat rate. <default> is added to the Parcel.Cost.Costs list.",
 				"PER_STACK -> Parcel costs are based on the number of stacks. <default> is used in the Parcel.Cost.Costs list.",
 				"PER_AMOUNT -> Parcel costs are based on the total number of items. <default> is used in the Parcel.Cost.Costs list.",
-				"PER_MATERIALA_AMOUNT -> All items in Parcel.Cost.Costs are processed and each item is calculated according to material and quantity.",
+				"PER_MATERIAL_AMOUNT -> All items in Parcel.Cost.Costs are processed and each item is calculated according to material and quantity.",
 				"NONE -> No Costs."});
 		addConfig("Parcel.Cost.Costs",
 				new Object[] {
@@ -663,6 +663,24 @@ public class YamlManager
 				"<aqua>Commandright for <white>/pmail deliverincomingmail",
 				"<yellow>PMails welche in der Zustellung sind, werden dem online Spieler sofort ans Inventar zugestellt. Bei vollem Inventar droppen die Pmails.",
 				"<yellow>PMails that are being delivered are immediately delivered to the online player's inventory. The PMails drop when the inventory is full.");
+		
+		basePermission =  "pmails.cmd.pmails";
+		commandsInput("pmails", "pmails", basePermission, 
+				"/pmails <playername> [pagenumber]", "/pmails ", false,
+				"<red>/pmails <Spielername> [Seitenzahl] <white>| Listet alle geöffneten P-Mails des Spielers auf.",
+				"<red>/pmails <playername> [pagenumber] <white>| Lists all opened of the player pmails.",
+				"<aqua>Befehlsrecht für <white>/pmails",
+				"<aqua>Commandright for <white>/pmails",
+				"<yellow>Listet alle geöffneten P-Mails des Spielers auf.",
+				"<yellow>Lists all opened of the players pmails.");
+		argumentInput("pmails_outgoingmail", "outgoingmail", basePermission,
+				"/pmails outgoingmail <playername> [pagenumber]", "/pmail outgoingmail ", false,
+				"<red>/pmails outgoingmail <Spielername> [Seitenzahl] <white>| Listet alle gesendeten PMails auf.",
+				"<red>/pmails outgoingmail <playername> [pagenumber] <white>| Lists all sended pmail.",
+				"<aqua>Befehlsrecht für <white>/pmail outgoingmail",
+				"<aqua>Commandright for <white>/pmail outgoingmail",
+				"<yellow>Listet alle gesendeten PMails auf.",
+				"<yellow>Lists all sended pmail.");
 	
 		basePermission =  "mailbox.cmd.mailbox";
 		commandsInput("mailbox", "mailbox", basePermission, 
@@ -837,11 +855,11 @@ public class YamlManager
 		languageKeys.put("PlayerDontExist",
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Spieler <white>%player% <red>existiert nicht!",
-						"<red>The player white>%player% <red>does not exist!"}));
+						"<red>The player <white>%player% <red>does not exist!"}));
 		languageKeys.put("PlayerDontOnline",
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Spieler <white>%player% <red>ist nicht online!",
-						"<red>The player white>%player% <red>is not online!"}));
+						"<red>The player <white>%player% <red>is not online!"}));
 		languageKeys.put("NoNumber",
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Das Argument <white>%value% <red>muss eine ganze Zahl sein.",

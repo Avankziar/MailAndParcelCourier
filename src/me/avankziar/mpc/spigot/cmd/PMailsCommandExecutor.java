@@ -41,7 +41,12 @@ public class PMailsCommandExecutor implements CommandExecutor
 		{
 			return false;
 		}
-		if (args.length == 1) 
+		if(args.length == 0)
+		{
+			ChatApi.sendMessage(sender, plugin.getYamlHandler().getLang().getString("PlayerDontExist")
+					.replace("%player%", "<?>"));
+			return false;
+		} else if(args.length == 1) 
 		{
 			if (!(sender instanceof Player)) 
 			{

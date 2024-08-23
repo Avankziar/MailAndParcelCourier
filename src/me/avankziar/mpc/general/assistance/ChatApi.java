@@ -1,26 +1,18 @@
 package me.avankziar.mpc.general.assistance;
 
-import java.time.Duration;
 import java.util.regex.Pattern;
 
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.bossbar.BossBar.Color;
-import net.kyori.adventure.bossbar.BossBar.Overlay;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer;
-import net.kyori.adventure.title.Title;
 
 public class ChatApi
 {
 	private static final Pattern po = Pattern.compile("(?<!\\\\)(&#[a-fA-F0-9]{6})");
 	private static final Pattern pt = Pattern.compile("(?<!\\\\)(&[a-fA-F0-9k-oK-OrR]{1})");
 	
-	private static BukkitAudiences adventure;
+	/*private static BukkitAudiences adventure;
 	public static void init(org.bukkit.plugin.java.JavaPlugin plugin)
 	{
 		ChatApi.adventure = BukkitAudiences.create(plugin);
@@ -34,7 +26,7 @@ public class ChatApi
 	public static Audience get(org.bukkit.command.CommandSender sender)
 	{
 		return adventure.sender(sender);
-	}
+	}*/
 	
 	/**
 	 * Only for Spigot Useage
@@ -46,7 +38,7 @@ public class ChatApi
 		sender.spigot().sendMessage(tctl(s));
 	}
 	
-	public static void sendActionBar(org.bukkit.command.CommandSender sender, String s)
+	/*public static void sendActionBar(org.bukkit.command.CommandSender sender, String s)
 	{
 		get(sender).sendActionBar(tl(s));
 	}
@@ -80,7 +72,7 @@ public class ChatApi
 	{
 		Title s = Title.title(tl(title), tl(subTitle), tt);
 		get(sender).showTitle(s);
-	}
+	}*/
 	
 	public static MiniMessage all = MiniMessage.builder()
 			 .tags(TagResolver.standard())
@@ -90,7 +82,7 @@ public class ChatApi
 	{
 		if(s == null)
 		{
-			return text("");
+			return all.deserialize("");
 		} else if(po.matcher(s).find() || pt.matcher(s).find())
 		{
 			//Old Bukkit pattern

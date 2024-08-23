@@ -155,9 +155,8 @@ public class MPC extends JavaPlugin
 			return;
 		}
 		
-		ChatApi.init(plugin);
+		//ChatApi.init(plugin);
 		BaseConstructor.init(yamlHandler);
-		backgroundTask = new BackgroundTask(plugin);
 		
 		ignoresenderhandler = new IgnoreSenderHandler(plugin);
 		emailhandler = new EMailHandler(plugin);
@@ -167,6 +166,7 @@ public class MPC extends JavaPlugin
 		mailboxhandler = new MailBoxHandler(plugin, server);
 		parcelhandler = new ParcelHandler(plugin);
 		
+		backgroundTask = new BackgroundTask(plugin);
 		setupBypassPerm();
 		setupCommandTree();
 		setupListeners();

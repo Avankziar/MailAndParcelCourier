@@ -232,7 +232,7 @@ public class ParcelHandler
 				} catch(Exception e) {}
 			}
 			return d;
-		case "PER_MATERIALA_AMOUNT":
+		case "PER_MATERIAL_AMOUNT":
 			list = plugin.getYamlHandler().getConfig().getStringList("Parcel.Cost.Costs");
 			for(ItemStack is : isa)
 			{
