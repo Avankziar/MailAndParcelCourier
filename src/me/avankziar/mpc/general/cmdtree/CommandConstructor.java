@@ -22,9 +22,11 @@ public class CommandConstructor extends BaseConstructor
         this.subcommands = new ArrayList<>();
         this.tablist = new ArrayList<>();
         CommandSuggest.set(cst, this);
+        getHelpList().add(this);
         for(ArgumentConstructor ac : argumentConstructors)
         {
         	CommandSuggest.set(ac.suggestType, ac);
+        	getHelpList().add(ac);
         	this.subcommands.add(ac);
         	this.tablist.add(ac.getName());
         }

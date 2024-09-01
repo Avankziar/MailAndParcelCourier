@@ -45,12 +45,11 @@ public class ARGP_Write extends ArgumentModule
 					.replace("%player%", other));
 			return;
 		}
-		/* ADDME back
 		if(uuid.equals(player.getUniqueId()))
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.SendToYourself"));
 			return;
-		}*/
+		}
 		if(plugin.getIgnoreHandler().isIgnored(player.getUniqueId(), uuid))
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.PlayerIgnoresYou")

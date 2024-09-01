@@ -548,7 +548,7 @@ public class MPC extends JavaPlugin
 	        this,
 	        ServicePriority.Normal);
 	    	logger.info(pluginname + " detected InterfaceHub >>> MailBox.class is provided!");
-    	} catch (Exception e){}
+    	} catch (NoClassDefFoundError e){}
 	    try
     	{
     		EMailProvider em = new EMailProvider(plugin);
@@ -558,7 +558,7 @@ public class MPC extends JavaPlugin
 	        this,
 	        ServicePriority.Normal);
 	    	logger.info(pluginname + " detected InterfaceHub >>> EMail.class is provided!");
-    	} catch (Exception e){}
+    	} catch (NoClassDefFoundError e){}
 	    try
     	{
     		PMailProvider pm = new PMailProvider(plugin);
@@ -568,7 +568,7 @@ public class MPC extends JavaPlugin
 	        this,
 	        ServicePriority.Normal);
 	    	logger.info(pluginname + " detected InterfaceHub >>> PMail.class is provided!");
-    	} catch (Exception e){}
+    	} catch (NoClassDefFoundError e){}
 	    try
     	{
     		ParcelProvider p = new ParcelProvider(plugin);
@@ -578,7 +578,7 @@ public class MPC extends JavaPlugin
 	        this,
 	        ServicePriority.Normal);
 	    	logger.info(pluginname + " detected InterfaceHub >>> Parcel.class is provided!");
-    	} catch (Exception e){}
+    	} catch (NoClassDefFoundError e){}
 	}
 	
 	public void setupIFHConsumer()

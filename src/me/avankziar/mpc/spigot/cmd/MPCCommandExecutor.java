@@ -2,6 +2,7 @@ package me.avankziar.mpc.spigot.cmd;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -151,42 +152,43 @@ public class MPCCommandExecutor  implements CommandExecutor
 	
 	public void baseCommands(final Player player, int page)
 	{
+		int index = 0;
 		int count = 0;
 		int start = page*10;
-		int end = page*10+9;
-		int last = 0;
-		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Headline"));
-		for(BaseConstructor bc : plugin.getHelpList())
+		int quantity = 9;
+		int control = start;
+		ArrayList<String> msg = new ArrayList<>();
+		msg.add(plugin.getYamlHandler().getLang().getString("Headline"));
+		for(BaseConstructor bc : plugin.getHelpList().stream().filter(x -> player.hasPermission(x.getPermission())).collect(Collectors.toList()))
 		{
-			if(count >= start && count <= end)
+			if(index >= start && count <= quantity)
 			{
-				if(player.hasPermission(bc.getPermission()))
-				{
-					sendInfo(player, bc);
-				}
+				msg.add(sendInfo(bc));
+				count++;
+				control++;
 			}
-			count++;
-			last++;
+			index++;
 		}
-		String s = pastNextPage(player, page, last, CommandSuggest.getCmdString(CommandSuggest.Type.MPC));
+		String s = pastNextPage(player, page, control, plugin.getHelpList().size(), CommandSuggest.getCmdString(CommandSuggest.Type.MPC));
 		if(s != null)
 		{
-			ChatApi.sendMessage(player, s);
+			msg.add(s);
 		}
+		msg.stream().forEach(x -> ChatApi.sendMessage(player, x));
 	}
 	
-	private void sendInfo(Player player, BaseConstructor bc)
+	private String sendInfo(BaseConstructor bc)
 	{
-		ChatApi.sendMessage(player, ChatApi.clickHover(
+		return (ChatApi.clickHover(
 				bc.getHelpInfo(),
 				"SUGGEST_COMMAND", bc.getSuggestion(),
 				"SHOW_TEXT", plugin.getYamlHandler().getLang().getString("GeneralHover")));
 	}
 	
 	public String pastNextPage(Player player,
-			int page, int last, String cmdstring, String...objects)
+			int page, int control, int total, String cmdstring, String...objects)
 	{
-		if(page == 0 && page >= last)
+		if(page == 0 && control >= total)
 		{
 			return null;
 		}
@@ -203,7 +205,7 @@ public class MPCCommandExecutor  implements CommandExecutor
 			}
 			sb.append(ChatApi.click(msg2, "RUN_COMMAND", cmd));
 		}
-		if(page < last)
+		if(control < total)
 		{
 			String msg1 = plugin.getYamlHandler().getLang().getString("Next");
 			String cmd = cmdstring+String.valueOf(i);

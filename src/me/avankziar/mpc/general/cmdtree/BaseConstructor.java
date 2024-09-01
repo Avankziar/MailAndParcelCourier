@@ -57,7 +57,6 @@ public class BaseConstructor
 		setHelpInfo(helpInfo);
 		setCanConsoleAccess(canConsoleAccess);
 		setPutUpCmdPermToValueEntrySystem(putUpCmdPermToValueEntrySystem);
-		getHelpList().add(this);
 	}
 
 	public String getName()
