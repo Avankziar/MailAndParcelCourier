@@ -18,7 +18,7 @@ import me.avankziar.mpc.general.objects.MailBox;
 import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.MPC;
 
-public class MailBoxProvider
+public class MailBoxProvider implements me.avankziar.ifh.spigot.sendable.MailBox
 {
 	private MPC plugin;
 	
@@ -94,7 +94,7 @@ public class MailBoxProvider
 	}
 	
 	/**
-	 * Send all Players the items.<br>
+	 * Send all Players the items async.<br>
 	 * Only possible if the mailbox if on the same server.<br>
 	 * Return all not placeable Items.<br>
 	 * @param is

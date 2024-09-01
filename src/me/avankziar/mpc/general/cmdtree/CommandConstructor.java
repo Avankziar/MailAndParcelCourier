@@ -10,7 +10,7 @@ public class CommandConstructor extends BaseConstructor
 	public CommandConstructor(CommandSuggest.Type cst, String path, boolean canConsoleAccess, boolean putUpCmdPermToValueEntrySystem,
     		ArgumentConstructor...argumentConstructors)
     {
-		super(cst,
+		super(
 				getYamlHandling().getCommandString(path+".Name"),
 				path,
 				getYamlHandling().getCommandString(path+".Permission"),
@@ -21,8 +21,10 @@ public class CommandConstructor extends BaseConstructor
 				putUpCmdPermToValueEntrySystem);
         this.subcommands = new ArrayList<>();
         this.tablist = new ArrayList<>();
+        CommandSuggest.set(cst, this);
         for(ArgumentConstructor ac : argumentConstructors)
         {
+        	CommandSuggest.set(ac.suggestType, ac);
         	this.subcommands.add(ac);
         	this.tablist.add(ac.getName());
         }

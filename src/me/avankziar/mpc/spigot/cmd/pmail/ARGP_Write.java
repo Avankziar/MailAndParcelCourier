@@ -38,7 +38,6 @@ public class ARGP_Write extends ArgumentModule
 		String[] msgarr = msgs.toArray(new String[msgs.size()]);
 		String msg = String.join(" ", msgarr);
 		Material paper = plugin.getPMailHandler().getPaperType();
-		ArrayList<ItemStack> inv = plugin.getPMailHandler().hasPaperWithinInventory(player, paper);
 		UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(other);
 		if(uuid == null)
 		{
@@ -46,20 +45,20 @@ public class ARGP_Write extends ArgumentModule
 					.replace("%player%", other));
 			return;
 		}
+		/* ADDME back
 		if(uuid.equals(player.getUniqueId()))
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.SendToYourself"));
 			return;
-		}
+		}*/
 		if(plugin.getIgnoreHandler().isIgnored(player.getUniqueId(), uuid))
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.PlayerIgnoresYou")
 					.replace("%player%", other));
 			return;
 		}
-		
 		int papercost = plugin.getPMailHandler().getPaperCost();		
-		if(!plugin.getPMailHandler().hasEnoughPaperInInventoryAsCost(inv, paper, papercost))
+		if(!plugin.getPMailHandler().hasEnoughPaperInInventoryAsCost(player, paper, papercost))
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Write.NotEnoughMaterial"));
 			return;
@@ -69,7 +68,7 @@ public class ARGP_Write extends ArgumentModule
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Write.NotFreeSlot"));
 			return;
 		}
-		plugin.getPMailHandler().withdrawPaperFromInventoryAsCost(inv, paper, papercost);
+		plugin.getPMailHandler().withdrawPaperFromInventoryAsCost(player, paper, papercost);
 		ItemStack is = plugin.getPMailHandler().writePMail(player, paper, subject, msg, uuid, other);
 		player.getInventory().addItem(is);
 	}

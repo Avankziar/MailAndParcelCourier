@@ -32,18 +32,24 @@ public class ARGP_DeliverIncomingMail extends ArgumentModule
 	@Override
 	public void run(CommandSender sender, String[] args) throws IOException
 	{
-		String other = args[1];
+		Player player = (Player) sender;
+		String other = player.getName();
+		if(args.length >= 2)
+		{
+			other = args[1];
+		}
+		String othername = other;
 		new BukkitRunnable() 
 		{
 			@Override
 			public void run() 
 			{
-				doAsync(sender, other);
+				doAsync(player, othername);
 			}
 		}.runTaskAsynchronously(plugin);
 	}
 	
-	private void doAsync(CommandSender sender, String other)
+	private void doAsync(Player sender, String other)
 	{
 		UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(other);
 		if(uuid == null)
@@ -60,7 +66,12 @@ public class ARGP_DeliverIncomingMail extends ArgumentModule
 			return;
 		}
 		ArrayList<PMail> list = PMail.convert(plugin.getMysqlHandler().getFullList(MysqlType.PMAIL,
-				"`mail_sender` = ? AND `will_be_delivered` = ?", uuid.toString(), true));
+				"`id` ASC", "`mail_owner` = ? AND `mail_receiver` = ? AND `will_be_delivered` = ?", uuid.toString(), uuid.toString(), true));
+		if(list.isEmpty() || list.size() == 0)
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.HasNoIncomingPMails"));
+			return;
+		}
 		ArrayList<ItemStack> isl = new ArrayList<>();
 		Material paper = plugin.getPMailHandler().getPaperType();
 		list.stream().forEach(x -> isl.add(plugin.getPMailHandler().getPMailToDeposit(x, paper)));
@@ -76,6 +87,8 @@ public class ARGP_DeliverIncomingMail extends ArgumentModule
 				{
 					map.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
 				}
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Send.HasPMail")
+						.replace("%amount%", String.valueOf(list.size())));
 			}
 		}.runTask(plugin);
 	}

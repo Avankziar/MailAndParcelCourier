@@ -162,7 +162,7 @@ public class EMailsCommandExecutor implements CommandExecutor
 			}
 		}
 		ChatApi.sendMessage(sender, ChatApi.click(plugin.getYamlHandler().getLang().getString("InputIsWrong"),
-				"RUN_COMMAND", CommandSuggest.getCmdString(CommandSuggest.Type.MAIL)));
+				"RUN_COMMAND", CommandSuggest.getCmdString(CommandSuggest.Type.MPC)));
 		return false;
 	}
 	
@@ -170,7 +170,7 @@ public class EMailsCommandExecutor implements CommandExecutor
 	{
 		int start = page*10;
 		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
-				"`mail_receiver` = ?", otheruuid.toString());
+				"`mail_owner` = ? AND `mail_receiver` = ?", otheruuid.toString(), otheruuid.toString());
 		ArrayList<EMail> emails = plugin.getEMailHandler().getReceivedEmails(otheruuid, start, last);
 		if(emails.size() == 0 && start == 0)
 		{

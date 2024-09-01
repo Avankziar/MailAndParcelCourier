@@ -64,11 +64,11 @@ public class ARGP_OutgoingMail extends ArgumentModule
 	{
 		int start = page*10;
 		int last = plugin.getMysqlHandler().getCount(MysqlType.PMAIL,
-				"`mail_sender` = ?", player.getUniqueId().toString());
+				"`mail_owner` = ? AND `mail_sender` = ?", player.getUniqueId().toString(), player.getUniqueId().toString());
 		ArrayList<PMail> pmails = plugin.getPMailHandler().getSendedEmails(player.getUniqueId(), start, last);
 		if(pmails.size() == 0 && start == 0)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.HasNoOutgoingEMails"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.HasNoOutgoingPMails"));
 			return;
 		}
 		ArrayList<String> texts = new ArrayList<>();
@@ -76,11 +76,10 @@ public class ARGP_OutgoingMail extends ArgumentModule
 				.replace("%page%", String.valueOf(page)));
 		for(PMail e : pmails)
 		{
-			String name = e.getSender();
-			UUID uuid = null;
+			String name = null;
+			UUID uuid = e.getReceiver();
 			try
 			{
-				uuid = UUID.fromString(e.getSender());
 				OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
 				if(off.hasPlayedBefore())
 				{

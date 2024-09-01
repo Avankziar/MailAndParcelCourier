@@ -40,7 +40,7 @@ public class ARGPa_Send extends ArgumentModule
 	
 	private void doAsync(Player player, String other, String subject)
 	{
-		UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(other);
+		final UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(other);
 		if(uuid == null)
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerDontExist")

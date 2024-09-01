@@ -207,8 +207,7 @@ public class BackgroundTask
 			if(i > 0)
 			{
 				plugin.getPlayerDataHandler().sendMessageToOtherPlayer(mailbox.getOwner(), 
-						plugin.getYamlHandler().getLang().getString("PMail.Send.HasPMail")
-						.replace("%pmailread%", CommandSuggest.getCmdString(CommandSuggest.Type.PMAIL))
+						plugin.getYamlHandler().getLang().getString("Parcel.HasParcel")
 						.replace("%amount%", String.valueOf(i)));
 			}
 		}

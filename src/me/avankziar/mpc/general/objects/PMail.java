@@ -21,7 +21,7 @@ public class PMail implements MysqlHandable
 	private String sender; //Sender kann auch das Sytem oder ein Plugin sein.
 	private UUID receiver;
 	private boolean receiverReaded; //Ob der Empfänger die Email gelesen hat.
-	private long sendingDate; 
+	private long sendingDate; //ADDME ReadingDate adding!!
 	private boolean willBeDelivered;
 	
 	public PMail()

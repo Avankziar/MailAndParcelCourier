@@ -53,5 +53,6 @@ public class ARGPa_Pack extends ArgumentModule
 					.replace("%player%", other));
 		}
 		plugin.getParcelHandler().addReceiverAndSubject(player.getUniqueId(), uuid, subject);
+		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.HasPack"));
 	}
 }

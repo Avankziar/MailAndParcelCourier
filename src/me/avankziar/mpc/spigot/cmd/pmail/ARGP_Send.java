@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.spigot.MPC;
@@ -26,13 +25,6 @@ public class ARGP_Send extends ArgumentModule
 	{
 		Player player = (Player) sender;
 		final ItemStack is = player.getInventory().getItemInMainHand();
-		new BukkitRunnable() 
-		{
-			@Override
-			public void run() 
-			{
-				plugin.getPMailHandler().doSendPMail(player, is);
-			}
-		}.runTaskAsynchronously(plugin);
+		plugin.getPMailHandler().doSendPMail(player, is);
 	}
 }

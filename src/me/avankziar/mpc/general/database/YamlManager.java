@@ -419,7 +419,7 @@ public class YamlManager
 				"The material that has to be used as costs and for sending PMails."});
 		addConfig("PMail.Cost.MaterialCosts",
 				new Object[] {
-				1.0},
+				1},
 				new Object[] {
 				"",
 				"Der Anzahl an Materialien, die man dafür haben muss um eine PMail zu erstellen.",
@@ -430,9 +430,9 @@ public class YamlManager
 				60},
 				new Object[] {
 				"",
-				"Der Anzahl an Minuten, wann die PMails als Items in die Mailbox gelegt werden!",
+				"Der Anzahl an Minuten, nach wieviel Minuten der Task zum Pmail verteilen wiederholt wird!",
 				"",
-				"The number of minutes when the PMails are placed as items in the mailbox!"});
+				"The number of minutes after which the task to distribute the Pmail is repeated!"});
 		addConfig("PMail.Task.DepositPMailWhichAreOlderThan",
 				new Object[] {
 				60},
@@ -486,9 +486,9 @@ public class YamlManager
 				60},
 				new Object[] {
 				"",
-				"Der Anzahl an Minuten, wann die Parcel als Items in die Mailbox gelegt werden!",
+				"Der Anzahl an Minuten, wann der Task zum Verteilen der Parcel wiederholt wird.",
 				"",
-				"The number of minutes when the parcels are placed as items in the mailbox!"});
+				"The number of minutes when the task for distributing the parcel is repeated."});
 		addConfig("Parcel.Task.DepositParcelWhichAreOlderThan",
 				new Object[] {
 				60},
@@ -504,29 +504,29 @@ public class YamlManager
 	public void initCommands()
 	{
 		comBypass();
-		String basePermission = "mail.cmd.mail";
-		commandsInput("mail", "mail", basePermission, 
-				"/mail [pagenumber]", "/mail ", false,
-				"<red>/mail <white>| Infoseite für alle Befehle.",
-				"<red>/mail <white>| Info page for all commands.",
-				"<aqua>Befehlsrecht für <white>/mail",
-				"<aqua>Commandright for <white>/mail",
+		String basePermission = "mpc.cmd.mpc";
+		commandsInput("mpc", "mpc", basePermission, 
+				"/mpc [pagenumber]", "/mpc ", false,
+				"<red>/mpc <white>| Infoseite für alle Befehle.",
+				"<red>/mpc <white>| Info page for all commands.",
+				"<aqua>Befehlsrecht für <white>/mpc",
+				"<aqua>Commandright for <white>/mpc",
 				"<yellow>Basisbefehl für das MPC Plugin.",
 				"<yellow>Groundcommand for the MPC Plugin.");
-		argumentInput("mail_ignore", "ignore", basePermission,
-				"/mail ignore <playername>", "/email ignore ", false,
-				"<red>/mail ignore <Spielername> <white>| Setzt oder entfernt den Spieler auf die Liste der ignorierten Spieler.",
-				"<red>/mail ignore <playername> <white>| Adds or removes the player to the ignored players list.",
-				"<aqua>Befehlsrecht für <white>/mail ignore",
-				"<aqua>Commandright for <white>/mail ignore",
+		argumentInput("mpc_ignore", "ignore", basePermission,
+				"/mpc ignore <playername>", "/mpc ignore ", false,
+				"<red>/mpc ignore <Spielername> <white>| Setzt oder entfernt den Spieler auf die Liste der ignorierten Spieler.",
+				"<red>/mpc ignore <playername> <white>| Adds or removes the player to the ignored players list.",
+				"<aqua>Befehlsrecht für <white>/mpc ignore",
+				"<aqua>Commandright for <white>/mpc ignore",
 				"<yellow>Setzt oder entfernt den Spieler auf die Liste der ignorierten Spieler.",
 				"<yellow>Adds or removes the player to the ignored players list.");
-		argumentInput("mail_listignore", "listignore", basePermission,
-				"/mail listignore [pagenumber]", "/mail listignore ", false,
-				"<red>/mail listignore [Seitenzahl] <white>| Listet alle ignorierten Spieler auf.",
-				"<red>/mail listignore [pagenumber] <white>| Lists all ignored players.",
-				"<aqua>Befehlsrecht für <white>/mail listignore",
-				"<aqua>Commandright for <white>/mail listignore",
+		argumentInput("mpc_listignore", "listignore", basePermission,
+				"/mpc listignore [pagenumber]", "/mpc listignore ", false,
+				"<red>/mpc listignore [Seitenzahl] <white>| Listet alle ignorierten Spieler auf.",
+				"<red>/mpc listignore [pagenumber] <white>| Lists all ignored players.",
+				"<aqua>Befehlsrecht für <white>/mpc listignore",
+				"<aqua>Commandright for <white>/mpc listignore",
 				"<yellow>Listet alle ignorierten Spieler auf.",
 				"<yellow>Lists all ignored players.");
 		
@@ -601,14 +601,14 @@ public class YamlManager
 				"<yellow>Lists all opened pmails.");
 		argumentInput("pmail_write", "write", basePermission,
 				"/pmail write <playername> <subject> <message>", "/pmail write ", false,
-				"<red>/pmail write <Spielername> <Betreff> <Nachricht> <white>| ",
-				"<red>/pmail write <playername> <subject> <message> <white>| ",
+				"<red>/pmail write <Spielername> <Betreff> <Nachricht> <white>| Schreibt einen Brief und legt den in dein Inventar.",
+				"<red>/pmail write <playername> <subject> <message> <white>| Write a letter and put it in your inventory.",
 				"<aqua>Befehlsrecht für <white>/pmail write",
 				"<aqua>Commandright for <white>/pmail write",
-				"<yellow>",
-				"<yellow>");
+				"<yellow>Schreibt einen Brief und legt den in dein Inventar.",
+				"<yellow>Write a letter and put it in your inventory.");
 		argumentInput("pmail_send", "send", basePermission,
-				"/pmail send", "/pmail  ", false,
+				"/pmail send", "/pmail send ", false,
 				"<red>/pmail send <white>| Sendet den Brief in der Hand an den Empfänger.",
 				"<red>/pmail send <white>| Send the letter in hand to the recipient.",
 				"<aqua>Befehlsrecht für <white>/pmail send",
@@ -750,7 +750,7 @@ public class YamlManager
 		List<Bypass.Permission> list = new ArrayList<Bypass.Permission>(EnumSet.allOf(Bypass.Permission.class));
 		for(Bypass.Permission ept : list)
 		{
-			commandsKeys.put("Bypass."+ept.toString().replace("_", ".")
+			commandsKeys.put("Bypass."+ept.toString()
 					, new Language(new ISO639_2B[] {ISO639_2B.GER}, new Object[] {
 					"mpc."+ept.toString().toLowerCase().replace("_", ".")}));
 		}
@@ -762,7 +762,7 @@ public class YamlManager
 			{
 				continue;
 			}
-			commandsKeys.put("Count."+ept.toString().replace("_", ".")
+			commandsKeys.put("Count."+ept.toString()
 					, new Language(new ISO639_2B[] {ISO639_2B.GER}, new Object[] {
 					"mpc."+ept.toString().toLowerCase().replace("_", ".")}));
 		}
@@ -896,15 +896,20 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>✖",
 						"<red>✖"}));
-		initMailLang();
+		languageKeys.put("AccountDontExist", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Account existiert nicht!",
+						"<red>The account dont exist!"}));
+		initMPCLang();
 		initEMailLang();
 		initPMailLang();
 		initMailBoxLang();
+		initParcel();
 	}
 	
-	public void initMailLang()
+	private void initMPCLang()
 	{
-		String path = "Mail.";
+		String path = "MPC.";
 		languageKeys.put(path+"Ignore.Ignore", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du ignorierst nun den Spieler <white>%player%<yellow>!",
@@ -919,15 +924,15 @@ public class YamlManager
 						"<red>You do not have anyone on your list that you ignore!"}));
 		languageKeys.put(path+"ListIgnore.Headline", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<yellow>=====<gray>[<gold>IgnorierListe von %player% %<white>Seite %page%<gray>]<yellow>=====",
-						"<yellow>=====<gray>[<gold>Ignorelist of %player% %<white>Page %page%<gray>]<yellow>====="}));
+						"<yellow>=====<gray>[<gold>IgnorierListe von %player% <white>Seite %page%<gray>]<yellow>=====",
+						"<yellow>=====<gray>[<gold>Ignorelist of %player% <white>Page %page%<gray>]<yellow>====="}));
 		languageKeys.put(path+"ListIgnore.Context", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<click:run_command:'%mailignore%%player%'><yellow>%player%</yellow></click><white>",
 						"<click:run_command:'%mailignore%%player%'><yellow>%player%</yellow></click><white>"}));
 	}
 	
-	public void initEMailLang()
+	private void initEMailLang()
 	{
 		String path = "EMail.";
 		languageKeys.put(path+"HasNoIncomingEMails", 
@@ -984,6 +989,7 @@ public class YamlManager
 						"<red>Empfänger: <white>%receiver%",
 						"<red>Zeitstempel: <white>%time%",
 						"<red>Betreff: <reset>%subject%",
+						"<red>Nachricht:",
 						"%message%",
 						"<gray>==============================",
 						"<gray>==============================",
@@ -991,6 +997,7 @@ public class YamlManager
 						"<red>Receiver: <white>%receiver%",
 						"<red>Timestamp: <white>%time%",
 						"<red>Subject: <reset>%subject%",
+						"<red>Message:",
 						"%message%",
 						"<gray>==============================",}));
 		languageKeys.put(path+"Send.NotEnoughMoney", 
@@ -1040,6 +1047,10 @@ public class YamlManager
 						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
 						+ "<click:suggest_command:'%emailsend%%receiver% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
 						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
+		languageKeys.put(path+"SendedHasCosts", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Versandkosten betrugen %money%",
+						"<yellow>Shipping costs amounted to %money%"}));
 		
 		path = "EMails.";
 		languageKeys.put(path+"HasNoIncomingEMails", 
@@ -1060,17 +1071,25 @@ public class YamlManager
 						"<yellow>=====<gray>[<gold>Sendet E-Mails from <white>%player% Page %page%<gray>]<yellow>====="}));
 	}
 	
-	public void initPMailLang()
+	private void initPMailLang()
 	{
 		String path = "PMail.";
-		languageKeys.put(path+"HasNoIncomingEMails", 
+		languageKeys.put(path+"HasNoIncomingPMails", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<red>Du hast keine eingegangenen E-Mails.",
-						"<red>You have no incoming e-mails."}));
-		languageKeys.put(path+"HasNoOutgoingEMails", 
+						"<red>Du hast keine eingegangenen P-Mails.",
+						"<red>You have no incoming pmails."}));
+		languageKeys.put(path+"HasNoOutgoingPMails", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<red>Du hast keine versendeten E-Mails.",
-						"<red>You have no outgoing e-mails."}));
+						"<red>Du hast keine versendeten PMails.",
+						"<red>You have no outgoing pmails."}));
+		languageKeys.put(path+"YourAreNotThePMailOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Diese PMail gehört dir nicht!",
+						"<red>This PMail dont belong to you!"}));
+		languageKeys.put(path+"PMailDontExist", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Diese PMail existiert nicht!",
+						"<red>This PMail dont exist!"}));
 		languageKeys.put(path+"Headline", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>=====<gray>[<gold>P-Mails <white>Seite %page%<gray>]<yellow>=====",
@@ -1121,6 +1140,7 @@ public class YamlManager
 						"<red>Empfänger: <white>%receiver%",
 						"<red>Zeitstempel: <white>%time%",
 						"<red>Betreff: <reset>%subject%",
+						"<red>Nachricht:",
 						"%message%",
 						"<gray>==============================",
 						"<gray>==============================",
@@ -1128,6 +1148,7 @@ public class YamlManager
 						"<red>Receiver: <white>%receiver%",
 						"<red>Timestamp: <white>%time%",
 						"<red>Subject: <reset>%subject%",
+						"<red>Message:",
 						"%message%",
 						"<gray>==============================",}));
 		languageKeys.put(path+"Send.NotEnoughMoney", 
@@ -1136,8 +1157,8 @@ public class YamlManager
 						"<red>You have not enough money to send the pmail! Costs:: <white>%money%"}));
 		languageKeys.put(path+"Send.NothingInHandToSend", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
-						"<red>Du hast nicht Geld zum senden der P-Mail! Kosten: <white>%money%",
-						"<red>You have not enough money to send the pmail! Costs:: <white>%money%"}));
+						"<red>Du hast kein Brief in der Hand!",
+						"<red>You dont have a letter in your hand!"}));
 		languageKeys.put(path+"Send.MoneyCategory", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"P-Mail",
@@ -1173,13 +1194,21 @@ public class YamlManager
 						+ "<click:run_command:'%pmailread%%mailid%'><gray>[</gray><yellow>Read</yellow><gray>]</gray></click> "
 						+ "<click:suggest_command:'%pmailwrite%%receiver% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
 						+ "<click:suggest_command:'%pmaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
+		languageKeys.put(path+"Send.HasPMail", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast %amount% P-Mails!</yellow>",
+						"<yellow>You have %amount% pmails!</yellow>"}));
+		languageKeys.put(path+"SendedHasCosts", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Versandkosten betrugen %money%",
+						"<yellow>Shipping costs amounted to %money%"}));
 		
 		path = "PMails.";
-		languageKeys.put(path+"HasNoIncomingEMails", 
+		languageKeys.put(path+"HasNoIncomingPMails", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Spieler hat keine eingegangenen P-Mails.",
 						"<red>The player have no incoming p-mails."}));
-		languageKeys.put(path+"HasNoOutgoingEMails", 
+		languageKeys.put(path+"HasNoOutgoingPMails", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Spieler hat keine versendeten P-Mails.",
 						"<red>The player have no outgoing p-mails."}));
@@ -1193,7 +1222,7 @@ public class YamlManager
 						"<yellow>=====<gray>[<gold>Sendet P-Mails from <white>%player% Page %page%<gray>]<yellow>====="}));
 	}
 	
-	public void initMailBoxLang()
+	private void initMailBoxLang()
 	{
 		String path = "MailBox.";
 		languageKeys.put(path+"CannotDeleteMailBoxWithoutAOwner", 
@@ -1204,6 +1233,14 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du kannst keine MailBox löschen, die einem anderen Spieler gehört!",
 						"<red>You cannot delete a MailBox that belongs to another player!"}));
+		languageKeys.put(path+"LookingIntoTheAir", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du schaust gerade in die Luft!",
+						"<red>You looking into air!"}));
+		languageKeys.put(path+"BlockIsNotAChest", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der angeschaute Block ist keine Kiste oder Redstonekiste!",
+						"<red>The block you are looking at is not a chest or trappedchest!"}));
 		languageKeys.put(path+"Deleted.YourOwn", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast deine MailBox gelöscht.",
@@ -1263,17 +1300,17 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<gray>=====<gold>MailBox</gold> <white>%id%</white><gray>=====",
 						"<red>Eigentümer: <white>%owner%",
-						"<red>Location: <white>%server%-%world%|%x% %y% %z%",
+						"<red>Location: <white>%server% - %world% | %x% %y% %z%",
 						"<red>Kann zum Versenden benutzt werden: <white>%canbeusedtosend%",
 						"<gray>==============================",
 						"<gray>=====<gold>MailBox</gold> <white>%id%</white><gray>=====",
 						"<red>Owner: <white>%owner%",
-						"<red>Location: <white>%server%-%world%|%x% %y% %z%",
+						"<red>Location: <white>%server% - %world% | %x% %y% %z%",
 						"<red>Can be used to send: <white>%canbeusedtosend%",
 						"<gray>==============================",}));
 	}
 	
-	public void initParcel()
+	private void initParcel()
 	{
 		String path = "Parcel.";
 		languageKeys.put(path+"HasNoIncomingParcel", 
@@ -1292,6 +1329,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Parcel gesendet an <white>%player% <yellow>mit dem Betreff <reset>%subject%",
 						"<yellow>Parcel sended to <white>%player% <yellow>with the subject <reset>%subject%"}));
+		languageKeys.put(path+"SendedHasCosts", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Versandkosten betrugen %money%",
+						"<yellow>Shipping costs amounted to %money%"}));
 		languageKeys.put(path+"Write.Displayname", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Parcel für <white>%player% <gold>- <white>%subject%",
@@ -1308,10 +1349,18 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du hast nicht Geld zum senden der Parcel! Kosten: <white>%money%",
 						"<red>You have not enough money to send the parcel! Costs: <white>%money%"}));
+		languageKeys.put(path+"HasPack", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast die Empfängerdaten aufgeschrieben. Nun versende das Parcel mit der leeren Hand und einem Rechtsklick auf eine MailBox.",
+						"<yellow>You have written down the recipient data. Now send the parcel with the empty hand and right-click on a MailBox."}));
+		languageKeys.put(path+"HasParcel", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Du hast %amount% Parcel!",
+						"<yellow>You have %amount% Parcel!"}));
 		
 	}
 	
-	public void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages
+	private void initModifierValueEntryLanguage() //INFO:BonusMalusLanguages
 	{
 		mvelanguageKeys.put(Bypass.Permission.READ_OTHER_MAIL.toString()+".Displayname",
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {

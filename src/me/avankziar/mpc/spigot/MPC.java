@@ -20,6 +20,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -31,7 +32,6 @@ import me.avankziar.ifh.spigot.administration.Administration;
 import me.avankziar.ifh.spigot.economy.Economy;
 import me.avankziar.ifh.spigot.metric.Metrics;
 import me.avankziar.ifh.spigot.tovelocity.chatlike.MessageToVelocity;
-import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.cmdtree.BaseConstructor;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
@@ -45,9 +45,9 @@ import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmd.EMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.EMailsCommandExecutor;
+import me.avankziar.mpc.spigot.cmd.MPCCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.MailBoxCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.MailBoxsCommandExecutor;
-import me.avankziar.mpc.spigot.cmd.MailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.PMailCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.PMailsCommandExecutor;
 import me.avankziar.mpc.spigot.cmd.ParcelCommandExecutor;
@@ -57,10 +57,10 @@ import me.avankziar.mpc.spigot.cmd.email.ARGE_OutgoingMail;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_Read;
 import me.avankziar.mpc.spigot.cmd.email.ARGE_Send;
 import me.avankziar.mpc.spigot.cmd.emails.ARGEs_OutgoingMail;
-import me.avankziar.mpc.spigot.cmd.mail.ARG_Ignore;
-import me.avankziar.mpc.spigot.cmd.mail.ARG_ListIgnore;
 import me.avankziar.mpc.spigot.cmd.mailboxs.ARGMBs_Delete;
 import me.avankziar.mpc.spigot.cmd.mailboxs.ARGMBs_Info;
+import me.avankziar.mpc.spigot.cmd.mpc.ARG_Ignore;
+import me.avankziar.mpc.spigot.cmd.mpc.ARG_ListIgnore;
 import me.avankziar.mpc.spigot.cmd.parcel.ARGPa_Pack;
 import me.avankziar.mpc.spigot.cmd.parcel.ARGPa_Send;
 import me.avankziar.mpc.spigot.cmd.pmail.ARGP_Delete;
@@ -83,6 +83,10 @@ import me.avankziar.mpc.spigot.handler.PMailHandler;
 import me.avankziar.mpc.spigot.handler.ParcelHandler;
 import me.avankziar.mpc.spigot.handler.PlayerDataHandler;
 import me.avankziar.mpc.spigot.handler.ReplacerHandler;
+import me.avankziar.mpc.spigot.ifh.EMailProvider;
+import me.avankziar.mpc.spigot.ifh.MailBoxProvider;
+import me.avankziar.mpc.spigot.ifh.PMailProvider;
+import me.avankziar.mpc.spigot.ifh.ParcelProvider;
 import me.avankziar.mpc.spigot.listener.JoinListener;
 import me.avankziar.mpc.spigot.listener.PMailListener;
 import me.avankziar.mpc.spigot.listener.ParcelListener;
@@ -155,7 +159,6 @@ public class MPC extends JavaPlugin
 			return;
 		}
 		
-		//ChatApi.init(plugin);
 		BaseConstructor.init(yamlHandler);
 		
 		ignoresenderhandler = new IgnoreSenderHandler(plugin);
@@ -170,6 +173,7 @@ public class MPC extends JavaPlugin
 		setupBypassPerm();
 		setupCommandTree();
 		setupListeners();
+		setupIFHProvider();
 		setupIFHConsumer();
 		setupBstats();
 	}
@@ -245,19 +249,19 @@ public class MPC extends JavaPlugin
 				"`player_name` ASC", "`id` > ?", 0)).stream().map(x -> x.getPlayerName()).collect(Collectors.toList());
 		TabCompletion tab = new TabCompletion();
 		
-		ArgumentConstructor mail_listignore = new ArgumentConstructor(Type.MAIL_LISTIGNORE,
-				"mail_listignore", 0, 0, 1, false, false, null);
-		ArgumentConstructor mail_ignore = new ArgumentConstructor(Type.MAIL_IGNORE,
-				"mail_ignore", 0, 1, 1, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
+		ArgumentConstructor mpc_listignore = new ArgumentConstructor(Type.MPC_LISTIGNORE,
+				"mpc_listignore", 0, 0, 1, false, false, null);
+		ArgumentConstructor mpc_ignore = new ArgumentConstructor(Type.MPC_IGNORE,
+				"mpc_ignore", 0, 1, 1, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		
-		CommandConstructor mail = new CommandConstructor(CommandSuggest.Type.MAIL, "mail", false, false,
-				mail_ignore, mail_listignore);
-		registerCommand(mail.getPath(), mail.getName());
-		getCommand(mail.getName()).setExecutor(new MailCommandExecutor(plugin, mail));
-		getCommand(mail.getName()).setTabCompleter(tab);
+		CommandConstructor mpc = new CommandConstructor(CommandSuggest.Type.MPC, "mpc", false, false,
+				mpc_ignore, mpc_listignore);
+		registerCommand(mpc.getPath(), mpc.getName());
+		getCommand(mpc.getName()).setExecutor(new MPCCommandExecutor(plugin, mpc));
+		getCommand(mpc.getName()).setTabCompleter(tab);
 		
-		new ARG_Ignore(plugin, mail_ignore);
-		new ARG_ListIgnore(plugin, mail_listignore);
+		new ARG_Ignore(plugin, mpc_ignore);
+		new ARG_ListIgnore(plugin, mpc_listignore);
 		
 		ArgumentConstructor email_send = new ArgumentConstructor(Type.EMAIL_SEND,
 				"email_send", 0, 3, 999, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
@@ -280,7 +284,7 @@ public class MPC extends JavaPlugin
 		new ARGE_OutgoingMail(plugin, email_outgoingmail);
 		
 		ArgumentConstructor emails_outgoingmail = new ArgumentConstructor(Type.EMAILS_OUTGOINGMAIL,
-				"emails_outgoingmail", 0, 1, 2, false, false, null);
+				"emails_outgoingmail", 0, 1, 2, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(2, players)));
 		
 		CommandConstructor emails = new CommandConstructor(CommandSuggest.Type.EMAILS, "emails", false, false,
 				emails_outgoingmail);
@@ -293,7 +297,7 @@ public class MPC extends JavaPlugin
 		ArgumentConstructor pmail_write = new ArgumentConstructor(Type.PMAIL_WRITE,
 				"pmail_write", 0, 3, 999, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		ArgumentConstructor pmail_send = new ArgumentConstructor(Type.PMAIL_SEND,
-				"email_send", 0, 0, 0, false, false, null);
+				"pmail_send", 0, 0, 0, false, false, null);
 		ArgumentConstructor pmail_open = new ArgumentConstructor(Type.PMAIL_OPEN,
 				"pmail_open", 0, 0, 0, false, false, null);
 		ArgumentConstructor pmail_silentopen = new ArgumentConstructor(Type.PMAIL_SILENTOPEN,
@@ -305,7 +309,7 @@ public class MPC extends JavaPlugin
 		ArgumentConstructor pmail_outgoingmail = new ArgumentConstructor(Type.PMAIL_OUTGOINGMAIL,
 				"pmail_outgoingmail", 0, 0, 1, false, false, null);
 		ArgumentConstructor pmail_deliverincomingmail = new ArgumentConstructor(Type.PMAIL_DELIVERINCOMINGMAIL,
-				"pmail_deliverincomingmail", 0, 1, 1, true, false,
+				"pmail_deliverincomingmail", 0, 0, 1, false, false,
 				new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		
 		CommandConstructor pmail = new CommandConstructor(CommandSuggest.Type.PMAIL, "pmail", false, false,
@@ -325,7 +329,7 @@ public class MPC extends JavaPlugin
 		new ARGP_DeliverIncomingMail(plugin, pmail_deliverincomingmail);
 		
 		ArgumentConstructor pmails_outgoingmail = new ArgumentConstructor(Type.PMAILS_OUTGOINGMAIL,
-				"pmails_outgoingmail", 0, 0, 1, false, false, null);
+				"pmails_outgoingmail", 0, 1, 2, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(2, players)));
 		
 		CommandConstructor pmails = new CommandConstructor(CommandSuggest.Type.PMAILS, "pmails", false, false,
 				pmails_outgoingmail);
@@ -355,7 +359,7 @@ public class MPC extends JavaPlugin
 		new ARGMBs_Info(plugin, mailboxs_info);
 		
 		ArgumentConstructor parcel_send = new ArgumentConstructor(Type.PARCEL_SEND,
-				"parcel send", 0, 2, 2, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
+				"parcel_send", 0, 2, 2, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		ArgumentConstructor parcel_pack = new ArgumentConstructor(Type.PARCEL_PACK,
 				"parcel_pack", 0, 2, 2, false, false, new LinkedHashMap<Integer, ArrayList<String>>(Map.of(1, players)));
 		
@@ -527,6 +531,54 @@ public class MPC extends JavaPlugin
 	public Administration getAdministration()
 	{
 		return administrationConsumer;
+	}
+	
+	private void setupIFHProvider()
+	{      
+	    if(!plugin.getServer().getPluginManager().isPluginEnabled("InterfaceHub")) 
+	    {
+	    	return;
+	    }
+	    try
+    	{
+    		MailBoxProvider mb = new MailBoxProvider(plugin);
+	    	plugin.getServer().getServicesManager().register(
+	        me.avankziar.ifh.spigot.sendable.MailBox.class,
+	        mb,
+	        this,
+	        ServicePriority.Normal);
+	    	logger.info(pluginname + " detected InterfaceHub >>> MailBox.class is provided!");
+    	} catch (Exception e){}
+	    try
+    	{
+    		EMailProvider em = new EMailProvider(plugin);
+	    	plugin.getServer().getServicesManager().register(
+	        me.avankziar.ifh.general.interfaces.EMail.class,
+	        em,
+	        this,
+	        ServicePriority.Normal);
+	    	logger.info(pluginname + " detected InterfaceHub >>> EMail.class is provided!");
+    	} catch (Exception e){}
+	    try
+    	{
+    		PMailProvider pm = new PMailProvider(plugin);
+	    	plugin.getServer().getServicesManager().register(
+	        me.avankziar.ifh.spigot.sendable.PMail.class,
+	        pm,
+	        this,
+	        ServicePriority.Normal);
+	    	logger.info(pluginname + " detected InterfaceHub >>> PMail.class is provided!");
+    	} catch (Exception e){}
+	    try
+    	{
+    		ParcelProvider p = new ParcelProvider(plugin);
+	    	plugin.getServer().getServicesManager().register(
+	        me.avankziar.ifh.spigot.sendable.Parcel.class,
+	        p,
+	        this,
+	        ServicePriority.Normal);
+	    	logger.info(pluginname + " detected InterfaceHub >>> Parcel.class is provided!");
+    	} catch (Exception e){}
 	}
 	
 	public void setupIFHConsumer()

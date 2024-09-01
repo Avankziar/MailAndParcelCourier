@@ -46,7 +46,7 @@ public class BaseConstructor
 		return argumentMapSpigot;
 	}
 	
-	public BaseConstructor(CommandSuggest.Type cet, String name, String path, String permission, String suggestion, String commandString,
+	public BaseConstructor(String name, String path, String permission, String suggestion, String commandString,
 			String helpInfo, boolean canConsoleAccess, boolean putUpCmdPermToValueEntrySystem)
 	{
 		setName(name);
@@ -57,7 +57,6 @@ public class BaseConstructor
 		setHelpInfo(helpInfo);
 		setCanConsoleAccess(canConsoleAccess);
 		setPutUpCmdPermToValueEntrySystem(putUpCmdPermToValueEntrySystem);
-		CommandSuggest.set(cet, this);
 		getHelpList().add(this);
 	}
 

@@ -1,4 +1,4 @@
-package me.avankziar.mpc.spigot.cmd.mail;
+package me.avankziar.mpc.spigot.cmd.mpc;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -30,7 +30,11 @@ public class ARG_ListIgnore extends ArgumentModule
 	public void run(CommandSender sender, String[] args) throws IOException
 	{
 		Player player = (Player) sender;
-		String pages = args[1];
+		String pages = "0";
+		if(args.length >= 2)
+		{
+			pages = args[1];
+		}
 		if(!MatchApi.isNumber(pages))
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("NoNumber"));
@@ -58,11 +62,11 @@ public class ARG_ListIgnore extends ArgumentModule
 		ArrayList<IgnoreSender> list = plugin.getIgnoreHandler().getIgnored(player.getUniqueId(), start, quantity);
 		if(list.isEmpty())
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Mail.ListIgnore.YouIgnoreNoOne"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MPC.ListIgnore.YouIgnoreNoOne"));
 			return;
 		}
 		ArrayList<String> msg = new ArrayList<>();
-		msg.add(plugin.getYamlHandler().getLang().getString("Mail.ListIgnore.Headline")
+		msg.add(plugin.getYamlHandler().getLang().getString("MPC.ListIgnore.Headline")
 				.replace("%page%", String.valueOf(page))
 				.replace("%player%", player.getName()));
 		ArrayList<String> context = new ArrayList<>();
@@ -74,8 +78,8 @@ public class ARG_ListIgnore extends ArgumentModule
 				plugin.getIgnoreHandler().deleteIgnore(player.getUniqueId(), is.getSender());
 				continue;
 			}
-			context.add(plugin.getYamlHandler().getLang().getString("Mail.ListIgnore.Context")
-					.replace("%mailignore%", CommandSuggest.getCmdString(CommandSuggest.Type.MAIL_IGNORE))
+			context.add(plugin.getYamlHandler().getLang().getString("MPC.ListIgnore.Context")
+					.replace("%mailignore%", CommandSuggest.getCmdString(CommandSuggest.Type.MPC_IGNORE))
 					.replace("%player%", pd.getPlayerName()));
 		}
 		String[] c = context.toArray(new String[context.size()]);

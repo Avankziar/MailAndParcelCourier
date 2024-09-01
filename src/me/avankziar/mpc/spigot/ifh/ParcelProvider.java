@@ -11,7 +11,7 @@ import me.avankziar.mpc.general.objects.Parcel;
 import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.MPC;
 
-public class ParcelProvider
+public class ParcelProvider implements me.avankziar.ifh.spigot.sendable.Parcel
 {
 	private MPC plugin;
 	
@@ -20,6 +20,14 @@ public class ParcelProvider
 		this.plugin = plugin;
 	}
 	
+	/**
+	 * Send a parcel to the receiver.<br>
+	 * Should be called async.
+	 * @param receiver
+	 * @param sender
+	 * @param subject
+	 * @param is
+	 */
 	public void sendParcel(UUID receiver, String sender, String subject, ItemStack... is)
 	{
 		Parcel parcel = new Parcel(0, sender, receiver, subject,
@@ -27,6 +35,13 @@ public class ParcelProvider
 		plugin.getMysqlHandler().create(MysqlType.PARCEL, parcel);
 	}
 	
+	/**
+	 * Send all players a parcel.<br>
+	 * Will be processed async.
+	 * @param sender
+	 * @param subject
+	 * @param is
+	 */
 	public void sendAllParcel(String sender, String subject, ItemStack... is)
 	{
 		new BukkitRunnable()

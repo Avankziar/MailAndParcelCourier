@@ -146,7 +146,7 @@ public class MailBoxsCommandExecutor implements CommandExecutor
 			}
 		}
 		ChatApi.sendMessage(sender, ChatApi.click(plugin.getYamlHandler().getLang().getString("InputIsWrong"),
-				"RUN_COMMAND", CommandSuggest.getCmdString(CommandSuggest.Type.MAIL)));
+				"RUN_COMMAND", CommandSuggest.getCmdString(CommandSuggest.Type.MPC)));
 		return false;
 	}
 	

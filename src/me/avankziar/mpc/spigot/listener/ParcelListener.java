@@ -1,6 +1,9 @@
 package me.avankziar.mpc.spigot.listener;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,7 +14,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.avankziar.ifh.general.economy.action.OrdererType;
 import me.avankziar.mpc.general.assistance.ChatApi;
@@ -39,15 +41,16 @@ public class ParcelListener implements Listener
 			return;
 		}
 		ItemStack is = event.getItem();
-		ItemStack[] isa = plugin.getParcelHandler().openParcel(is);
+		ItemStack[] isa = plugin.getParcelHandler().openParcel(event.getPlayer(), is);
 		if(isa == null)
 		{
 			return;
 		}
-		HashMap<Integer, ItemStack> map = event.getPlayer().getInventory().addItem(isa);
+		List<ItemStack> list = Arrays.asList(isa).stream().filter(x -> x != null).filter(x -> x.getType() != Material.AIR).collect(Collectors.toList());
+		HashMap<Integer, ItemStack> map = event.getPlayer().getInventory().addItem(list.toArray(new ItemStack[list.size()]));
 		if(!map.isEmpty())
 		{
-			map.values().stream().forEach(x -> event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), x));
+			map.values().stream().filter(x -> x != null).forEach(x -> event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), x));
 		}
 		ChatApi.sendMessage(event.getPlayer(), plugin.getYamlHandler().getLang().getString("Parcel.Open.Opened"));
 	}
@@ -59,11 +62,11 @@ public class ParcelListener implements Listener
 		{
 			return;
 		}
-		if(event.getMaterial() != Material.CHEST && event.getMaterial() != Material.TRAPPED_CHEST)
+		if(event.getClickedBlock() == null)
 		{
 			return;
 		}
-		if(event.getClickedBlock() == null)
+		if(event.getClickedBlock().getType() != Material.CHEST && event.getClickedBlock().getType() != Material.TRAPPED_CHEST)
 		{
 			return;
 		}
@@ -75,22 +78,21 @@ public class ParcelListener implements Listener
 		if(mb.canBeUsedForSending()
 				&& plugin.getParcelHandler().hasInputReceiverForGui(event.getPlayer().getUniqueId()))
 		{
+			event.setCancelled(true);
 			event.setUseInteractedBlock(Result.DENY);
+			event.setUseItemInHand(Result.DENY);
 			final Player player = event.getPlayer();
-			new BukkitRunnable() 
-			{
-				@Override
-				public void run() 
-				{
-					plugin.getParcelHandler().openGuiToDepositParcelContent(player);
-				}
-			}.runTaskAsynchronously(plugin);
+			plugin.getParcelHandler().openGuiToDepositParcelContent(player);
 		}
 	}
 	
 	@EventHandler
 	public void onGuiClose(InventoryCloseEvent event)
 	{
+		if(!plugin.getParcelHandler().inGui(event.getPlayer().getUniqueId()))
+		{
+			return;
+		}
 		final ItemStack[] isa = event.getView().getTopInventory().getStorageContents();
 		double cost = plugin.getParcelHandler().getSendingCost(isa);
 		if(cost > 0.0 && (plugin.getIFHEco() != null || plugin.getVaultEco() != null))
@@ -103,6 +105,16 @@ public class ParcelListener implements Listener
 				{
 					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.NotEnoughMoney")
 							.replace("%money%", plugin.getIFHEco().format(cost, acc.getCurrency())));
+					plugin.getParcelHandler().removeInGui(player.getUniqueId());
+					List<ItemStack> list = Arrays.asList(isa).stream()
+							.filter(x -> x != null)
+							.filter(x -> x.getType() != Material.AIR)
+							.collect(Collectors.toList());
+					HashMap<Integer, ItemStack> map = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
+					if(!map.isEmpty())
+					{
+						map.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+					}
 					return;
 				}
 				me.avankziar.ifh.general.economy.action.EconomyAction er = 
@@ -112,6 +124,16 @@ public class ParcelListener implements Listener
 				if(!er.isSuccess())
 				{
 					ChatApi.sendMessage(player, er.getDefaultErrorMessage());
+					plugin.getParcelHandler().removeInGui(player.getUniqueId());
+					List<ItemStack> list = Arrays.asList(isa).stream()
+							.filter(x -> x != null)
+							.filter(x -> x.getType() != Material.AIR)
+							.collect(Collectors.toList());
+					HashMap<Integer, ItemStack> map = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
+					if(!map.isEmpty())
+					{
+						map.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+					}
 					return;
 				}
 			} else
@@ -120,6 +142,16 @@ public class ParcelListener implements Listener
 				{
 					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.NotEnoughMoney")
 							.replace("%money%", String.valueOf(cost)+plugin.getVaultEco().currencyNamePlural()));
+					plugin.getParcelHandler().removeInGui(player.getUniqueId());
+					List<ItemStack> list = Arrays.asList(isa).stream()
+							.filter(x -> x != null)
+							.filter(x -> x.getType() != Material.AIR)
+							.collect(Collectors.toList());
+					HashMap<Integer, ItemStack> map = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
+					if(!map.isEmpty())
+					{
+						map.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+					}
 					return;
 				}
 				net.milkbowl.vault.economy.EconomyResponse er = plugin.getVaultEco().withdrawPlayer(player, cost);
@@ -129,10 +161,23 @@ public class ParcelListener implements Listener
 					{
 						ChatApi.sendMessage(player, er.errorMessage);
 					}
+					plugin.getParcelHandler().removeInGui(player.getUniqueId());
+					List<ItemStack> list = Arrays.asList(isa).stream()
+							.filter(x -> x != null)
+							.filter(x -> x.getType() != Material.AIR)
+							.collect(Collectors.toList());
+					HashMap<Integer, ItemStack> map = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
+					if(!map.isEmpty())
+					{
+						map.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+					}
 					return;
 				}
 			}
+		} else
+		{
+			cost = 0.0;
 		}
-		plugin.getParcelHandler().closeGuiToDepositParcelContent((Player) event.getPlayer(), isa);
+		plugin.getParcelHandler().closeGuiToDepositParcelContent((Player) event.getPlayer(), isa, cost);
 	}
 }

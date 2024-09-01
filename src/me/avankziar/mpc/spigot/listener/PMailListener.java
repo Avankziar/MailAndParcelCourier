@@ -8,7 +8,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.objects.MailBox;
@@ -41,10 +40,17 @@ public class PMailListener implements Listener
 		{
 			return;
 		}
+		event.setCancelled(true);
+		event.setUseInteractedBlock(Result.DENY);
+		event.setUseItemInHand(Result.DENY);
+		if(!pmail.getOwner().equals(event.getPlayer().getUniqueId()))
+		{
+			return;
+		}
 		plugin.getPMailHandler().openPMail(is, pmail);
 		String other = plugin.getPlayerDataHandler().getPlayerName(pmail.getSender());
 		ChatApi.sendMessage(event.getPlayer(), plugin.getYamlHandler().getLang().getString("PMail.Open.Opened")
-				.replace("%player%", other)
+				.replace("%players%", other)
 				.replace("%subject%", pmail.getSubjectMatter()));
 		plugin.getPMailHandler().getPMailToRead(pmail).stream().forEach(x -> ChatApi.sendMessage(event.getPlayer(), x));
 	}
@@ -56,11 +62,11 @@ public class PMailListener implements Listener
 		{
 			return;
 		}
-		if(event.getMaterial() != Material.CHEST && event.getMaterial() != Material.TRAPPED_CHEST)
+		if(event.getClickedBlock() == null)
 		{
 			return;
 		}
-		if(event.getClickedBlock() == null)
+		if(event.getClickedBlock().getType() != Material.CHEST && event.getClickedBlock().getType() != Material.TRAPPED_CHEST)
 		{
 			return;
 		}
@@ -74,16 +80,12 @@ public class PMailListener implements Listener
 				&& event.getItem().getType() == plugin.getPMailHandler().getPaperType())
 		{
 			final ItemStack is = event.getItem();
+			event.setCancelled(true);
 			event.setUseInteractedBlock(Result.DENY);
+			event.setUseItemInHand(Result.DENY);
 			final Player player = event.getPlayer();
-			new BukkitRunnable() 
-			{
-				@Override
-				public void run() 
-				{
-					plugin.getPMailHandler().doSendPMail(player, is);
-				}
-			}.runTaskAsynchronously(plugin);
+			plugin.getPMailHandler().doSendPMail(player, is);
+			return;
 		}
 	}
 }

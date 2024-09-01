@@ -21,6 +21,7 @@ import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.Parcel;
 import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.MPC;
+import net.md_5.bungee.api.ChatColor;
 
 public class ParcelHandler 
 {
@@ -66,6 +67,11 @@ public class ParcelHandler
 	private LinkedHashMap<UUID, UUID> playersReceiver = new LinkedHashMap<>();
 	private LinkedHashMap<UUID, String> playersSubject = new LinkedHashMap<>();
 	
+	public boolean inGui(UUID uuid)
+	{
+		return playerInGui.contains(uuid);
+	}
+	
 	public void addReceiverAndSubject(UUID uuid, UUID receiver, String subject)
 	{
 		playersReceiver.put(uuid, receiver);
@@ -77,25 +83,33 @@ public class ParcelHandler
 		return playersReceiver.containsKey(uuid);
 	}
 	
+	public void removeInGui(UUID uuid)
+	{
+		playersReceiver.remove(uuid);
+		playersSubject.remove(uuid);
+		playerInGui.remove(uuid);
+	}
+	
 	public void openGuiToDepositParcelContent(Player player)
 	{
 		if(!playersReceiver.containsKey(player.getUniqueId())
-				|| playersSubject.containsKey(player.getUniqueId()))
+				|| !playersSubject.containsKey(player.getUniqueId()))
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.HasNoInfosForSending"));
 			return;
 		}
-		playerInGui.add(player.getUniqueId());
 		player.closeInventory();
-		String other = plugin.getPlayerDataHandler().getPlayerName(playersReceiver.get(player.getUniqueId()).toString());
+		UUID uuid = playersReceiver.get(player.getUniqueId());
+		String other = plugin.getPlayerDataHandler().getPlayerName(uuid  .toString());
 		String subject = playersSubject.get(player.getUniqueId());
 		Inventory inv = Bukkit.createInventory(null, 6*9, plugin.getYamlHandler().getLang().getString("Parcel.InventarTitle")
 				.replace("%player%", other)
 				.replace("%subject%", subject));
+		playerInGui.add(player.getUniqueId());
 		player.openInventory(inv);
 	}
 	
-	public void closeGuiToDepositParcelContent(Player player, ItemStack[] isa)
+	public void closeGuiToDepositParcelContent(Player player, ItemStack[] isa, double cost)
 	{
 		if(!playerInGui.contains(player.getUniqueId()))
 		{
@@ -113,6 +127,15 @@ public class ParcelHandler
 		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.Sended")
 				.replace("%player%", other)
 				.replace("%subject%", subject));
+		if(cost > 0.0)
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.SendedHasCosts")
+					.replace("%money%", 
+							plugin.getIFHEco() != null
+							? plugin.getIFHEco().format(cost, plugin.getIFHEco().getDefaultAccount(player.getUniqueId()).getCurrency())
+							: String.valueOf(cost) + plugin.getVaultEco().currencyNamePlural()
+							));
+		}
 	}
 	
 	public final static String 
@@ -137,10 +160,12 @@ public class ParcelHandler
 		ItemMeta im = i.getItemMeta();
 		PlayerData pd = plugin.getPlayerDataHandler().getPlayer(parcel.getReceiver());
 		String other = pd != null ? pd.getPlayerName() : parcel.getReceiver().toString();
-		im.setDisplayName(ChatApi.convertMiniMessageToOldFormat(
+		im.setDisplayName(
+				ChatColor.translateAlternateColorCodes('&', 
+				ChatApi.convertMiniMessageToOldFormat(
 				plugin.getYamlHandler().getLang().getString("Parcel.Write.Displayname")
 				.replace("%player%", other)
-				.replace("%subject%", parcel.getSubject())));
+				.replace("%subject%", parcel.getSubject()))));
 		PersistentDataContainer pdc = im.getPersistentDataContainer();
 		pdc.set(nid, PersistentDataType.INTEGER, parcel.getId());
 		pdc.set(nsu, PersistentDataType.STRING, parcel.getSubject());
@@ -150,7 +175,7 @@ public class ParcelHandler
 		return i;
 	}
 	
-	public ItemStack[] openParcel(ItemStack is)
+	public ItemStack[] openParcel(Player player, ItemStack is)
 	{
 		NamespacedKey nid = new NamespacedKey(plugin, ID);
 		ItemMeta im = is.getItemMeta();
@@ -160,6 +185,10 @@ public class ParcelHandler
 			return null;
 		}
 		Parcel parcel = getParcel(pdc.get(nid, PersistentDataType.INTEGER));
+		if(!parcel.getReceiver().equals(player.getUniqueId()))
+		{
+			return null;
+		}
 		final ItemStack[] isa = parcel.getParcel();
 		plugin.getMysqlHandler().deleteData(MysqlType.PARCEL, "`id` = ?", parcel.getId());
 		is.setAmount(is.getAmount() - 1);
@@ -169,7 +198,7 @@ public class ParcelHandler
 	public ArrayList<Parcel> getReceivedParcel(UUID uuid, int start, int quantity)
 	{
 		return Parcel.convert(plugin.getMysqlHandler().getList(MysqlType.PARCEL, "`id` DESC", start, quantity, 
-				"`mail_receiver` = ? AND `in_delivering` = ?", uuid.toString(), true));
+				"`parcel_receiver` = ? AND `in_delivering` = ?", uuid.toString(), true));
 	}
 	
 	public double getSendingCost(ItemStack[] isa)

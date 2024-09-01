@@ -10,7 +10,6 @@ import org.bukkit.util.RayTraceResult;
 
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
-import me.avankziar.mpc.general.cmdtree.CommandSuggest;
 import me.avankziar.mpc.general.objects.MailBox;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
@@ -34,12 +33,6 @@ public class MailBoxCommandExecutor implements CommandExecutor
 		{
 			return false;
 		}
-		if(args.length != 0)
-		{
-			ChatApi.sendMessage(sender, ChatApi.click(plugin.getYamlHandler().getLang().getString("InputIsWrong"),
-					"RUN_COMMAND", CommandSuggest.getCmdString(CommandSuggest.Type.MAIL)));
-			return false;
-		}
 		if (!(sender instanceof Player)) 
 		{
 			plugin.getLogger().info("Cmd is only for Player!");
@@ -55,13 +48,13 @@ public class MailBoxCommandExecutor implements CommandExecutor
 		RayTraceResult rtr = player.rayTraceBlocks(5);
 		if(rtr == null)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString(""));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.LookingIntoTheAir"));
 			return false;
 		}
 		Block block = rtr.getHitBlock();
 		if(block.getType() != Material.CHEST && block.getType() != Material.TRAPPED_CHEST)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString(""));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.BlockIsNotAChest"));
 			return false;
 		}
 		MailBox mailbox = plugin.getMailBoxHandler().getMailBox(block.getLocation());
@@ -80,7 +73,7 @@ public class MailBoxCommandExecutor implements CommandExecutor
 					default:
 						break;
 					case "-noowner":
-						if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.CREATE_MAILBOX_WIHICH_HAS_NO_OWNER))
+						if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.CREATE_MAILBOX_WHICH_HAS_NO_OWNER))
 						{
 							ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.CannotCreateWithoutOwner"));
 							return false;
@@ -123,7 +116,7 @@ public class MailBoxCommandExecutor implements CommandExecutor
 				{
 					mailbox = new MailBox(0, player.getUniqueId(), plugin.getServername(), block.getLocation(), canSendPMail);
 					plugin.getMailBoxHandler().createMailBox(mailbox);
-					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox."));
+					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.YourOwn"));
 				}
 			}
 			return true;

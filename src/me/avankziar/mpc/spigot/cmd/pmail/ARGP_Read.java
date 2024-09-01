@@ -55,14 +55,14 @@ public class ARGP_Read  extends ArgumentModule
 		PMail pmail = plugin.getPMailHandler().getPMail(mailid, false);
 		if(pmail == null)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.EMailDontExist"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.PMailDontExist"));
 			return;
 		}
 		if(!pmail.getOwner().equals(player.getUniqueId()))
 		{
 			if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.READ_OTHER_MAIL))
 			{
-				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.YourAreNotTheEMailOwner"));
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.YourAreNotThePMailOwner"));
 				return;
 			}
 		}

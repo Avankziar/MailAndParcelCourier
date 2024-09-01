@@ -72,7 +72,7 @@ public class ARGPs_OutgoingMail extends ArgumentModule
 	{
 		int start = page*10;
 		int last = plugin.getMysqlHandler().getCount(MysqlType.PMAIL,
-				"`mail_sender` = ?", otheruuid.toString());
+				"`mail_owner` = ? AND `mail_sender` = ?", otheruuid.toString(), otheruuid.toString());
 		ArrayList<PMail> pmails = plugin.getPMailHandler().getSendedEmails(otheruuid, start, last);
 		if(pmails.size() == 0 && start == 0)
 		{
@@ -85,11 +85,10 @@ public class ARGPs_OutgoingMail extends ArgumentModule
 				.replace("%page%", String.valueOf(page)));
 		for(PMail e : pmails)
 		{
-			String name = e.getSender();
-			UUID uuid = null;
+			String name = null;
+			UUID uuid = e.getReceiver();
 			try
 			{
-				uuid = UUID.fromString(e.getSender());
 				OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
 				if(off.hasPlayedBefore())
 				{
@@ -111,7 +110,7 @@ public class ARGPs_OutgoingMail extends ArgumentModule
 		}
 		
 		String pastNext = pastNextPage(player,
-				page, last, CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_OUTGOINGMAIL));
+				page, last, CommandSuggest.getCmdString(CommandSuggest.Type.PMAILS_OUTGOINGMAIL));
 		if(pastNext != null) 
 		{
 			texts.add(pastNext);

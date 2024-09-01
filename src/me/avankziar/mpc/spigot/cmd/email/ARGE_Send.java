@@ -88,7 +88,7 @@ public class ARGE_Send extends ArgumentModule
 		}
 		double cost = plugin.getEMailHandler().getSendingCost(subject, msg) * playerlist.size();
 		if(cost > 0.0 && (plugin.getIFHEco() != null || plugin.getVaultEco() != null))
-		{			
+		{		
 			if(plugin.getIFHEco() != null)
 			{
 				me.avankziar.ifh.spigot.economy.account.Account acc = plugin.getIFHEco().getDefaultAccount(player.getUniqueId());
@@ -125,6 +125,9 @@ public class ARGE_Send extends ArgumentModule
 					return;
 				}
 			}
+		} else
+		{
+			cost = 0.0;
 		}
 		for(UUID uuid : uuidlist)
 		{
@@ -149,5 +152,14 @@ public class ARGE_Send extends ArgumentModule
 		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.Sended")
 				.replace("%players%", String.join(", ", players.split("@")))
 				.replace("%subject%", subject));
+		if(cost > 0.0)
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.SendedHasCosts")
+					.replace("%money%", 
+							plugin.getIFHEco() != null
+							? plugin.getIFHEco().format(cost, plugin.getIFHEco().getDefaultAccount(player.getUniqueId()).getCurrency())
+							: String.valueOf(cost) + plugin.getVaultEco().currencyNamePlural()
+							));
+		}
 	}
 }

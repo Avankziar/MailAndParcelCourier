@@ -23,13 +23,13 @@ public class EMailHandler
 	public ArrayList<EMail> getReceivedEmails(UUID uuid, int start, int quantity)
 	{
 		return EMail.convert(plugin.getMysqlHandler().getList(MysqlType.EMAIL, "`id` DESC", start, quantity,
-				"`mail_receiver` = ?", uuid.toString()));
+				"`mail_owner` = ? AND `mail_receiver` = ?", uuid.toString(), uuid.toString()));
 	}
 	
 	public ArrayList<EMail> getSendedEmails(UUID uuid, int start, int quantity)
 	{
 		return EMail.convert(plugin.getMysqlHandler().getList(MysqlType.EMAIL, "`id` DESC", start, quantity,
-				"`mail_sender` = ?", uuid.toString()));
+				"`mail_owner` = ? AND `mail_sender` = ?", uuid.toString(), uuid.toString()));
 	}
 	
 	public EMail getCorrespondingEmail(long sendDate, int id)

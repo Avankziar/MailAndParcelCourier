@@ -10,7 +10,7 @@ import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.MPC;
 
-public class PMailProvider
+public class PMailProvider implements me.avankziar.ifh.spigot.sendable.PMail
 {
 	private MPC plugin;
 	
@@ -19,6 +19,13 @@ public class PMailProvider
 		this.plugin = plugin;
 	}
 	
+	/**
+	 * Send a p-mail to the receiver.
+	 * @param receiver
+	 * @param sender
+	 * @param subject
+	 * @param message
+	 */
 	public void sendPMail(UUID receiver, String sender, String subject, String message)
 	{
 		final long senddate = System.currentTimeMillis();
@@ -32,6 +39,13 @@ public class PMailProvider
 		plugin.getMysqlHandler().create(MysqlType.PMAIL, pmail);
 	}
 	
+	/**
+	 * Send a p-mail to all players.<br>
+	 * Will be processed async.
+	 * @param sender
+	 * @param subject
+	 * @param message
+	 */
 	public void sendAllPMail(String sender, String subject, String message)
 	{
 		new BukkitRunnable()

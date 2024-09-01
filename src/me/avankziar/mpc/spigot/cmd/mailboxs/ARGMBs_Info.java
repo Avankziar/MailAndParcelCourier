@@ -91,7 +91,7 @@ public class ARGMBs_Info extends ArgumentModule
 				return;
 			}
 		}
-		plugin.getYamlHandler().getLang().getStringList("").stream()
+		plugin.getYamlHandler().getLang().getStringList("MailBoxs.Info").stream()
 			.forEach(x -> ChatApi.sendMessage(player, x
 					.replace("%id%", String.valueOf(mailbox.getId()))
 					.replace("%owner%", (mailbox.getOwner() == null 

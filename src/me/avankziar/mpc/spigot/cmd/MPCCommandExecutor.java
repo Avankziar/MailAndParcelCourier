@@ -19,15 +19,15 @@ import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
-public class MailCommandExecutor  implements CommandExecutor
+public class MPCCommandExecutor  implements CommandExecutor
 {
 	private MPC plugin;
 	private static CommandConstructor cc;
 	
-	public MailCommandExecutor(MPC plugin, CommandConstructor cc)
+	public MPCCommandExecutor(MPC plugin, CommandConstructor cc)
 	{
 		this.plugin = plugin;
-		MailCommandExecutor.cc = cc;
+		MPCCommandExecutor.cc = cc;
 	}
 	
 	@Override
@@ -145,7 +145,7 @@ public class MailCommandExecutor  implements CommandExecutor
 			}
 		}
 		ChatApi.sendMessage(sender, ChatApi.click(plugin.getYamlHandler().getLang().getString("InputIsWrong"),
-				"RUN_COMMAND", CommandSuggest.getCmdString(CommandSuggest.Type.MAIL)));
+				"RUN_COMMAND", CommandSuggest.getCmdString(CommandSuggest.Type.MPC)));
 		return false;
 	}
 	
@@ -168,7 +168,11 @@ public class MailCommandExecutor  implements CommandExecutor
 			count++;
 			last++;
 		}
-		pastNextPage(player, page, last, CommandSuggest.getCmdString(CommandSuggest.Type.MAIL));
+		String s = pastNextPage(player, page, last, CommandSuggest.getCmdString(CommandSuggest.Type.MPC));
+		if(s != null)
+		{
+			ChatApi.sendMessage(player, s);
+		}
 	}
 	
 	private void sendInfo(Player player, BaseConstructor bc)
@@ -192,7 +196,7 @@ public class MailCommandExecutor  implements CommandExecutor
 		if(page != 0)
 		{
 			String msg2 = plugin.getYamlHandler().getLang().getString("Past");
-			String cmd = cmdstring+" "+String.valueOf(j);
+			String cmd = cmdstring+String.valueOf(j);
 			for(String o : objects)
 			{
 				cmd += " "+o;
@@ -202,7 +206,7 @@ public class MailCommandExecutor  implements CommandExecutor
 		if(page < last)
 		{
 			String msg1 = plugin.getYamlHandler().getLang().getString("Next");
-			String cmd = cmdstring+" "+String.valueOf(i);
+			String cmd = cmdstring+String.valueOf(i);
 			for(String o : objects)
 			{
 				cmd += " "+o;

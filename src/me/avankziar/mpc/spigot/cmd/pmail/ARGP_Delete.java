@@ -60,7 +60,7 @@ public class ARGP_Delete extends ArgumentModule
 		}
 		if(!pmail.getOwner().equals(player.getUniqueId()))
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.YourAreNotTheEMailOwner"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.YourAreNotThePMailOwner"));
 			return;
 		}
 		plugin.getMysqlHandler().deleteData(MysqlType.PMAIL, "`id` = ?", mailid);

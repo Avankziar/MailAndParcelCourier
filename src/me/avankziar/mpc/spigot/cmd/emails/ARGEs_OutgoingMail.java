@@ -72,7 +72,7 @@ public class ARGEs_OutgoingMail extends ArgumentModule
 	{
 		int start = page*10;
 		int last = plugin.getMysqlHandler().getCount(MysqlType.EMAIL,
-				"`mail_sender` = ?", otheruuid.toString());
+				"`mail_owner` = ? AND `mail_sender` = ?", otheruuid.toString(), otheruuid.toString());
 		ArrayList<EMail> emails = plugin.getEMailHandler().getSendedEmails(otheruuid, start, last);
 		if(emails.size() == 0 && start == 0)
 		{
@@ -85,11 +85,10 @@ public class ARGEs_OutgoingMail extends ArgumentModule
 				.replace("%page%", String.valueOf(page)));
 		for(EMail e : emails)
 		{
-			String name = e.getSender();
-			UUID uuid = null;
+			String name = null;
+			UUID uuid = e.getReceiver();
 			try
 			{
-				uuid = UUID.fromString(e.getSender());
 				OfflinePlayer off = Bukkit.getOfflinePlayer(uuid);
 				if(off.hasPlayedBefore())
 				{

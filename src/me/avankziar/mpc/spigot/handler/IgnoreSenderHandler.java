@@ -10,17 +10,14 @@ import me.avankziar.mpc.spigot.MPC;
 public class IgnoreSenderHandler
 {
 	private MPC plugin;
+	
 	public IgnoreSenderHandler(MPC plugin)
 	{
 		this.plugin = plugin;
 	}
 	
-	public boolean isIgnored(UUID sender, UUID receiver)
+	public boolean isIgnored(UUID receiver, UUID sender)
 	{
-		if(sender == null || receiver == null)
-		{
-			return true;
-		}
 		return plugin.getMysqlHandler().exist(MysqlType.IGNORE_SENDER,
 				"`mail_receiver` = ? AND `mail_sender` = ?",
 				receiver.toString(), sender.toString());

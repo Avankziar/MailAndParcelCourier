@@ -18,6 +18,7 @@ import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.MPC;
+import net.md_5.bungee.api.ChatColor;
 
 public class PMailHandler 
 {
@@ -51,34 +52,14 @@ public class PMailHandler
 		return (PMail) plugin.getMysqlHandler().getData(MysqlType.PMAIL, "`id` = ? AND `will_be_delivered` = ?", id, will_be_delivered);
 	}
 	
-	/**
-	 * Return all found ItemStack with Paper within inventory..
-	 * @param player
-	 * @return
-	 */
-	public ArrayList<ItemStack> hasPaperWithinInventory(Player player, Material paper)
-	{
-		ArrayList<ItemStack> i = new ArrayList<>();
-		for(ItemStack is : player.getInventory().getStorageContents())
-		{
-			if(is == null || is.getType() != paper)
-			{
-				continue;
-			}
-			i.add(is);
-			break;
-		}
-		return i;
-	}
-	
-	public boolean hasEnoughPaperInInventoryAsCost(ArrayList<ItemStack> list, Material paper, int cost)
+	public boolean hasEnoughPaperInInventoryAsCost(Player player, Material paper, int cost)
 	{
 		if(cost <= 0)
 		{
 			return true;
 		}
 		int remaincost = cost;
-		for(ItemStack is : list)
+		for(ItemStack is : player.getInventory().getStorageContents())
 		{
 			if(is == null || is.getType() != paper || is.getAmount() < 1)
 			{
@@ -100,14 +81,14 @@ public class PMailHandler
 		return remaincost == 0;
 	}
 	
-	public boolean withdrawPaperFromInventoryAsCost(ArrayList<ItemStack> list, Material paper, int cost)
+	public boolean withdrawPaperFromInventoryAsCost(Player player, Material paper, int cost)
 	{
 		if(cost <= 0)
 		{
 			return true;
 		}
 		int remaincost = cost;
-		for(ItemStack is : list)
+		for(ItemStack is : player.getInventory().getContents())
 		{
 			if(is == null || is.getType() != paper || is.getAmount() < 1)
 			{
@@ -115,8 +96,8 @@ public class PMailHandler
 			}
 			if(is.getAmount() > remaincost)
 			{
-				remaincost = 0;
 				is.setAmount(is.getAmount()-remaincost);
+				remaincost = 0;
 				break;
 			} else if(is.getAmount() == remaincost)
 			{
@@ -175,10 +156,11 @@ public class PMailHandler
 		pdc.set(new NamespacedKey(plugin, OWNER), PersistentDataType.STRING, owner.toString());
 		pdc.set(new NamespacedKey(plugin, SENDER), PersistentDataType.STRING, player.getUniqueId().toString());
 		pdc.set(new NamespacedKey(plugin, RECEIVER), PersistentDataType.STRING, owner.toString());
-		im.setDisplayName(ChatApi.convertMiniMessageToOldFormat(
+		im.setDisplayName(ChatColor.translateAlternateColorCodes('&', 
+				ChatApi.convertMiniMessageToOldFormat(
 				plugin.getYamlHandler().getLang().getString("PMail.Write.Displayname")
 				.replace("%player%", other)
-				.replace("%subject%", subject)));
+				.replace("%subject%", subject))));
 		i.setItemMeta(im);
 		return i;
 	}
@@ -213,7 +195,7 @@ public class PMailHandler
 				player.getUniqueId(),
 				pdc.get(nse, PersistentDataType.STRING),
 				UUID.fromString(pdc.get(nre, PersistentDataType.STRING)),
-				false, noww, true);
+				false, noww, false);
 		PMail receiver = new PMail(0,
 				pdc.get(nsu, PersistentDataType.STRING),
 				pdc.get(nme, PersistentDataType.STRING),
@@ -236,7 +218,7 @@ public class PMailHandler
 	public ArrayList<PMail> getToDeliverIncomingMail(UUID uuid, int start, int quantity)
 	{
 		return PMail.convert(plugin.getMysqlHandler().getList(MysqlType.PMAIL, "`id` DESC", start, quantity, 
-				"`mail_receiver` = ? AND `will_be_delivered` = ?", uuid.toString(), true));
+				"`mail_owner` = ? AND `mail_receiver` = ? AND `will_be_delivered` = ?", uuid.toString(), uuid.toString(), true));
 	}
 	
 	/**
@@ -260,10 +242,11 @@ public class PMailHandler
 		ItemMeta im = i.getItemMeta();
 		PlayerData pd = plugin.getPlayerDataHandler().getPlayer(pmail.getReceiver());
 		String other = pd != null ? pd.getPlayerName() : pmail.getReceiver().toString();
-		im.setDisplayName(ChatApi.convertMiniMessageToOldFormat(
+		im.setDisplayName(ChatColor.translateAlternateColorCodes('&', 
+				ChatApi.convertMiniMessageToOldFormat(
 				plugin.getYamlHandler().getLang().getString("PMail.Write.Displayname")
 				.replace("%player%", other)
-				.replace("%subject%", pmail.getSubjectMatter())));
+				.replace("%subject%", pmail.getSubjectMatter()))));
 		PersistentDataContainer pdc = im.getPersistentDataContainer();
 		pdc.set(nid, PersistentDataType.INTEGER, pmail.getId());
 		pdc.set(nsu, PersistentDataType.STRING, pmail.getSubjectMatter());
@@ -351,7 +334,7 @@ public class PMailHandler
 	public ArrayList<PMail> getReceivedEmails(UUID uuid, int start, int quantity)
 	{
 		return PMail.convert(plugin.getMysqlHandler().getList(MysqlType.PMAIL, "`id` DESC", start, quantity, 
-				"`mail_receiver` = ? AND `will_be_delivered` = ?", uuid.toString(), false));
+				"`mail_owner` = ? AND `mail_receiver` = ? AND `will_be_delivered` = ?", uuid.toString(), uuid.toString(), false));
 	}
 	
 	/**
@@ -364,7 +347,7 @@ public class PMailHandler
 	public ArrayList<PMail> getSendedEmails(UUID uuid, int start, int quantity)
 	{
 		return PMail.convert(plugin.getMysqlHandler().getList(MysqlType.PMAIL, "`id` DESC", start, quantity, 
-				"`mail_sender` = ? AND `will_be_delivered` = ?", uuid.toString(), false));
+				"`mail_owner` = ? AND `mail_sender` = ? AND `will_be_delivered` = ?", uuid.toString(), uuid.toString(), false));
 	}
 	
 	public ArrayList<String> getPMailToRead(PMail pmail)
@@ -428,10 +411,15 @@ public class PMailHandler
 		String other = plugin.getPlayerDataHandler().getPlayerName(pdc.get(nre, PersistentDataType.STRING));
 		double cost = plugin.getPMailHandler().getSendingCost(subject, msg);
 		if(cost > 0.0 && (plugin.getIFHEco() != null || plugin.getVaultEco() != null))
-		{			
+		{
 			if(plugin.getIFHEco() != null)
 			{
 				me.avankziar.ifh.spigot.economy.account.Account acc = plugin.getIFHEco().getDefaultAccount(player.getUniqueId());
+				if(acc == null)
+				{
+					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("AccountDontExist"));
+					return;
+				}
 				if(acc.getBalance() < cost)
 				{
 					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Send.NotEnoughMoney")
@@ -444,7 +432,8 @@ public class PMailHandler
 						plugin.getYamlHandler().getLang().getString("PMail.Send.MoneyComment"));
 				if(!er.isSuccess())
 				{
-					ChatApi.sendMessage(player, er.getDefaultErrorMessage());
+					ChatApi.sendMessage(player, er.getDefaultErrorMessage()
+							.replace("%money%", plugin.getIFHEco().format(cost, acc.getCurrency())));
 					return;
 				}
 			} else
@@ -465,10 +454,23 @@ public class PMailHandler
 					return;
 				}
 			}
+		} else
+		{
+			cost = 0.0;
 		}
 		plugin.getPMailHandler().sendPMail(player, is);
 		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.Send.Sended")
 				.replace("%players%", other)
 				.replace("%subject%", subject));
+		if(cost > 0.0)
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.SendedHasCosts")
+					.replace("%money%", 
+							plugin.getIFHEco() != null
+							? plugin.getIFHEco().format(cost, plugin.getIFHEco().getDefaultAccount(player.getUniqueId()).getCurrency())
+							: String.valueOf(cost) + plugin.getVaultEco().currencyNamePlural()
+							));
+		}
+		is.setAmount(0);
 	}
 }

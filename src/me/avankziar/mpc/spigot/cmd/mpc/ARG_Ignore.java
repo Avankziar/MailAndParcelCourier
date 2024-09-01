@@ -1,4 +1,4 @@
-package me.avankziar.mpc.spigot.cmd.mail;
+package me.avankziar.mpc.spigot.cmd.mpc;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -48,12 +48,12 @@ public class ARG_Ignore extends ArgumentModule
 		if(plugin.getIgnoreHandler().isIgnored(player.getUniqueId(), uuid))
 		{
 			plugin.getIgnoreHandler().deleteIgnore(player.getUniqueId(), uuid);
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Mail.Ignore.DontIgnore")
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MPC.Ignore.DontIgnore")
 					.replace("%player%", other));
 		} else
 		{
 			plugin.getIgnoreHandler().setIgnore(player.getUniqueId(), uuid);
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Mail.Ignore.Ignore")
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MPC.Ignore.Ignore")
 					.replace("%player%", other));
 		}
 	}

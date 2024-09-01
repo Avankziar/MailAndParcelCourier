@@ -11,7 +11,7 @@ import me.avankziar.mpc.general.objects.EMail;
 import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.MPC;
 
-public class EMailProvider
+public class EMailProvider implements me.avankziar.ifh.general.interfaces.EMail
 {
 	private MPC plugin;
 	

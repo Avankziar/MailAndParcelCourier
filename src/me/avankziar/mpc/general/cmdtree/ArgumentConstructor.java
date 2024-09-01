@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 
 public class ArgumentConstructor extends BaseConstructor
 {
+	public CommandSuggest.Type suggestType;
     public int minArgsConstructor;
     public int maxArgsConstructor;
     public int minArgsTablist;
@@ -18,7 +19,7 @@ public class ArgumentConstructor extends BaseConstructor
     		LinkedHashMap<Integer, ArrayList<String>> tablistAddingOtherValue,
     		ArgumentConstructor...argumentConstructors)
     {
-    	super(cst,
+    	super(
     			getYamlHandling().getCommandString(path+".Argument"),
     			path,
     			getYamlHandling().getCommandString(path+".Permission"),
@@ -27,6 +28,7 @@ public class ArgumentConstructor extends BaseConstructor
     			getYamlHandling().getCommandString(path+".HelpInfo"),
     			canConsoleAccess,
     			putUpCmdPermToValueEntrySystem);
+    	this.suggestType = cst;
         this.minArgsConstructor = minArgs;
         this.maxArgsConstructor = maxArgs;
         this.minArgsTablist = minArgs;

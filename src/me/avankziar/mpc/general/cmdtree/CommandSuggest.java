@@ -9,9 +9,9 @@ public class CommandSuggest
 	 */
 	public enum Type 
 	{
-		MAIL,
-		MAIL_IGNORE,
-		MAIL_LISTIGNORE,
+		MPC,
+		MPC_IGNORE,
+		MPC_LISTIGNORE,
 		
 		EMAIL,
 		EMAIL_READ,
