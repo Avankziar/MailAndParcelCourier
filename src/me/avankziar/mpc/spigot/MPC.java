@@ -824,7 +824,7 @@ public class MPC extends JavaPlugin
 	
 	public void setupBstats()
 	{
-		int pluginId = 0;
+		int pluginId = 23255;
         new Metrics(this, pluginId);
 	}
 	
