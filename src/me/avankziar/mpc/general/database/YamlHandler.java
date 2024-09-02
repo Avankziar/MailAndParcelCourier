@@ -37,7 +37,7 @@ public class YamlHandler implements YamlHandling
 			.setKeepAll(true)
 			.setOptionSorting(UpdaterSettings.OptionSorting.SORT_BY_DEFAULTS).build();
 	
-	private String languages;
+	private String languages = null;
 	
 	private YamlDocument config;
 	public YamlDocument getConfig()
