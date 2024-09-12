@@ -1,5 +1,4 @@
 Future Build:
-- MuckiDEE Wäre es möglich oder könnte man das mit hinzufügen das man einen NPC die Briefe u. Pakete geben zu könne das wäre cool das macht es noch realistischer.
 
 Build 1-1-0:
 - PMail und Parcel können nun von NPC angenommen werden. Welche NPC das sind, wird über den Config Pfad 'PostmanNPC' festgelegt.
