@@ -512,6 +512,17 @@ public class YamlManager
 				"",
 				"The number of minutes old parcel must be to be delivered.",
 				"This means that the parcel must have been sent more than x minutes ago in order to be delivered."});
+		addConfig("PostmanNPC",
+				new Object[] {
+				"Postman",
+				"Paul_-_ThePostMan"},
+				new Object[] {
+				"",
+				"Hier sollen alle NPC Namen stehen, welche PMail und Parcel annehmen können.",
+				"Bedenkt, dass weiterhin diese vorgeschrieben und vorgepackt sein müssen.",
+				"",
+				"All NPC names that can accept PMail and Parcel should be listed here.",
+				"Please note that these must still be prescribed and pre-packed."});
 	}
 	
 	public void initCommands()

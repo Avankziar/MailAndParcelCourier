@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.avankziar</groupId>
 	<artifactId>mailandparcelcourier</artifactId>
-	<version>1-0-1</version>
+	<version>1-1-0</version>
 	<name>MailAndParcelCourier</name>
 	<url>https://github.com/${repository-owner}/${repository-name}.git</url>
     <scm>

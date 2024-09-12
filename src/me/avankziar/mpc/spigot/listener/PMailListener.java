@@ -1,11 +1,15 @@
 package me.avankziar.mpc.spigot.listener;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -87,5 +91,39 @@ public class PMailListener implements Listener
 			plugin.getPMailHandler().doSendPMail(player, is);
 			return;
 		}
+	}
+	
+	@EventHandler
+	public void onPostManClick(PlayerInteractEntityEvent event)
+	{
+		if(!(event.getRightClicked() instanceof Player))
+		{
+			return;
+		}
+		if(!event.getRightClicked().hasMetadata("NPC"))
+		{
+			return;
+		}
+		if(!plugin.getParcelHandler().hasInputReceiverForGui(event.getPlayer().getUniqueId()))
+		{
+			return;
+		}
+		final Player player = event.getPlayer();
+		if(player.getInventory().getItemInMainHand() == null 
+				|| player.getInventory().getItemInMainHand().getType() != plugin.getPMailHandler().getPaperType())
+		{
+			return;
+		}
+	    String npcname = event.getRightClicked().getName();
+	    List<String> npc = this.plugin.getYamlHandler().getConfig().getStringList("PostmanNPC")
+	    		.stream().map(x -> x.replace(" ", "_")).collect(Collectors.toList());
+	    if(!npc.contains(npcname))
+	    {
+	    	return;
+	    }
+	    final ItemStack is = player.getInventory().getItemInMainHand();
+		event.setCancelled(true);
+		plugin.getPMailHandler().doSendPMail(player, is);
+		return;
 	}
 }
