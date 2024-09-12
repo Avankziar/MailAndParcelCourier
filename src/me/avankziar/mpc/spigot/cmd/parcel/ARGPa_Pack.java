@@ -52,7 +52,15 @@ public class ARGPa_Pack extends ArgumentModule
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.PlayerIgnoresYou")
 					.replace("%player%", other));
 		}
-		plugin.getParcelHandler().addReceiverAndSubject(player.getUniqueId(), uuid, subject);
-		ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.HasPack"));
+		new BukkitRunnable()
+		{
+			@Override
+			public void run()
+			{
+				plugin.getParcelHandler().addReceiverAndSubject(player.getUniqueId(), uuid, subject);
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.HasPack"));
+			}
+		}.runTask(plugin);
+		
 	}
 }

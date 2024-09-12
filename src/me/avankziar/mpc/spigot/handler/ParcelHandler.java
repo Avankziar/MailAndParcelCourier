@@ -63,9 +63,9 @@ public class ParcelHandler
 		return (Parcel) plugin.getMysqlHandler().getData(MysqlType.PARCEL, "`id` = ?", id);
 	}
 	
-	private ArrayList<UUID> playerInGui = new ArrayList<>();
-	private LinkedHashMap<UUID, UUID> playersReceiver = new LinkedHashMap<>();
-	private LinkedHashMap<UUID, String> playersSubject = new LinkedHashMap<>();
+	private static ArrayList<UUID> playerInGui = new ArrayList<>();
+	private static LinkedHashMap<UUID, UUID> playersReceiver = new LinkedHashMap<>();
+	private static LinkedHashMap<UUID, String> playersSubject = new LinkedHashMap<>();
 	
 	public boolean inGui(UUID uuid)
 	{
@@ -100,7 +100,12 @@ public class ParcelHandler
 		}
 		player.closeInventory();
 		UUID uuid = playersReceiver.get(player.getUniqueId());
-		String other = plugin.getPlayerDataHandler().getPlayerName(uuid  .toString());
+		if(uuid == null)
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.HasNoInfosForSending"));
+			return;
+		}
+		String other = plugin.getPlayerDataHandler().getPlayerName(uuid.toString());
 		String subject = playersSubject.get(player.getUniqueId());
 		Inventory inv = Bukkit.createInventory(null, 6*9, plugin.getYamlHandler().getLang().getString("Parcel.InventarTitle")
 				.replace("%player%", other)

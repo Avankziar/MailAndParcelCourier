@@ -12,7 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -85,32 +84,6 @@ public class ParcelListener implements Listener
 			final Player player = event.getPlayer();
 			plugin.getParcelHandler().openGuiToDepositParcelContent(player);
 		}
-	}
-	
-	@EventHandler
-	public void onPostManClick(PlayerInteractEntityEvent event)
-	{
-		if(!(event.getRightClicked() instanceof Player))
-		{
-			return;
-		}
-		if(!event.getRightClicked().hasMetadata("NPC"))
-		{
-			return;
-		}
-		if(!plugin.getParcelHandler().hasInputReceiverForGui(event.getPlayer().getUniqueId()))
-		{
-			return;
-		}
-	    String npcname = event.getRightClicked().getName();
-	    List<String> npc = this.plugin.getYamlHandler().getConfig().getStringList("PostmanNPC")
-	    		.stream().map(x -> x.replace(" ", "_")).collect(Collectors.toList());
-	    if(!npc.contains(npcname))
-	    {
-	    	return;
-	    }
-		final Player player = event.getPlayer();
-		plugin.getParcelHandler().openGuiToDepositParcelContent(player);
 	}
 	
 	@EventHandler
