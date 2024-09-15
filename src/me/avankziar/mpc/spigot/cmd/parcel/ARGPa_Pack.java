@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 
 public class ARGPa_Pack extends ArgumentModule
@@ -28,6 +29,11 @@ public class ARGPa_Pack extends ArgumentModule
 		Player player = (Player) sender;
 		String players = args[1];
 		String subject = args[2];
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
+			return;
+		}
 		new BukkitRunnable() 
 		{
 			@Override

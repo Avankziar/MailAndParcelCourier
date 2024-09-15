@@ -133,10 +133,10 @@ public class ARGE_Send extends ArgumentModule
 		{
 			final long senddate = System.currentTimeMillis();
 			EMail receivers = new EMail(0, subject, msg, uuid,
-					player.getUniqueId().toString(), uuid, false, senddate);
+					player.getUniqueId().toString(), uuid, false, senddate, 0L);
 			plugin.getMysqlHandler().create(MysqlType.EMAIL, receivers);
 			EMail senders = new EMail(0, subject, msg, player.getUniqueId(),
-					player.getUniqueId().toString(), uuid, false, senddate);
+					player.getUniqueId().toString(), uuid, false, senddate, 0L);
 			plugin.getMysqlHandler().create(MysqlType.EMAIL, senders);
 			int lastemail = plugin.getMysqlHandler().lastID(MysqlType.EMAIL)-1;
 			EMail email = plugin.getEMailHandler().getEMail(lastemail);

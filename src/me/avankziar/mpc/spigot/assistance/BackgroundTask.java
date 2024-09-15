@@ -1,5 +1,7 @@
 package me.avankziar.mpc.spigot.assistance;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -25,12 +27,34 @@ import me.avankziar.mpc.spigot.MPC;
 public class BackgroundTask
 {
 	private static MPC plugin;
+	private static LinkedHashMap<LocalTime, LocalTime> serverrestart = new LinkedHashMap<>();
 	
 	public BackgroundTask(MPC plugin)
 	{
 		BackgroundTask.plugin = plugin;
 		initPMailDeposit();
 		initParcelDeposit();
+		for(String t : plugin.getYamlHandler().getConfig().getStringList("Server.Restarttime"))
+		{
+			String[] split = t.split("-");
+			if(split.length != 2)
+			{
+				continue;
+			}
+			LocalTime start = LocalTime.parse(split[0], DateTimeFormatter.ofPattern("HH:mm"));
+			LocalTime end = LocalTime.parse(split[1], DateTimeFormatter.ofPattern("HH:mm"));
+			serverrestart.put(start, end);
+		}
+	}
+	
+	public static boolean isServerRestartImminent()
+	{
+		LocalTime lt = LocalTime.now();
+		return serverrestart
+			.entrySet()
+			.stream()
+			.filter(x -> lt.isAfter(x.getKey()) && lt.isBefore(x.getValue())).findAny().isPresent();
+		
 	}
 	
 	public void initPMailDeposit()
@@ -43,6 +67,10 @@ public class BackgroundTask
 			@Override
 			public void run()
 			{
+				if(isServerRestartImminent())
+				{
+					return;
+				}
 				long senddateAfter = System.currentTimeMillis() - (depositAfter * 1000 * 60);
 				ArrayList<PMail> list = PMail.convert(plugin.getMysqlHandler().getFullList(MysqlType.PMAIL,
 						"`id` ASC",
@@ -136,6 +164,10 @@ public class BackgroundTask
 			@Override
 			public void run()
 			{
+				if(isServerRestartImminent())
+				{
+					return;
+				}
 				long senddateAfter = System.currentTimeMillis() - (depositAfter * 1000 * 60);
 				ArrayList<Parcel> list = Parcel.convert(plugin.getMysqlHandler().getFullList(MysqlType.PARCEL,
 						"`id` ASC",

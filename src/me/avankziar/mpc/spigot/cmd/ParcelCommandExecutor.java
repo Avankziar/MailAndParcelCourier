@@ -17,6 +17,7 @@ import me.avankziar.mpc.general.cmdtree.CommandSuggest;
 import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.Parcel;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
@@ -133,6 +134,11 @@ public class ParcelCommandExecutor implements CommandExecutor
 	
 	public void sendIngoingParcel(final Player player)
 	{
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
+			return;
+		}
 		int start = 0;
 		int last = plugin.getMysqlHandler().getCount(MysqlType.PARCEL,
 				"`parcel_receiver` = ? AND `in_delivering` = ?", player.getUniqueId().toString(), true);
@@ -145,6 +151,10 @@ public class ParcelCommandExecutor implements CommandExecutor
 		int i = 0;
 		for(Parcel e : parcel)
 		{
+			if(i >= 10)
+			{
+				break;
+			}
 			ItemStack is = plugin.getParcelHandler().getParcelToDeposit(e, plugin.getParcelHandler().getPackageType());
 			HashMap<Integer, ItemStack> map = player.getInventory().addItem(is);
 			if(!map.isEmpty())

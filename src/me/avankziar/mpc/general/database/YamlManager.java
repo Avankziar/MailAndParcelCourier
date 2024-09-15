@@ -6,6 +6,8 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.bukkit.Material;
+
 import me.avankziar.mpc.general.database.Language.ISO639_2B;
 import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 
@@ -369,7 +371,15 @@ public class YamlManager
 				"so if 'OverrulePermission'=true the stored value entry is returned.",
 				"If 'OverrulePermission'=false, 'true' is returned if the stored value entry OR the permission query is 'true'.",
 				"If both are 'false', 'false' is returned."});
-		
+		addConfig("Server.Restarttime",
+				new Object[] {
+				"05:55-06:20",
+				"11:55-12:05"},
+				new Object[] {
+				"",
+				"Deklariert wann der Server restartet um Fehler beim Verschicken oder erhalten von PMail und Parcel zu verhindern. Im 24h Zeitformt.",
+				"",
+				"Declares when the server restarts to prevent errors when sending or receiving PMail and Parcel. In 24h time format."});
 		addConfig("EMail.Cost.SendingCosts",
 				new Object[] {
 				"LUMP_SUM"},
@@ -505,6 +515,32 @@ public class YamlManager
 		addConfig("Parcel.Task.DepositParcelWhichAreOlderThan",
 				new Object[] {
 				60},
+				new Object[] {
+				"",
+				"Der Anzahl an Minuten, welche Parcel alt sein müssen um zugestellt werden müssen.",
+				"Bedeutet, die Parcel muss vor mehr als x Minuten versenden worden sein, um zugestellt werden zu können.",
+				"",
+				"The number of minutes old parcel must be to be delivered.",
+				"This means that the parcel must have been sent more than x minutes ago in order to be delivered."});
+		addConfig("Parcel.ForbiddenItemToSend",
+				new Object[] {
+				Material.SHULKER_BOX.toString(),
+				Material.BLACK_SHULKER_BOX.toString(),
+				Material.BLUE_SHULKER_BOX.toString(),
+				Material.BROWN_SHULKER_BOX.toString(),
+				Material.CYAN_SHULKER_BOX.toString(),
+				Material.GRAY_SHULKER_BOX.toString(),
+				Material.GREEN_SHULKER_BOX.toString(),
+				Material.LIGHT_BLUE_SHULKER_BOX.toString(),
+				Material.LIGHT_GRAY_SHULKER_BOX.toString(),
+				Material.LIME_SHULKER_BOX.toString(),
+				Material.MAGENTA_SHULKER_BOX.toString(),
+				Material.ORANGE_SHULKER_BOX.toString(),
+				Material.PINK_SHULKER_BOX.toString(),
+				Material.PURPLE_SHULKER_BOX.toString(),
+				Material.RED_SHULKER_BOX.toString(),
+				Material.WHITE_SHULKER_BOX.toString(),
+				Material.YELLOW_SHULKER_BOX.toString()},
 				new Object[] {
 				"",
 				"Der Anzahl an Minuten, welche Parcel alt sein müssen um zugestellt werden müssen.",
@@ -698,9 +734,9 @@ public class YamlManager
 				"<yellow>Listet alle geöffneten P-Mails des Spielers auf.",
 				"<yellow>Lists all opened of the players pmails.");
 		argumentInput("pmails_outgoingmail", "outgoingmail", basePermission,
-				"/pmails outgoingmail <playername> [pagenumber]", "/pmail outgoingmail ", false,
-				"<red>/pmails outgoingmail <Spielername> [Seitenzahl] <white>| Listet alle gesendeten PMails auf.",
-				"<red>/pmails outgoingmail <playername> [pagenumber] <white>| Lists all sended pmail.",
+				"/pmails outgoingmail [playername] [pagenumber]", "/pmail outgoingmail ", false,
+				"<red>/pmails outgoingmail [Spielername] [Seitenzahl] <white>| Listet alle gesendeten PMails auf.",
+				"<red>/pmails outgoingmail [playername] [pagenumber] <white>| Lists all sended pmail.",
 				"<aqua>Befehlsrecht für <white>/pmail outgoingmail",
 				"<aqua>Commandright for <white>/pmail outgoingmail",
 				"<yellow>Listet alle gesendeten PMails auf.",
@@ -924,6 +960,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Account existiert nicht!",
 						"<red>The account dont exist!"}));
+		languageKeys.put("ServerRestartIsImminent", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Server ist im Restart. Es ist möglich kurz davor oder danach etwas zu verschicken!",
+						"<red>The server is restarting. It is possible to send something shortly before or after!"}));
 		initMPCLang();
 		initEMailLang();
 		initPMailLang();
@@ -971,7 +1011,18 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>=====<gray>[<gold>E-Mails <white>Seite %page%<gray>]<yellow>=====",
 						"<yellow>=====<gray>[<gold>E-Mails <white>Page %page%<gray>]<yellow>====="}));
-		languageKeys.put(path+"ShowMails", 
+		languageKeys.put(path+"ShowMails.NotReaded", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>[%time%]<red> <hover:show_text:'<yellow>Von %sender%'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><red>Lesen</red><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend%%sender% re:%subject%'><gray>[</gray><aqua>Antworten</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>",
+						
+						"<red>[%time%]</red> <hover:show_text:'<yellow>From %sender%'><white>%subjectdisplay%</hover> "
+						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><red>Read</red><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emailsend%%sender% re:%subject%'><gray>[</gray><aqua>Answere</aqua><gray>]</gray></click> "
+						+ "<click:suggest_command:'%emaildelete%%mailid%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
+		languageKeys.put(path+"ShowMails.Readed", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<gray>[%time%]</gray> <hover:show_text:'<yellow>Von %sender%'><white>%subjectdisplay%</hover> "
 						+ "<click:run_command:'%emailread%%mailid%'><gray>[</gray><yellow>Lesen</yellow><gray>]</gray></click> "
@@ -1012,6 +1063,7 @@ public class YamlManager
 						"<red>Sender: <white>%sender%",
 						"<red>Empfänger: <white>%receiver%",
 						"<red>Zeitstempel: <white>%time%",
+						"<red>Gelesen am: <white>%readtime%",
 						"<red>Betreff: <reset>%subject%",
 						"<red>Nachricht:",
 						"%message%",
@@ -1020,6 +1072,7 @@ public class YamlManager
 						"<red>Sender: <white>%sender%",
 						"<red>Receiver: <white>%receiver%",
 						"<red>Timestamp: <white>%time%",
+						"<red>Read on: <white>%readtime%",
 						"<red>Subject: <reset>%subject%",
 						"<red>Message:",
 						"%message%",
@@ -1133,10 +1186,20 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"dd.MM-HH:mm",
 						"dd.MM-HH:mm"}));
+		languageKeys.put(path+"PlayerJoin", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<click:run_command:'%pmail%'><yellow>Du hast </yellow><white>%pmails%</white> <yellow>ungelesene P-Mails!</click>",
+						"<click:run_command:'%pmail%'><yellow>You have </yellow><white>%pmails%</white> <yellow>unreaded PMails!</click>"}));
 		languageKeys.put(path+"Write.Displayname", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Brief für <white>%player% <gold>- <white>%subject%",
 						"<red>Letter for <white>%player% <gold>- <white>%subject%"}));
+		languageKeys.put(path+"Write.Lore", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"",
+						"<gray>Rechtsklicke mit der PMail in die Luft zum öffnen des Briefes!",
+						"",
+						"<gray>Right-click with the PMail in the air to open the letter!"}));
 		languageKeys.put(path+"Write.NotEnoughMaterial", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du hast nicht Materialien um die PMail zu schreiben!",
@@ -1163,6 +1226,7 @@ public class YamlManager
 						"<red>Sender: <white>%sender%",
 						"<red>Empfänger: <white>%receiver%",
 						"<red>Zeitstempel: <white>%time%",
+						"<red>Gelesen am: <white>%readtime%",
 						"<red>Betreff: <reset>%subject%",
 						"<red>Nachricht:",
 						"%message%",
@@ -1171,6 +1235,7 @@ public class YamlManager
 						"<red>Sender: <white>%sender%",
 						"<red>Receiver: <white>%receiver%",
 						"<red>Timestamp: <white>%time%",
+						"<red>Read on: <white>%readtime%",
 						"<red>Subject: <reset>%subject%",
 						"<red>Message:",
 						"%message%",
@@ -1265,6 +1330,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der angeschaute Block ist keine Kiste oder Redstonekiste!",
 						"<red>The block you are looking at is not a chest or trappedchest!"}));
+		languageKeys.put(path+"Deleted.BlockBreak", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Die Mailbox wurde gelöscht! Eigentümer: %owner%",
+						"<red>The mailbox has been deleted! Owner: %owner%"}));
 		languageKeys.put(path+"Deleted.YourOwn", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast deine MailBox gelöscht.",
@@ -1301,12 +1370,28 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast eine MailBox erstellt!",
 						"<yellow>You have created a MailBox!"}));
+		languageKeys.put(path+"BlockBreak.NoOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Diese Block ist eine Mailbox ohne Eigentümer. Diese kann erst abgebaut werden, wenn diese gelöscht wurde!",
+						"<red>This block is a mailbox without an owner. It can only be removed once it has been deleted!"}));
+		languageKeys.put(path+"BlockBreak.NotSamePlayerAsOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Diese Block ist eine Mailbox des Spielers %owner%. Diese kann erst abgebaut werden, wenn diese gelöscht wurde!",
+						"<red>This block is a mailbox of the player %owner%. This can only be removed once it has been deleted!"}));
+		languageKeys.put(path+"BlockBreak.SamePlayerAsOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Diese Block ist deine Mailbox. Du kannst sie entfernen mit %cmd% und dabei die Kiste anschauen. Danach kannst du den Block abbauen!",
+						"<red>This block is your mailbox. You can remove it with %cmd% and look at the box. Then you can remove the block!"}));
 		
 		path = "MailBoxs.";
 		languageKeys.put(path+"NoMailBoxes", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Es existieren keine MailBoxen!",
 						"<red>There are no mailboxes!"}));
+		languageKeys.put(path+"NoMailBoxes", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Diese Mailbox existiert nicht!",
+						"<red>This mailbox does not exist!"}));
 		languageKeys.put(path+"Headline", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>=====<gray>[<gold>MailBoxes <white>Seite %page%<gray>]<yellow>=====",
@@ -1349,6 +1434,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"§6An §7%player% §0- §r%subject%",
 						"§6To §7%player% §0- §r%subject%"}));
+		languageKeys.put(path+"HasNotPutSomethingIn", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Um etwas verschicken musst du es in die Gui packen!",
+						"<red>To send something you have to put it in the gui!"}));
 		languageKeys.put(path+"Sended", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Parcel gesendet an <white>%player% <yellow>mit dem Betreff <reset>%subject%",
@@ -1361,6 +1450,12 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Parcel für <white>%player% <gold>- <white>%subject%",
 						"<red>Parcel for <white>%player% <gold>- <white>%subject%"}));
+		languageKeys.put(path+"Write.Lore", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"",
+						"<gray>Rechtsklicke mit dem Parcel in die Luft zum öffnen des Packets!",
+						"",
+						"<gray>Right-click with the parcel in the air to open the package!"}));
 		languageKeys.put(path+"Open.Opened", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast das Parcel geöffnet!",
@@ -1381,6 +1476,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast %amount% Parcel!",
 						"<yellow>You have %amount% Parcel!"}));
+		languageKeys.put(path+"PlayerJoin", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<click:run_command:'%parcel%'><yellow>Du hast </yellow><white>%parcels%</white> <yellow>zu erhaltende Parcels!</click>",
+						"<click:run_command:'%parcel%'><yellow>You have </yellow><white>%parcels%</white> <yellow>Parcels to be received!</click>"}));
 		
 	}
 	

@@ -88,6 +88,7 @@ import me.avankziar.mpc.spigot.ifh.MailBoxProvider;
 import me.avankziar.mpc.spigot.ifh.PMailProvider;
 import me.avankziar.mpc.spigot.ifh.ParcelProvider;
 import me.avankziar.mpc.spigot.listener.JoinListener;
+import me.avankziar.mpc.spigot.listener.MailBoxListener;
 import me.avankziar.mpc.spigot.listener.PMailListener;
 import me.avankziar.mpc.spigot.listener.ParcelListener;
 import me.avankziar.mpc.spigot.listener.PostManListener;
@@ -483,6 +484,7 @@ public class MPC extends JavaPlugin
 		pm.registerEvents(new ParcelListener(plugin), plugin);
 		pm.registerEvents(new PMailListener(plugin), plugin);
 		pm.registerEvents(new PostManListener(plugin), plugin);
+		pm.registerEvents(new MailBoxListener(plugin), plugin);
 	}
 	
 	public boolean reload() throws IOException

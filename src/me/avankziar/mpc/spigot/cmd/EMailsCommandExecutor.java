@@ -194,17 +194,33 @@ public class EMailsCommandExecutor implements CommandExecutor
 					name = off.getName();
 				}
 			} catch(Exception ex) {}
-			texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails")
-					.replace("%mailid%", String.valueOf(e.getId()))
-					.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
-							plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
-					.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
-					.replace("%subject%", e.getSubjectMatter())
-					.replace("%sender%", name)
-					.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
-					.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
-					.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
-					);
+			if(e.hasReceiverReaded())
+			{
+				texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails.Readed")
+						.replace("%mailid%", String.valueOf(e.getId()))
+						.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
+								plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
+						.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
+						.replace("%subject%", e.getSubjectMatter())
+						.replace("%sender%", name)
+						.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
+						.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
+						.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+						);
+			} else
+			{
+				texts.add(plugin.getYamlHandler().getLang().getString("EMail.ShowMails.NotReaded")
+						.replace("%mailid%", String.valueOf(e.getId()))
+						.replace("%time%", TimeHandler.getDateTime(e.getSendingDate(),
+								plugin.getYamlHandler().getLang().getString("EMail.TimeFormat", "dd.MM-HH:mm")))
+						.replace("%subjectdisplay%", e.getSubjectMatter().replace("_", " "))
+						.replace("%subject%", e.getSubjectMatter())
+						.replace("%sender%", name)
+						.replace("%emailread%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_READ))
+						.replace("%emailsend%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_SEND))
+						.replace("%emaildelete%", CommandSuggest.getCmdString(CommandSuggest.Type.EMAIL_DELETE))
+						);
+			}
 		}
 		
 		String pastNext = pastNextPage(player,

@@ -72,18 +72,21 @@ public class ARGE_Read extends ArgumentModule
 		if(email.getReceiver().equals(player.getUniqueId()))
 		{
 			//IF player is receiver, set sender a flag with hasreademail
+			long now = System.currentTimeMillis();
 			EMail corresponding = plugin.getEMailHandler().getCorrespondingEmail(email.getSendingDate(), email.getId());
 			if(corresponding != null) //If Correspondig Email wasnt deleted
 			{
 				if(!corresponding.hasReceiverReaded())
 				{
 					corresponding.setReceiverReaded(true);
+					corresponding.setReadingDate(now);
 					plugin.getMysqlHandler().updateData(MysqlType.EMAIL, corresponding, "`id` = ?", corresponding.getId());
 				}
 			}
 			if(!email.hasReceiverReaded())
 			{
 				email.setReceiverReaded(true);
+				email.setReadingDate(now);
 			}
 			EMail update = email;
 			plugin.getMysqlHandler().updateData(MysqlType.EMAIL, update, "`id` = ?", update.getId());
@@ -102,6 +105,8 @@ public class ARGE_Read extends ArgumentModule
 					.replace("%sender%", sender)
 					.replace("%receiver%", receiver)
 					.replace("%time%", TimeHandler.getDateTime(email.getSendingDate(),
+							plugin.getYamlHandler().getLang().getString("EMail.Read.TimeFormat", "dd.MM-HH:mm")))
+					.replace("%readtime%", TimeHandler.getDateTime(email.getReadingDate(),
 							plugin.getYamlHandler().getLang().getString("EMail.Read.TimeFormat", "dd.MM-HH:mm")))
 					.replace("%subject%", subject)
 					.replace("%message%", message)));

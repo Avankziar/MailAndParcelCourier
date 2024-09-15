@@ -81,7 +81,7 @@ public class ARGMBs_Delete extends ArgumentModule
 					plugin.getMailBoxHandler().getMailBox(uuid));
 		if(mailbox == null)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.EMailDontExist"));
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBoxs.NoMailBoxes"));
 			return;
 		}
 		if(mailbox.getOwner() == null)

@@ -22,6 +22,7 @@ public class EMail implements MysqlHandable
 	private UUID receiver;
 	private boolean receiverReaded; //Ob der Empfänger die Email gelesen hat.
 	private long sendingDate; 
+	private long readingDate;
 	
 	public EMail()
 	{
@@ -30,7 +31,7 @@ public class EMail implements MysqlHandable
 	
 	public EMail(int id, String subjectMatter, String message,
 			UUID owner, String sender, UUID receiver,
-			boolean receiverReaded, long sendingDate)
+			boolean receiverReaded, long sendingDate, long readingDate)
 	{
 		setId(id);
 		setSubjectMatter(subjectMatter);
@@ -40,6 +41,7 @@ public class EMail implements MysqlHandable
 		setReceiver(receiver);
 		setReceiverReaded(receiverReaded);
 		setSendingDate(sendingDate);
+		setReadingDate(readingDate);
 	}
 
 	public int getId()
@@ -122,6 +124,16 @@ public class EMail implements MysqlHandable
 		this.sendingDate = sendingDate;
 	}
 	
+	public long getReadingDate()
+	{
+		return readingDate;
+	}
+
+	public void setReadingDate(long readingDate)
+	{
+		this.readingDate = readingDate;
+	}
+
 	@Override
 	public boolean create(Connection conn, String tablename)
 	{
@@ -130,8 +142,8 @@ public class EMail implements MysqlHandable
 			String sql = "INSERT INTO `" + tablename
 					+ "`(`subject_matter`, `message_content`,"
 					+ " `mail_owner`, `mail_sender`, `mail_receiver`,"
-					+ " `has_receiver_readed`, `sending_date`) " 
-					+ "VALUES(?, ?, ?, ?, ?, ?, ?)";
+					+ " `has_receiver_readed`, `sending_date`, `reading_date`) " 
+					+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 	        ps.setString(1, getSubjectMatter());
 	        ps.setString(2, getMessage());
@@ -140,6 +152,7 @@ public class EMail implements MysqlHandable
 	        ps.setString(5, getReceiver().toString());
 	        ps.setBoolean(6, hasReceiverReaded());
 	        ps.setLong(7, getSendingDate());
+	        ps.setLong(8, getReadingDate());
 	        int i = ps.executeUpdate();
 	        MysqlBaseHandler.addRows(QueryType.INSERT, i);
 	        return true;
@@ -157,7 +170,7 @@ public class EMail implements MysqlHandable
 		{
 			String sql = "UPDATE `" + tablename
 				+ "` SET `subject_matter` = ?, `message_content` = ?,"
-				+ " `mail_owner` = ?, `mail_sender` = ?, `mail_receiver` = ?, `has_receiver_readed` = ?, `sending_date` = ?"
+				+ " `mail_owner` = ?, `mail_sender` = ?, `mail_receiver` = ?, `has_receiver_readed` = ?, `sending_date` = ?, `reading_date` = ?"
 				+ " WHERE "+whereColumn;
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ps.setString(1, getSubjectMatter());
@@ -167,7 +180,8 @@ public class EMail implements MysqlHandable
 	        ps.setString(5, getReceiver().toString());
 	        ps.setBoolean(6, hasReceiverReaded());
 	        ps.setLong(7, getSendingDate());
-			int i = 8;
+	        ps.setLong(8, getReadingDate());
+			int i = 9;
 			for(Object o : whereObject)
 			{
 				ps.setObject(i, o);
@@ -210,7 +224,8 @@ public class EMail implements MysqlHandable
 						rs.getString("mail_sender"),
 						UUID.fromString(rs.getString("mail_receiver")),
 						rs.getBoolean("has_receiver_readed"),
-						rs.getLong("sending_date")));
+						rs.getLong("sending_date"),
+						rs.getLong("reading_date")));
 			}
 			return al;
 		} catch (SQLException e)

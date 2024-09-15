@@ -24,7 +24,7 @@ public class EMailProvider implements me.avankziar.ifh.general.interfaces.EMail
 	{
 		final long senddate = System.currentTimeMillis();
 		EMail receivers = new EMail(0, subject, message, receiver,
-				sender, receiver, false, senddate);
+				sender, receiver, false, senddate, 0L);
 		plugin.getMysqlHandler().create(MysqlType.EMAIL, receivers);
 		ArrayList<EMail> emails = plugin.getEMailHandler().getReceivedEmails(receiver, 0, 1);
 		if(emails == null || emails.isEmpty())

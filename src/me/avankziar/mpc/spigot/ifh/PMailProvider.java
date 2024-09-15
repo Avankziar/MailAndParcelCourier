@@ -35,7 +35,7 @@ public class PMailProvider implements me.avankziar.ifh.spigot.sendable.PMail
 				receiver,
 				sender,
 				receiver,
-				false, senddate, true);
+				false, senddate, 0L, true);
 		plugin.getMysqlHandler().create(MysqlType.PMAIL, pmail);
 	}
 	

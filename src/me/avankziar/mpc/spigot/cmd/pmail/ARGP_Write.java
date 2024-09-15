@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 
 public class ARGP_Write extends ArgumentModule
@@ -28,6 +29,11 @@ public class ARGP_Write extends ArgumentModule
 	public void run(CommandSender sender, String[] args) throws IOException
 	{
 		Player player = (Player) sender;
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
+			return;
+		}
 		String other = args[1];
 		String subject = args[2];
 		ArrayList<String> msgs = new ArrayList<>();

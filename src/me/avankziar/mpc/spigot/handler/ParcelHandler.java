@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -171,6 +172,10 @@ public class ParcelHandler
 				plugin.getYamlHandler().getLang().getString("Parcel.Write.Displayname")
 				.replace("%player%", other)
 				.replace("%subject%", parcel.getSubject()))));
+		im.setLore(plugin.getYamlHandler().getLang().getStringList("Parcel.Write.Lore")
+				.stream()
+				.map(x -> ChatColor.translateAlternateColorCodes('&', ChatApi.convertMiniMessageToOldFormat(x)))
+				.collect(Collectors.toList()));
 		PersistentDataContainer pdc = im.getPersistentDataContainer();
 		pdc.set(nid, PersistentDataType.INTEGER, parcel.getId());
 		pdc.set(nsu, PersistentDataType.STRING, parcel.getSubject());

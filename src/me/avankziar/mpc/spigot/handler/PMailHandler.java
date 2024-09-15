@@ -2,6 +2,7 @@ package me.avankziar.mpc.spigot.handler;
 
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -134,6 +135,7 @@ public class PMailHandler
 			RECEIVER = "mpc_receiver",
 			WAS_READED = "mpc_was_readed",
 			SENDDATE = "mpc_senddate",
+			READDATE = "mpc_readdate",
 			WILL_BE_DELIVERED = "mpc_will_be_delivered";
 	
 	/**
@@ -161,6 +163,10 @@ public class PMailHandler
 				plugin.getYamlHandler().getLang().getString("PMail.Write.Displayname")
 				.replace("%player%", other)
 				.replace("%subject%", subject))));
+		im.setLore(plugin.getYamlHandler().getLang().getStringList("PMail.Write.Lore")
+				.stream()
+				.map(x -> ChatColor.translateAlternateColorCodes('&', ChatApi.convertMiniMessageToOldFormat(x)))
+				.collect(Collectors.toList()));
 		i.setItemMeta(im);
 		return i;
 	}
@@ -195,14 +201,14 @@ public class PMailHandler
 				player.getUniqueId(),
 				pdc.get(nse, PersistentDataType.STRING),
 				UUID.fromString(pdc.get(nre, PersistentDataType.STRING)),
-				false, noww, false);
+				false, noww, 0L, false);
 		PMail receiver = new PMail(0,
 				pdc.get(nsu, PersistentDataType.STRING),
 				pdc.get(nme, PersistentDataType.STRING),
 				UUID.fromString(pdc.get(now, PersistentDataType.STRING)),
 				pdc.get(nse, PersistentDataType.STRING),
 				UUID.fromString(pdc.get(nre, PersistentDataType.STRING)),
-				false, noww, true);
+				false, noww, 0L, true);
 		plugin.getMysqlHandler().create(MysqlType.PMAIL, sender);
 		plugin.getMysqlHandler().create(MysqlType.PMAIL, receiver);
 		is.setAmount(is.getAmount() - 1);
@@ -237,11 +243,16 @@ public class PMailHandler
 		NamespacedKey nre = new NamespacedKey(plugin, RECEIVER);
 		NamespacedKey nwr = new NamespacedKey(plugin, WAS_READED);
 		NamespacedKey nsd = new NamespacedKey(plugin, SENDDATE);
+		NamespacedKey nrd = new NamespacedKey(plugin, READDATE);
 		NamespacedKey nwd = new NamespacedKey(plugin, WILL_BE_DELIVERED);
 		ItemStack i = new ItemStack(paper, 1);
 		ItemMeta im = i.getItemMeta();
 		PlayerData pd = plugin.getPlayerDataHandler().getPlayer(pmail.getReceiver());
 		String other = pd != null ? pd.getPlayerName() : pmail.getReceiver().toString();
+		im.setLore(plugin.getYamlHandler().getLang().getStringList("PMail.Write.Lore")
+				.stream()
+				.map(x -> ChatColor.translateAlternateColorCodes('&', ChatApi.convertMiniMessageToOldFormat(x)))
+				.collect(Collectors.toList()));
 		im.setDisplayName(ChatColor.translateAlternateColorCodes('&', 
 				ChatApi.convertMiniMessageToOldFormat(
 				plugin.getYamlHandler().getLang().getString("PMail.Write.Displayname")
@@ -256,6 +267,7 @@ public class PMailHandler
 		pdc.set(nre, PersistentDataType.STRING, pmail.getReceiver().toString());
 		pdc.set(nwr, PersistentDataType.BOOLEAN, pmail.hasReceiverReaded());
 		pdc.set(nsd, PersistentDataType.LONG, pmail.getSendingDate());
+		pdc.set(nrd, PersistentDataType.LONG, pmail.getReadingDate());
 		pdc.set(nwd, PersistentDataType.BOOLEAN, pmail.willBeDelivered());
 		i.setItemMeta(im);
 		return i;
@@ -277,6 +289,7 @@ public class PMailHandler
 		NamespacedKey nre = new NamespacedKey(plugin, RECEIVER);
 		NamespacedKey nwr = new NamespacedKey(plugin, WAS_READED);
 		NamespacedKey nsd = new NamespacedKey(plugin, SENDDATE);
+		NamespacedKey nrd = new NamespacedKey(plugin, READDATE);
 		NamespacedKey nwd = new NamespacedKey(plugin, WILL_BE_DELIVERED);
 		ItemMeta im = is.getItemMeta();
 		PersistentDataContainer pdc = im.getPersistentDataContainer();
@@ -294,6 +307,7 @@ public class PMailHandler
 				UUID.fromString(pdc.get(nre, PersistentDataType.STRING)),
 				pdc.get(nwr, PersistentDataType.BOOLEAN),
 				pdc.get(nsd, PersistentDataType.LONG),
+				pdc.get(nrd, PersistentDataType.LONG),
 				pdc.get(nwd, PersistentDataType.BOOLEAN));
 		return receiver;
 	}
@@ -305,14 +319,17 @@ public class PMailHandler
 	public void openPMail(ItemStack is, PMail pmail)
 	{
 		PMail correspondig = getCorrespondingEmail(pmail.getSendingDate(), pmail.getId());
+		long now = System.currentTimeMillis();
 		if(correspondig != null)
 		{
 			correspondig.setWillBeDelivered(false);
 			correspondig.setReceiverReaded(true);
+			correspondig.setReadingDate(now);
 			plugin.getMysqlHandler().updateData(MysqlType.PMAIL, correspondig, "`id` = ?", correspondig.getId());
 		}
 		pmail.setWillBeDelivered(false);
 		pmail.setReceiverReaded(true);
+		pmail.setReadingDate(now);
 		plugin.getMysqlHandler().updateData(MysqlType.PMAIL, pmail, "`id` = ?", pmail.getId());
 		is.setAmount(is.getAmount() - 1);
 	}
@@ -366,6 +383,8 @@ public class PMailHandler
 					.replace("%sender%", sender)
 					.replace("%receiver%", receiver)
 					.replace("%time%", TimeHandler.getDateTime(pmail.getSendingDate(),
+							plugin.getYamlHandler().getLang().getString("PMail.Read.TimeFormat", "dd.MM-HH:mm")))
+					.replace("%readtime%", TimeHandler.getDateTime(pmail.getReadingDate(),
 							plugin.getYamlHandler().getLang().getString("PMail.Read.TimeFormat", "dd.MM-HH:mm")))
 					.replace("%subject%", subject)
 					.replace("%message%", message)));

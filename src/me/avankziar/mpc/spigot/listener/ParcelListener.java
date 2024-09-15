@@ -1,5 +1,6 @@
 package me.avankziar.mpc.spigot.listener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,14 +20,26 @@ import me.avankziar.ifh.general.economy.action.OrdererType;
 import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.objects.MailBox;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 
 public class ParcelListener implements Listener
 {
 	public MPC plugin;
+	public static ArrayList<Material> forbiddenItems = new ArrayList<>();
 	
 	public ParcelListener(MPC plugin)
 	{
 		this.plugin = plugin;
+		for(String is : plugin.getYamlHandler().getConfig().getStringList("Parcel.ForbiddenItemToSend"))
+		{
+			try
+			{
+				forbiddenItems.add(Material.valueOf(is));
+			} catch(Exception e)
+			{
+				continue;
+			}
+		}
 	}
 	
 	@EventHandler
@@ -95,9 +108,24 @@ public class ParcelListener implements Listener
 		}
 		final ItemStack[] isa = event.getView().getTopInventory().getStorageContents();
 		double cost = plugin.getParcelHandler().getSendingCost(isa);
-		if(cost > 0.0 && (plugin.getIFHEco() != null || plugin.getVaultEco() != null))
+		Player player = (Player) event.getPlayer();
+		if(BackgroundTask.isServerRestartImminent())
 		{
-			Player player = (Player) event.getPlayer();
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
+			List<ItemStack> list = Arrays.asList(isa).stream()
+					.filter(x -> x != null)
+					.filter(x -> x.getType() != Material.AIR)
+					.collect(Collectors.toList());
+			HashMap<Integer, ItemStack> map = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
+			if(!map.isEmpty())
+			{
+				map.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+			}
+			plugin.getParcelHandler().removeInGui(player.getUniqueId());
+			return;
+		}
+		if(cost > 0.0 && (plugin.getIFHEco() != null || plugin.getVaultEco() != null))
+		{			
 			if(plugin.getIFHEco() != null)
 			{
 				me.avankziar.ifh.spigot.economy.account.Account acc = plugin.getIFHEco().getDefaultAccount(player.getUniqueId());
@@ -129,10 +157,13 @@ public class ParcelListener implements Listener
 							.filter(x -> x != null)
 							.filter(x -> x.getType() != Material.AIR)
 							.collect(Collectors.toList());
-					HashMap<Integer, ItemStack> map = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
-					if(!map.isEmpty())
+					if(!list.isEmpty())
 					{
-						map.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+						HashMap<Integer, ItemStack> map = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
+						if(!map.isEmpty())
+						{
+							map.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+						}
 					}
 					return;
 				}
@@ -178,6 +209,38 @@ public class ParcelListener implements Listener
 		{
 			cost = 0.0;
 		}
-		plugin.getParcelHandler().closeGuiToDepositParcelContent((Player) event.getPlayer(), isa, cost);
+		List<ItemStack> list = Arrays.asList(isa).stream()
+				.filter(x -> x != null)
+				.filter(x -> x.getType() != Material.AIR)
+				.filter(x -> !forbiddenItems.contains(x.getType()))
+				.collect(Collectors.toList());
+		List<ItemStack> forbiddenlist = Arrays.asList(isa).stream()
+				.filter(x -> x != null)
+				.filter(x -> x.getType() != Material.AIR)
+				.filter(x -> forbiddenItems.contains(x.getType()))
+				.collect(Collectors.toList());
+		if(list.isEmpty())
+		{
+			if(!forbiddenlist.isEmpty())
+			{
+				HashMap<Integer, ItemStack> forbidden = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
+				if(!forbidden.isEmpty())
+				{
+					forbidden.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+				}
+			}
+			plugin.getParcelHandler().removeInGui(player.getUniqueId());
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.HasNotPutSomethingIn"));
+			return;
+		}
+		if(!forbiddenlist.isEmpty())
+		{
+			HashMap<Integer, ItemStack> forbidden = player.getInventory().addItem(list.toArray(new ItemStack[list.size()]));
+			if(!forbidden.isEmpty())
+			{
+				forbidden.values().stream().forEach(x -> player.getWorld().dropItem(player.getLocation(), x));
+			}
+		}
+		plugin.getParcelHandler().closeGuiToDepositParcelContent((Player) event.getPlayer(), list.toArray(new ItemStack[list.size()]), cost);
 	}
 }

@@ -21,7 +21,8 @@ public class PMail implements MysqlHandable
 	private String sender; //Sender kann auch das Sytem oder ein Plugin sein.
 	private UUID receiver;
 	private boolean receiverReaded; //Ob der Empfänger die Email gelesen hat.
-	private long sendingDate; //ADDME ReadingDate adding!!
+	private long sendingDate;
+	private long readingDate;
 	private boolean willBeDelivered;
 	
 	public PMail()
@@ -31,7 +32,7 @@ public class PMail implements MysqlHandable
 	
 	public PMail(int id, String subjectMatter, String message,
 			UUID owner, String sender, UUID receiver,
-			boolean receiverReaded, long sendingDate, boolean willBeDelivered)
+			boolean receiverReaded, long sendingDate, long readingDate, boolean willBeDelivered)
 	{
 		setId(id);
 		setSubjectMatter(subjectMatter);
@@ -41,6 +42,7 @@ public class PMail implements MysqlHandable
 		setReceiver(receiver);
 		setReceiverReaded(receiverReaded);
 		setSendingDate(sendingDate);
+		setReadingDate(readingDate);
 		setWillBeDelivered(willBeDelivered);
 	}
 
@@ -124,6 +126,16 @@ public class PMail implements MysqlHandable
 		this.sendingDate = sendingDate;
 	}
 	
+	public long getReadingDate()
+	{
+		return readingDate;
+	}
+
+	public void setReadingDate(long readingDate)
+	{
+		this.readingDate = readingDate;
+	}
+
 	public boolean willBeDelivered()
 {
 		return willBeDelivered;
@@ -142,8 +154,8 @@ public class PMail implements MysqlHandable
 			String sql = "INSERT INTO `" + tablename
 					+ "`(`subject_matter`, `message_content`,"
 					+ " `mail_owner`, `mail_sender`, `mail_receiver`,"
-					+ " `has_receiver_readed`, `sending_date`, `will_be_delivered`) " 
-					+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+					+ " `has_receiver_readed`, `sending_date`, `reading_date`, `will_be_delivered`) " 
+					+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 	        ps.setString(1, getSubjectMatter());
 	        ps.setString(2, getMessage());
@@ -152,7 +164,8 @@ public class PMail implements MysqlHandable
 	        ps.setString(5, getReceiver().toString());
 	        ps.setBoolean(6, hasReceiverReaded());
 	        ps.setLong(7, getSendingDate());
-	        ps.setBoolean(8, willBeDelivered());
+	        ps.setLong(8, getReadingDate());
+	        ps.setBoolean(9, willBeDelivered());
 	        int i = ps.executeUpdate();
 	        MysqlBaseHandler.addRows(QueryType.INSERT, i);
 	        return true;
@@ -170,7 +183,8 @@ public class PMail implements MysqlHandable
 		{
 			String sql = "UPDATE `" + tablename
 				+ "` SET `subject_matter` = ?, `message_content` = ?,"
-				+ " `mail_owner` = ?, `mail_sender` = ?, `mail_receiver` = ?, `has_receiver_readed` = ?, `sending_date` = ?,"
+				+ " `mail_owner` = ?, `mail_sender` = ?, `mail_receiver` = ?, `has_receiver_readed` = ?,"
+				+ " `sending_date` = ?, `reading_date` = ?,"
 				+ " `will_be_delivered` = ?"
 				+ " WHERE "+whereColumn;
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -181,8 +195,9 @@ public class PMail implements MysqlHandable
 	        ps.setString(5, getReceiver().toString());
 	        ps.setBoolean(6, hasReceiverReaded());
 	        ps.setLong(7, getSendingDate());
-	        ps.setBoolean(8, willBeDelivered());
-			int i = 9;
+	        ps.setLong(8, getReadingDate());
+	        ps.setBoolean(9, willBeDelivered());
+			int i = 10;
 			for(Object o : whereObject)
 			{
 				ps.setObject(i, o);
@@ -226,6 +241,7 @@ public class PMail implements MysqlHandable
 						UUID.fromString(rs.getString("mail_receiver")),
 						rs.getBoolean("has_receiver_readed"),
 						rs.getLong("sending_date"),
+						rs.getLong("reading_date"),
 						rs.getBoolean("will_be_delivered")));
 			}
 			return al;

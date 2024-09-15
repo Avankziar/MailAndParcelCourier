@@ -17,6 +17,7 @@ import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
 
 public class ARGP_DeliverIncomingMail extends ArgumentModule
@@ -33,6 +34,11 @@ public class ARGP_DeliverIncomingMail extends ArgumentModule
 	public void run(CommandSender sender, String[] args) throws IOException
 	{
 		Player player = (Player) sender;
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
+			return;
+		}
 		String other = player.getName();
 		if(args.length >= 2)
 		{

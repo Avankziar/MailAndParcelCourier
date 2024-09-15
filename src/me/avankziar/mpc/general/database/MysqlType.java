@@ -23,7 +23,8 @@ public enum MysqlType
 			+ " mail_sender text,"
 			+ " mail_receiver char(36) NOT NULL,"
 			+ " has_receiver_readed boolean,"
-			+ " sending_date bigint);"),
+			+ " sending_date bigint,"
+			+ " reading_date bigint);"),
 	IGNORE_SENDER("mpcIgnoreSender", new IgnoreSender(), ServerType.ALL,
 			"CREATE TABLE IF NOT EXISTS `%%tablename%%"
 			+ "` (id int AUTO_INCREMENT PRIMARY KEY,"
@@ -39,6 +40,7 @@ public enum MysqlType
 			+ " mail_receiver char(36) NOT NULL,"
 			+ " has_receiver_readed boolean,"
 			+ " sending_date bigint,"
+			+ " reading_date bigint,"
 			+ " will_be_delivered boolean);"),
 	MAILBOX("mpcMailBox", new MailBox(), ServerType.SPIGOT,
 			"CREATE TABLE IF NOT EXISTS `%%tablename%%"

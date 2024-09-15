@@ -13,6 +13,7 @@ import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.objects.MailBox;
 import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 
 public class PMailListener implements Listener
 {
@@ -79,11 +80,16 @@ public class PMailListener implements Listener
 				&& event.getItem() != null 
 				&& event.getItem().getType() == plugin.getPMailHandler().getPaperType())
 		{
+			final Player player = event.getPlayer();
+			if(BackgroundTask.isServerRestartImminent())
+			{
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
+				return;
+			}
 			final ItemStack is = event.getItem();
 			event.setCancelled(true);
 			event.setUseInteractedBlock(Result.DENY);
 			event.setUseItemInHand(Result.DENY);
-			final Player player = event.getPlayer();
 			plugin.getPMailHandler().doSendPMail(player, is);
 			return;
 		}
