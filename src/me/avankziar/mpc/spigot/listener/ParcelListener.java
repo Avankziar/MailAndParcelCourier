@@ -87,6 +87,11 @@ public class ParcelListener implements Listener
 		{
 			return;
 		}
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(event.getPlayer(), plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
+			return;
+		}
 		MailBox mb = plugin.getMailBoxHandler().getMailBox(event.getClickedBlock().getLocation());
 		if(mb.canBeUsedForSending()
 				&& plugin.getParcelHandler().hasInputReceiverForGui(event.getPlayer().getUniqueId()))

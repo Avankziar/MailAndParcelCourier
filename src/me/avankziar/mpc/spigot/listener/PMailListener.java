@@ -48,6 +48,11 @@ public class PMailListener implements Listener
 		{
 			return;
 		}
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(event.getPlayer(), plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
+			return;
+		}
 		plugin.getPMailHandler().openPMail(is, pmail);
 		String other = plugin.getPlayerDataHandler().getPlayerName(pmail.getSender());
 		ChatApi.sendMessage(event.getPlayer(), plugin.getYamlHandler().getLang().getString("PMail.Open.Opened")
@@ -73,6 +78,11 @@ public class PMailListener implements Listener
 		}
 		if(!plugin.getMailBoxHandler().existThereMailBox(event.getClickedBlock().getLocation()))
 		{
+			return;
+		}
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(event.getPlayer(), plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
 			return;
 		}
 		MailBox mb = plugin.getMailBoxHandler().getMailBox(event.getClickedBlock().getLocation());

@@ -12,6 +12,7 @@ import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
+import me.avankziar.mpc.spigot.handler.GroupHandler;
 
 public class ARGPa_Pack extends ArgumentModule
 {
@@ -49,21 +50,26 @@ public class ARGPa_Pack extends ArgumentModule
 		UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(other);
 		if(uuid == null)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerDontExist")
-					.replace("%player%", other));
-			return;
+			GroupHandler.Group group = plugin.getGroupHandler().getGroup(other);
+			if(group == null)
+			{
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerDontExist")
+						.replace("%player%", other));
+				return;
+			}
+			uuid = group.getUUID();
 		}
 		if(plugin.getIgnoreHandler().isIgnored(player.getUniqueId(), uuid))
 		{
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("EMail.Send.PlayerIgnoresYou")
 					.replace("%player%", other));
 		}
+		plugin.getParcelHandler().addReceiverAndSubject(player.getUniqueId(), uuid, subject);
 		new BukkitRunnable()
 		{
 			@Override
 			public void run()
 			{
-				plugin.getParcelHandler().addReceiverAndSubject(player.getUniqueId(), uuid, subject);
 				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("Parcel.HasPack"));
 			}
 		}.runTask(plugin);

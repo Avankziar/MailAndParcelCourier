@@ -22,6 +22,7 @@ import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.Parcel;
 import me.avankziar.mpc.general.objects.PlayerData;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import net.md_5.bungee.api.ChatColor;
 
 public class ParcelHandler 
@@ -197,6 +198,11 @@ public class ParcelHandler
 		Parcel parcel = getParcel(pdc.get(nid, PersistentDataType.INTEGER));
 		if(!parcel.getReceiver().equals(player.getUniqueId()))
 		{
+			return null;
+		}
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
 			return null;
 		}
 		final ItemStack[] isa = parcel.getParcel();

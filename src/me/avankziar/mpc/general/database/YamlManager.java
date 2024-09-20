@@ -559,6 +559,23 @@ public class YamlManager
 				"",
 				"All NPC names that can accept PMail and Parcel should be listed here.",
 				"Please note that these must still be prescribed and pre-packed."});
+		addConfig("Groups",
+				new Object[] {
+				"ad;Admin;mpc.admin;2610db5d-9bb5-47ab-a034-ac7f8c334f95",
+				"su;supporter;mpc.supporter;288ef62a-3258-4303-bc9d-9abc9cd7024b"},
+				new Object[] {
+				"",
+				"Hier werden alle möglich Gruppen eingetragen, die für PMail & Parcel durch die Mailbox erreichbar sind.",
+				"Bsp.: ad;Admin;mpc.admin;2610db5d-9bb5-47ab-a034-ac7f8c334f95",
+				"Bsp.: ad = Kürzel, Admin = Displayname, mpc.admin = Permission zum Handhaben aller Befehle dieser Gruppe, UUID = die UUID",
+				"Gruppenkürzel dürfen Maximal 2 Zeichen sein, da Spielernamen 3 Zeichen und mehr sind!",
+				"Mailboxen für Gruppen können durch /mailbox -group:<Gruppenkürzel>, erstellt werden.",
+				"",
+				"All possible groups that can be reached by PMail & Parcel via the mailbox are entered here.",
+				"E.g.: ad;Admin;mpc.admin;2610db5d-9bb5-47ab-a034-ac7f8c334f95",
+				"E.g.: ad = abbreviation, Admin = display name, mpc.admin = permission to handle all commands of this group, UUID = the UUID",
+				"Group abbreviations may be a maximum of 2 characters, as player names are 3 characters or more!",
+				"Mailboxes for groups can be created using /mailbox -group:<group abbreviation>."});
 	}
 	
 	public void initCommands()
@@ -744,9 +761,9 @@ public class YamlManager
 	
 		basePermission =  "mailbox.cmd.mailbox";
 		commandsInput("mailbox", "mailbox", basePermission, 
-				"/mailbox [[-noowner] | [-cansend] | [-override]]", "/mailbox ", false,
-				"<red>/mailbox [[-noowner] | [-cansend] | [-override]] <white>| Erstellt MailBox. -noowner, ohne Eigentümer. -cansend, kann PMails versenden. -override, überschreibt die eigene alte MailBox auf die neue Position.",
-				"<red>/mailbox [[-noowner] | [-cansend] | [-override]] <white>| Creates MailBox. -noowner, without owner. -cansend, can send PMails. -override, overwrites the old MailBox to the new position.",
+				"/mailbox [[-noowner] | [-group:abbreviation] | [-cansend] | [-override]]", "/mailbox ", false,
+				"<red>/mailbox [[-noowner] | [-group:Kürzel] | [-cansend] | [-override]] <white>| Erstellt MailBox. -noowner, ohne Eigentümer. -group:Kürzel, GruppenMailbox. -cansend, kann PMails versenden. -override, überschreibt die eigene alte MailBox auf die neue Position.",
+				"<red>/mailbox [[-noowner] | [-group:abbreviation] | [-cansend] | [-override]] <white>| Creates MailBox. -noowner, without owner. -group:abbreviation, Groupmailbox. -cansend, can send PMails. -override, overwrites the old MailBox to the new position.",
 				"<aqua>Befehlsrecht für <white>/mailbox",
 				"<aqua>Commandright for <white>/mailbox",
 				"<yellow>Erstellt MailBox. -noowner, ohne Eigentümer. -cansend, kann PMails versenden. -override, überschreibt die eigene alte MailBox auf die neue Position.",
@@ -960,6 +977,14 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Account existiert nicht!",
 						"<red>The account dont exist!"}));
+		languageKeys.put("PlayerOrGroupDontExist", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Der Spieler oder die Gruppe existiert nicht!",
+						"<red>The player or the group does not exist!"}));
+		languageKeys.put("GroupDontExist", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Die Gruppe existiert nicht!",
+						"<red>The group dont exist!"}));
 		languageKeys.put("ServerRestartIsImminent", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Der Server ist im Restart. Es ist möglich kurz davor oder danach etwas zu verschicken!",
@@ -1197,9 +1222,11 @@ public class YamlManager
 		languageKeys.put(path+"Write.Lore", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"",
-						"<gray>Rechtsklicke mit der PMail in die Luft zum öffnen des Briefes!",
+						"<gray>Zum Verschicken, Rechklick auf eine Mailbox oder einen Npc welche verschicken können.",
+						"<gray>Zum Öffnen, Rechtsklick in die Luft!",
 						"",
-						"<gray>Right-click with the PMail in the air to open the letter!"}));
+						"<gray>To send, right-click on a mailbox or an Npc which can send.",
+						"<gray>To open, right-click in the air!"}));
 		languageKeys.put(path+"Write.NotEnoughMaterial", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du hast nicht Materialien um die PMail zu schreiben!",
@@ -1346,10 +1373,22 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast die MailBox von %player% gelöscht.",
 						"<yellow>You have deleted the mailbox of %player%."}));
+		languageKeys.put(path+"Create.GroupCharacterToMany", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Gruppen Mailboxen können nur über deren Kürzel erstellt werden!",
+						"<red>Group mailboxes can only be created via their abbreviation!"}));
+		languageKeys.put(path+"Create.GroupOrNoOwner", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Mailboxen können über keinen Eigentümer oder eine Gruppe verfügen. Aber nicht beides gleichzeitig!",
+						"<red>Mailboxes cannot have an owner or a group. But not both at the same time!"}));
 		languageKeys.put(path+"Create.CannotCreateWithoutOwner", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du kannst keine MailBox ohne Eigentümer erstellen!",
 						"<red>You cannot create a MailBox without an owner!"}));
+		languageKeys.put(path+"Create.CannotCreateWithoutGroup", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<red>Du kannst keine MailBox für eine Gruppe erstellen!",
+						"<red>You cannot create a MailBox for a group!"}));
 		languageKeys.put(path+"Create.CannotCreateWhichCanSend", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Du kannst keine MailBox erstellen, die gleichzeitig auch versenden kann!",
@@ -1370,6 +1409,10 @@ public class YamlManager
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<yellow>Du hast eine MailBox erstellt!",
 						"<yellow>You have created a MailBox!"}));
+		languageKeys.put(path+"Create.Group", 
+				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
+						"<yellow>Für die Gruppe %group% wurde eine Mailbox erstellt!",
+						"<yellow>A mailbox has been created for the group %group%!"}));
 		languageKeys.put(path+"BlockBreak.NoOwner", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<red>Diese Block ist eine Mailbox ohne Eigentümer. Diese kann erst abgebaut werden, wenn diese gelöscht wurde!",
@@ -1399,12 +1442,12 @@ public class YamlManager
 		languageKeys.put(path+"Show", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<white>%value%</white> "
-						+ "<click:run_command:'%mailboxsinfo%%value%'><gray>[</gray><yellow>Info</yellow><gray>]</gray></click> "
-						+ "<click:suggest_command:'%mailboxsdelete%%value%'><gray>[</gray><red>X</red><gray>]</gray></click>",
+						+ "<click:run_command:'%mailboxsinfo%%id%'><gray>[</gray><yellow>Info</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%mailboxsdelete%%id%'><gray>[</gray><red>X</red><gray>]</gray></click>",
 						
 						"<white>%value%</white> "
-						+ "<click:run_command:'%mailboxsinfo%%value%'><gray>[</gray><yellow>Info</yellow><gray>]</gray></click> "
-						+ "<click:suggest_command:'%mailboxsdelete%%value%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
+						+ "<click:run_command:'%mailboxsinfo%%id%'><gray>[</gray><yellow>Info</yellow><gray>]</gray></click> "
+						+ "<click:suggest_command:'%mailboxsdelete%%id%'><gray>[</gray><red>X</red><gray>]</gray></click>"}));
 		languageKeys.put(path+"Info", 
 				new Language(new ISO639_2B[] {ISO639_2B.GER, ISO639_2B.ENG}, new Object[] {
 						"<gray>=====<gold>MailBox</gold> <white>%id%</white><gray>=====",

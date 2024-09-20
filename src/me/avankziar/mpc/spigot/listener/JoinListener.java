@@ -56,7 +56,7 @@ public class JoinListener implements Listener
 			if(ModifierValueEntry.hasPermission(player, pmail))
 			{
 				int pmails = plugin.getMysqlHandler().getCount(MysqlType.PMAIL,
-						"`id` ASC", "`mail_owner` = ? AND `mail_receiver` = ? AND `will_be_delivered` = ?",
+						"`mail_owner` = ? AND `mail_receiver` = ? AND `will_be_delivered` = ?",
 						player.getUniqueId().toString(), player.getUniqueId().toString(), true);
 				if(pmails > 0)
 				{

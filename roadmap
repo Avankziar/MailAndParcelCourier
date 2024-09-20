@@ -1,8 +1,10 @@
 Future Build:
-- Mailbox Abbauprotection einbauen sowie bypass. Wenn der Eigentümer es abbauen. Ihm sagen dass er /mailbox benutzten muss, damit sie gelöscht wird.
 - Gruppen per Config definieren können. Maximal 2 Buchstaben pro Gruppen.
 
 Build 1-1-0:
+- Mysql Änderung: 
+  ALTER TABLE `mpcpmail` ADD `reading_date` BIGINT(20) NOT NULL DEFAULT '0' AFTER `sending_date`;
+  ALTER TABLE `mpcemail` ADD `reading_date` BIGINT(20) NOT NULL DEFAULT '0' AFTER `sending_date`;
 - PMail und Parcel können nun von NPC angenommen werden. Welche NPC das sind, wird über den Config Pfad 'PostmanNPC' festgelegt.
 - Config Pfad kann angeben, welche Items verboten sind zu verschicken.
 - Email welche nicht gelesen sind, werden bei /email nun verschieden farbig angezeigt, als schon gelesen werden.
@@ -10,8 +12,6 @@ Build 1-1-0:
 - PMail & Parcel Items haben nun eine Lore.
 - Join Nachricht erweitert um PMail & Parcel, wenn keine MailBox existiert und für die Befehle die Permission hat.
 - MailBox hat nun eine Abbauprotection. Bypass Permission dafür hinzugefügt.
-- PMail Mysql reading_date bigint(20) hinzufügen
-- EMail Mysql reading_date bigint(20) hinzufügen
 
 Build 1-0-1:
 - Language Pfad wurde hinzugefügt

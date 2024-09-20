@@ -170,12 +170,17 @@ public class MailBoxsCommandExecutor implements CommandExecutor
 			if(uuid != null)
 			{
 				name = plugin.getPlayerDataHandler().getPlayerName(uuid.toString());
+				if(name.equals(uuid.toString()))
+				{
+					name = plugin.getGroupHandler().getGroup(uuid).getDisplayname();
+				}
 			} else
 			{
 				name = String.valueOf(e.getId());
 			}
 			texts.add(plugin.getYamlHandler().getLang().getString("MailBoxs.Show")
 					.replace("%value%", name)
+					.replace("%id%", String.valueOf(e.getId()))
 					.replace("%mailboxsinfo%", CommandSuggest.getCmdString(CommandSuggest.Type.MAILBOXS_INFO))
 					.replace("%mailboxsdelete%", CommandSuggest.getCmdString(CommandSuggest.Type.MAILBOXS_DELETE))
 					);

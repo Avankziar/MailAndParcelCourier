@@ -91,12 +91,14 @@ public class ARGMBs_Info extends ArgumentModule
 				return;
 			}
 		}
+		String owner = mailbox.getOwner() == null ? "/" 
+				: (plugin.getPlayerDataHandler().getPlayerName(mailbox.getOwner().toString()).equals(mailbox.getOwner().toString())
+						? plugin.getGroupHandler().getGroup(mailbox.getOwner()).getDisplayname() 
+						: plugin.getPlayerDataHandler().getPlayerName(mailbox.getOwner().toString()));
 		plugin.getYamlHandler().getLang().getStringList("MailBoxs.Info").stream()
 			.forEach(x -> ChatApi.sendMessage(player, x
 					.replace("%id%", String.valueOf(mailbox.getId()))
-					.replace("%owner%", (mailbox.getOwner() == null 
-							? "/" 
-							: plugin.getPlayerDataHandler().getPlayerName(mailbox.getOwner().toString())))
+					.replace("%owner%", owner)
 					.replace("%server%", mailbox.getServer())
 					.replace("%world%", mailbox.getWorld())
 					.replace("%x%", String.valueOf(mailbox.getX()))

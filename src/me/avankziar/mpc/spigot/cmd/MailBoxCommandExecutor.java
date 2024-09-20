@@ -12,6 +12,7 @@ import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.general.cmdtree.CommandConstructor;
 import me.avankziar.mpc.general.objects.MailBox;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.handler.GroupHandler.Group;
 import me.avankziar.mpc.spigot.modifiervalueentry.Bypass;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
@@ -64,33 +65,66 @@ public class MailBoxCommandExecutor implements CommandExecutor
 			boolean canSendPMail = false;
 			boolean noOwner = false;
 			boolean override = false;
+			String group = null;
 			if(args.length >= 0)
 			{
 				for(int i = 0; i < args.length; i++)
 				{
-					switch(args[i])
+					if(args[i].startsWith("-group:"))
 					{
-					default:
-						break;
-					case "-noowner":
-						if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.CREATE_MAILBOX_WHICH_HAS_NO_OWNER))
+						group = args[i].replace("-group:", "").strip();
+						if(group.length() > 2)
 						{
-							ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.CannotCreateWithoutOwner"));
+							ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.GroupCharacterToMany"));
 							return false;
 						}
-						noOwner = true;
-						break;
-					case "-cansend":
-						if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.CREATE_MAILBOX_WHICH_CAN_SEND))
+						Group g = plugin.getGroupHandler().getGroup(group);
+						if(g == null)
 						{
-							ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.CannotCreateWhichCanSend"));
+							ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("GroupDontExist"));
 							return false;
 						}
-						canSendPMail = true;
-						break;
-					case "-override":
-						override = true;
-						break;
+						if(!player.hasPermission(g.getPermission()))
+						{
+							ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.CannotCreateWithoutGroup"));
+							return false;
+						}
+						if(noOwner)
+						{
+							ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.GroupOrNoOwner"));
+							return false;
+						}
+					} else
+					{
+						switch(args[i])
+						{
+						default:
+							break;
+						case "-noowner":
+							if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.CREATE_MAILBOX_WHICH_HAS_NO_OWNER))
+							{
+								ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.CannotCreateWithoutOwner"));
+								return false;
+							}
+							noOwner = true;
+							if(group != null)
+							{
+								ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.GroupOrNoOwner"));
+								return false;
+							}
+							break;
+						case "-cansend":
+							if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.CREATE_MAILBOX_WHICH_CAN_SEND))
+							{
+								ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.CannotCreateWhichCanSend"));
+								return false;
+							}
+							canSendPMail = true;
+							break;
+						case "-override":
+							override = true;
+							break;
+						}
 					}
 				}
 			}
@@ -101,7 +135,14 @@ public class MailBoxCommandExecutor implements CommandExecutor
 				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.WithoutOwner"));
 			} else
 			{
-				mailbox = plugin.getMailBoxHandler().getMailBox(player.getUniqueId());
+				if(group != null)
+				{
+					Group g = plugin.getGroupHandler().getGroup(group);
+					mailbox = plugin.getMailBoxHandler().getMailBox(g.getUUID());
+				} else
+				{
+					mailbox = plugin.getMailBoxHandler().getMailBox(player.getUniqueId());
+				}
 				if(mailbox != null)
 				{
 					if(!override)
@@ -114,9 +155,18 @@ public class MailBoxCommandExecutor implements CommandExecutor
 					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.Override"));
 				} else
 				{
-					mailbox = new MailBox(0, player.getUniqueId(), plugin.getServername(), block.getLocation(), canSendPMail);
+					if(group != null)
+					{
+						Group g = plugin.getGroupHandler().getGroup(group);
+						mailbox = new MailBox(0, g.getUUID(), plugin.getServername(), block.getLocation(), canSendPMail);		
+						ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.Group")
+								.replace("%group%", g.getDisplayname()));
+					} else
+					{
+						mailbox = new MailBox(0, player.getUniqueId(), plugin.getServername(), block.getLocation(), canSendPMail);
+						ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.YourOwn"));
+					}
 					plugin.getMailBoxHandler().createMailBox(mailbox);
-					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.Create.YourOwn"));
 				}
 			}
 			return true;
@@ -135,6 +185,16 @@ public class MailBoxCommandExecutor implements CommandExecutor
 			} else if(!mailbox.getOwner().equals(player.getUniqueId()))
 			{
 				String other = plugin.getPlayerDataHandler().getPlayerName(mailbox.getOwner().toString());
+				if(other == null)
+				{
+					Group g = plugin.getGroupHandler().getGroup(mailbox.getOwner());
+					if(g == null)
+					{
+						ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerOrGroupDontExist"));
+						return false;
+					}
+					other = g.getDisplayname();
+				}
 				if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.DELETE_MAILBOX_OTHER_PLAYERS))
 				{
 					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.CannotDeleteMailBoxOtherPlayers"));

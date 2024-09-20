@@ -21,6 +21,7 @@ import me.avankziar.mpc.general.database.MysqlType;
 import me.avankziar.mpc.general.objects.PMail;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
+import me.avankziar.mpc.spigot.handler.GroupHandler.Group;
 import me.avankziar.mpc.spigot.modifiervalueentry.ModifierValueEntry;
 
 public class PMailsCommandExecutor implements CommandExecutor
@@ -55,6 +56,16 @@ public class PMailsCommandExecutor implements CommandExecutor
 			}
 			Player player = (Player) sender;
 			UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(args[0]);
+			if(uuid == null)
+			{
+				Group g = plugin.getGroupHandler().getGroup(args[0]);
+				if(g == null)
+				{
+					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerOrGroupDontExist"));
+					return false;
+				}
+				uuid = g.getUUID();
+			}
 			if(uuid != null)
 			{
 				if(!ModifierValueEntry.hasPermission(player, cc))
@@ -75,6 +86,16 @@ public class PMailsCommandExecutor implements CommandExecutor
 			}
 			Player player = (Player) sender;
 			UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(args[0]);
+			if(uuid == null)
+			{
+				Group g = plugin.getGroupHandler().getGroup(args[0]);
+				if(g == null)
+				{
+					ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerOrGroupDontExist"));
+					return false;
+				}
+				uuid = g.getUUID();
+			}
 			if(uuid != null)
 			{
 				if(MatchApi.isInteger(args[1]))

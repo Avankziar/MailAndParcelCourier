@@ -164,7 +164,6 @@ public class PMailCommandExecutor implements CommandExecutor
 			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PMail.HasNoIncomingEMails"));
 			return;
 		}
-		
 		ArrayList<String> texts = new ArrayList<>();
 		texts.add(plugin.getYamlHandler().getLang().getString("PMail.Headline").replace("%page%", String.valueOf(page)));
 		for(PMail e : pmails)

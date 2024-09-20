@@ -14,6 +14,7 @@ import me.avankziar.mpc.general.cmdtree.ArgumentConstructor;
 import me.avankziar.mpc.spigot.MPC;
 import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 import me.avankziar.mpc.spigot.cmdtree.ArgumentModule;
+import me.avankziar.mpc.spigot.handler.GroupHandler.Group;
 
 public class ARGP_Write extends ArgumentModule
 {
@@ -47,9 +48,13 @@ public class ARGP_Write extends ArgumentModule
 		UUID uuid = plugin.getPlayerDataHandler().getPlayerUUID(other);
 		if(uuid == null)
 		{
-			ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerDontExist")
-					.replace("%player%", other));
-			return;
+			Group g = plugin.getGroupHandler().getGroup(other);
+			if(g == null)
+			{
+				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("PlayerOrGroupDontExist"));
+				return;
+			}
+			uuid = g.getUUID();
 		}
 		if(uuid.equals(player.getUniqueId()))
 		{

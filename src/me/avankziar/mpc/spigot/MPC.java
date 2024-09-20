@@ -77,6 +77,7 @@ import me.avankziar.mpc.spigot.database.MysqlHandler;
 import me.avankziar.mpc.spigot.database.MysqlSetup;
 import me.avankziar.mpc.spigot.handler.ConfigHandler;
 import me.avankziar.mpc.spigot.handler.EMailHandler;
+import me.avankziar.mpc.spigot.handler.GroupHandler;
 import me.avankziar.mpc.spigot.handler.IgnoreSenderHandler;
 import me.avankziar.mpc.spigot.handler.MailBoxHandler;
 import me.avankziar.mpc.spigot.handler.PMailHandler;
@@ -112,6 +113,7 @@ public class MPC extends JavaPlugin
 	private PMailHandler pmailhandler;
 	private MailBoxHandler mailboxhandler;
 	private ParcelHandler parcelhandler;
+	private GroupHandler grouphandler;
 	
 	private Administration administrationConsumer;
 	private ValueEntry valueEntryConsumer;
@@ -170,6 +172,7 @@ public class MPC extends JavaPlugin
 		replacerhandler = new ReplacerHandler(plugin);
 		mailboxhandler = new MailBoxHandler(plugin, server);
 		parcelhandler = new ParcelHandler(plugin);
+		grouphandler = new GroupHandler(plugin);
 		
 		backgroundTask = new BackgroundTask(plugin);
 		setupBypassPerm();
@@ -865,5 +868,10 @@ public class MPC extends JavaPlugin
 	public ParcelHandler getParcelHandler()
 	{
 		return parcelhandler;
+	}
+	
+	public GroupHandler getGroupHandler()
+	{
+		return grouphandler;
 	}
 }

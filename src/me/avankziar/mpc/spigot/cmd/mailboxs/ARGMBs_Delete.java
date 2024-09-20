@@ -96,6 +96,10 @@ public class ARGMBs_Delete extends ArgumentModule
 		} else if(!mailbox.getOwner().equals(player.getUniqueId()))
 		{
 			String other = plugin.getPlayerDataHandler().getPlayerName(mailbox.getOwner().toString());
+			if(other.equals(mailbox.getOwner().toString()))
+			{
+				other = plugin.getGroupHandler().getGroup(mailbox.getOwner()).getDisplayname();
+			}
 			if(!ModifierValueEntry.hasPermission(player, Bypass.Permission.DELETE_MAILBOX_OTHER_PLAYERS))
 			{
 				ChatApi.sendMessage(player, plugin.getYamlHandler().getLang().getString("MailBox.CannotDeleteMailBoxOtherPlayers"));

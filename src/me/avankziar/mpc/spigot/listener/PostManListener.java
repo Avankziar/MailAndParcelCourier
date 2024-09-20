@@ -13,7 +13,9 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import me.avankziar.mpc.general.assistance.ChatApi;
 import me.avankziar.mpc.spigot.MPC;
+import me.avankziar.mpc.spigot.assistance.BackgroundTask;
 
 public class PostManListener implements Listener
 {
@@ -59,6 +61,11 @@ public class PostManListener implements Listener
 		}
 		if(isOnCooldown(event.getPlayer().getUniqueId()))
 		{
+			return;
+		}
+		if(BackgroundTask.isServerRestartImminent())
+		{
+			ChatApi.sendMessage(event.getPlayer(), plugin.getYamlHandler().getLang().getString("ServerRestartIsImminent"));
 			return;
 		}
 		setCooldown(event.getPlayer().getUniqueId(), 2, TimeUnit.SECONDS);
