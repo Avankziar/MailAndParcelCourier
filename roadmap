@@ -1,6 +1,10 @@
 Future Build:
 - Gruppen per Config definieren können. Maximal 2 Buchstaben pro Gruppen.
 
+1-2-0
+- Spigot 1.21.4 support
+- Api muss mindestens 1.21.3 oder höher sein.
+
 Build 1-1-0:
 - Mysql Änderung: 
   ALTER TABLE `mpcpmail` ADD `reading_date` BIGINT(20) NOT NULL DEFAULT '0' AFTER `sending_date`;
